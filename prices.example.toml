@@ -1,0 +1,9 @@
+# Copy to prices.toml and fill in from each provider's own pricing page.
+# Units are US dollars per MILLION tokens, which is how providers publish them.
+# prices.toml is gitignored on purpose: keep it local, dated, and never guessed.
+#
+# Checked on: YYYY-MM-DD    <- update whenever you touch this file
+
+# [models."some-model-id"]
+# input_per_mtok = 0.00
+# output_per_mtok = 0.00

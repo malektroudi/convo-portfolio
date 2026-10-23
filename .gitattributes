@@ -1,0 +1,14 @@
+# This repo is written on Windows and runs on Linux (Cloud Run, Cloud Build, CI),
+# so pin the line endings that matter rather than leaving them to core.autocrlf.
+* text=auto
+
+# CRLF in a shell script makes Linux report "bad interpreter: /bin/bash^M".
+*.sh text eol=lf
+Dockerfile text eol=lf
+.dockerignore text eol=lf
+
+# PowerShell is happier with CRLF.
+*.ps1 text eol=crlf
+
+# Written by uv; never hand-merge it.
+uv.lock linguist-generated=true

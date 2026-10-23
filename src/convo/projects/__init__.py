@@ -1,0 +1,12 @@
+"""Each day's project is a module here that calls `ship(day, build)` on import.
+
+Add a day by writing `dayNN_slug.py` with a `build()` that lays out its Gradio
+components, then add the import below. Days that are not imported stay
+"planned" and the hub shows their brief instead of a UI.
+"""
+
+from __future__ import annotations
+
+from convo.projects import day01_hub  # noqa: F401  (import registers the day)
+
+__all__ = ["day01_hub"]

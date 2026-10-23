@@ -1,0 +1,38 @@
+[project]
+name = "convo-portfolio"
+version = "0.1.0"
+description = "Conversational AI engineering portfolio: 21 projects behind one hub."
+requires-python = ">=3.11"
+dependencies = [
+    "gradio>=5.9,<6",
+    "pydantic>=2.9,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<9",
+    "ruff>=0.8,<1",
+]
+
+[project.scripts]
+convo-hub = "convo.hub.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/convo"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+# Gradio layout is nested `with` blocks by design, and so are the span tests.
+ignore = ["SIM117"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
