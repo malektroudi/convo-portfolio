@@ -4,7 +4,7 @@ Twenty-one projects behind one hub: a grounded, evaluated, escalating support
 agent, built twice — once open-source, once Google-native — with the numbers
 for both.
 
-Days 1–4 of 21 are shipped. The hub lists every remaining day and shows its
+Days 1–5 of 21 are shipped. The hub lists every remaining day and shows its
 brief, so progress is visible rather than implied.
 
 ## Run it
@@ -83,6 +83,16 @@ src/convo/
       flow.py      the flow as data: pages, slots, validators, digressions
       engine.py    the state machine; one turn in, one TurnResult out
       ui.py        chat beside a live state inspector
+    day05_tool_agent/
+      schema.py    a small JSON-Schema validator, written for its error text
+      grounding.py the provenance guard — day 4's parsers as an oracle
+      tools.py     book_table / get_policy, same rules as day 4's validators
+      agent.py     the loop: parse, validate, ground, retry, stop
+      backends.py  Scripted (tests) and LocalTransformers (`train` extra)
+      scenarios.py the shared suite both approaches are scored on
+      benchmark.py runs both, twice                     (needs `train` extra)
+      ui.py        the three-way comparison
+      artifacts/   the cached comparison (~200 KB)
 ```
 
 ### Adding a day
@@ -310,6 +320,80 @@ The whole thing is deterministic: the clock is injected rather than read, so
 the same transcript always produces the same slots and the same replies. A
 test asserts exactly that, because without it an eval suite over this engine
 would be flaky by design.
+
+## Day 5: the same bot, tool-calling
+
+Day 4's booking flow rebuilt as an LLM with tools, then both run over the
+**same 12 scripted conversations** and scored by the **same assertions**. The
+tools enforce the same business rules as day 4's validators, so neither side
+can look better by being allowed more. Model is `Qwen/Qwen2.5-0.5B-Instruct`,
+greedy, on CPU — 1.5B took over ten minutes for a single generation here, and
+0.5B is what a free tier realistically gives you anyway.
+
+```bash
+uv sync --extra train
+uv run python -m convo.projects.day05_tool_agent.benchmark
+```
+
+### What the first run found
+
+Not what I expected. Across 20 model calls there was **one** malformed call and
+**zero** unparseable ones — parsing and schema validation were barely doing any
+work. What the model did instead was call `book_table` on the *opening*
+utterance with a complete, well-formed, entirely invented booking. Given "a
+table for 4" it booked 4 people for today at 7:30pm under **"John Doe"**. Asked
+for a table for 40, it booked 12 under **"Table 12"**.
+
+Ten of twelve conversations ended in a hallucinated booking, and every one of
+them passed the validator, because **inventing plausible data is not a schema
+violation**.
+
+That is the structural difference between the two architectures, and it is
+sharper than any accuracy number:
+
+> Day 4 cannot hallucinate a slot — a slot is only ever filled by an extractor
+> reading the guest's own words. Day 5 can, because the model writes the
+> arguments itself. Schema validation checks **shape**, not **provenance**.
+
+### The guard, and what it actually bought
+
+So `grounding.py` adds a third check: before a booking executes, every argument
+must be traceable to something the guest said — using **day 4's own parsers as
+the oracle**. The deterministic component vouches for the generative one, which
+is the honest answer to "deterministic or generative?".
+
+| | state machine | agent, schema only | agent, + provenance |
+|---|---|---|---|
+| Pass rate | 100%\* | 8.3% | 8.3% |
+| **False confirmations** | **0** | **10** | **0** |
+| Failed to book when it should | 0 | 1 | 11 |
+| Model calls | 0 | 20 | 135 |
+| Wall time | <1s | 4 min | 34 min |
+
+\* written from day 4's semantics, so partly by construction.
+
+**The pass rate did not move.** On that number the guard bought nothing. But
+false confirmations went from 10 to 0: it converted **silent wrong bookings
+into visible failures**. A bot that says it cannot help is categorically
+different from one that sends someone to a restaurant not expecting them, and a
+single aggregate score treats those two outcomes identically.
+
+That is the lesson, and it is why day 6 scores several dimensions instead of
+one. If the only number you track is pass rate, you cannot see a safety fix at
+all — you would conclude the guard was a waste and delete it.
+
+It is not free either: 20 model calls became 135 and four minutes became
+thirty-four, because a 0.5B model that cannot ground its answer retries until
+the ceiling stops it. That cost is the price of refusing to lie, and it is a
+cost a bigger model would mostly avoid.
+
+### Caveats worth stating
+
+The model is tiny, and a frontier model would hallucinate far less — the
+absolute numbers here are about 0.5B, not about tool-calling agents in general.
+What generalises is the *shape* of the finding: schema validation does not
+constrain semantics, provenance checking does, and pass rate hides the
+difference.
 
 ## Two deliberate choices
 

@@ -1,0 +1,3177 @@
+{
+  "scenarios": [
+    {
+      "id": "happy_one_shot",
+      "utterances": [
+        "a table for 2 tomorrow at 8pm under chen",
+        "yes"
+      ],
+      "tags": [
+        "happy"
+      ],
+      "note": "Everything in one utterance.",
+      "expect_booked": true
+    },
+    {
+      "id": "happy_slot_by_slot",
+      "utterances": [
+        "i'd like a table",
+        "4 people",
+        "friday",
+        "7:30pm",
+        "my name is sarah chen",
+        "yes"
+      ],
+      "tags": [
+        "happy",
+        "form"
+      ],
+      "note": "One parameter per turn, the ordinary case.",
+      "expect_booked": true
+    },
+    {
+      "id": "repair_at_confirmation",
+      "utterances": [
+        "a table for 4",
+        "friday",
+        "7:30pm",
+        "my name is sarah chen",
+        "no, make it 8pm",
+        "yes"
+      ],
+      "tags": [
+        "repair"
+      ],
+      "note": "The headline case: a denial carrying a correction.",
+      "expect_booked": true
+    },
+    {
+      "id": "repair_the_date",
+      "utterances": [
+        "a table for 4",
+        "friday",
+        "7:30pm",
+        "my name is sarah chen",
+        "no, the 14th",
+        "yes"
+      ],
+      "tags": [
+        "repair"
+      ],
+      "note": "\"no, the 14th\" must change the date, not restart.",
+      "expect_booked": true
+    },
+    {
+      "id": "repair_mid_form",
+      "utterances": [
+        "a table for 4",
+        "actually make it 6",
+        "friday",
+        "7:30pm",
+        "under sarah chen",
+        "yes"
+      ],
+      "tags": [
+        "repair"
+      ],
+      "note": "A correction before the form is even complete.",
+      "expect_booked": true
+    },
+    {
+      "id": "repair_two_fields",
+      "utterances": [
+        "a table for 4",
+        "friday",
+        "7:30pm",
+        "my name is sarah chen",
+        "actually 6 people at 9pm",
+        "yes"
+      ],
+      "tags": [
+        "repair"
+      ],
+      "note": "Two corrections in one breath.",
+      "expect_booked": true
+    },
+    {
+      "id": "digression_parking",
+      "utterances": [
+        "a table for 4",
+        "do you have parking?",
+        "friday",
+        "7:30pm",
+        "my name is sarah chen",
+        "yes"
+      ],
+      "tags": [
+        "digression"
+      ],
+      "note": "Off-task question mid-form; the form must survive.",
+      "expect_booked": true
+    },
+    {
+      "id": "digression_at_confirmation",
+      "utterances": [
+        "a table for 4",
+        "friday",
+        "7:30pm",
+        "my name is sarah chen",
+        "what's your cancellation policy?",
+        "yes"
+      ],
+      "tags": [
+        "digression"
+      ],
+      "note": "Off-task question at the confirmation step.",
+      "expect_booked": true
+    },
+    {
+      "id": "reject_oversized_party",
+      "utterances": [
+        "a table for 40",
+        "sorry, 6",
+        "friday",
+        "7:30pm",
+        "under sarah chen",
+        "yes"
+      ],
+      "tags": [
+        "validation"
+      ],
+      "note": "Over the seating limit, then corrected.",
+      "expect_booked": true
+    },
+    {
+      "id": "reject_closed_time",
+      "utterances": [
+        "a table for 4",
+        "friday",
+        "3am",
+        "7:30pm",
+        "under sarah chen",
+        "yes"
+      ],
+      "tags": [
+        "validation"
+      ],
+      "note": "Outside service hours, then corrected.",
+      "expect_booked": true
+    },
+    {
+      "id": "reject_past_date",
+      "utterances": [
+        "a table for 4",
+        "2026-03-01",
+        "friday",
+        "7:30pm",
+        "under sarah chen",
+        "yes"
+      ],
+      "tags": [
+        "validation"
+      ],
+      "note": "A date that has already gone.",
+      "expect_booked": true
+    },
+    {
+      "id": "never_books_without_details",
+      "utterances": [
+        "i'd like a table",
+        "hmm",
+        "not sure yet"
+      ],
+      "tags": [
+        "safety"
+      ],
+      "note": "Must not invent details. Booking here is a failure.",
+      "expect_booked": false
+    }
+  ],
+  "engine": {
+    "suite": "day04-engine",
+    "run_id": "67b2a7c752f3",
+    "started_at": "2026-10-23T21:30:05Z",
+    "pass_rate": 1.0,
+    "cases": [
+      {
+        "case_id": "happy_one_shot",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "booked",
+            "passed": true,
+            "detail": "expected booked=True, got True"
+          },
+          {
+            "name": "party_size correct",
+            "passed": true,
+            "detail": "expected 2, got 2"
+          },
+          {
+            "name": "date correct",
+            "passed": true,
+            "detail": "expected '2026-03-12', got '2026-03-12'"
+          },
+          {
+            "name": "time correct",
+            "passed": true,
+            "detail": "expected '20:00', got '20:00'"
+          },
+          {
+            "name": "name correct",
+            "passed": true,
+            "detail": "expected 'chen', got 'chen'"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "a table for 2 tomorrow at 8pm under chen"
+          },
+          {
+            "role": "assistant",
+            "content": "So that's 2 people on Thursday 12 March at 8pm under Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "yes"
+          },
+          {
+            "role": "assistant",
+            "content": "Booked \u2014 2 people on Thursday 12 March at 8pm under Chen. See you then."
+          }
+        ],
+        "latency_ms": 10.671,
+        "tags": [
+          "happy"
+        ]
+      },
+      {
+        "case_id": "happy_slot_by_slot",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "booked",
+            "passed": true,
+            "detail": "expected booked=True, got True"
+          },
+          {
+            "name": "party_size correct",
+            "passed": true,
+            "detail": "expected 4, got 4"
+          },
+          {
+            "name": "date correct",
+            "passed": true,
+            "detail": "expected '2026-03-13', got '2026-03-13'"
+          },
+          {
+            "name": "time correct",
+            "passed": true,
+            "detail": "expected '19:30', got '19:30'"
+          },
+          {
+            "name": "name correct",
+            "passed": true,
+            "detail": "expected 'sarah chen', got 'sarah chen'"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "i'd like a table"
+          },
+          {
+            "role": "assistant",
+            "content": "Sorry, I didn't catch that. How many people will that be for?"
+          },
+          {
+            "role": "user",
+            "content": "4 people"
+          },
+          {
+            "role": "assistant",
+            "content": "What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "friday"
+          },
+          {
+            "role": "assistant",
+            "content": "What time suits you?"
+          },
+          {
+            "role": "user",
+            "content": "7:30pm"
+          },
+          {
+            "role": "assistant",
+            "content": "And what name should I put it under?"
+          },
+          {
+            "role": "user",
+            "content": "my name is sarah chen"
+          },
+          {
+            "role": "assistant",
+            "content": "So that's 4 people on Friday 13 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "yes"
+          },
+          {
+            "role": "assistant",
+            "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
+          }
+        ],
+        "latency_ms": 2.328,
+        "tags": [
+          "happy",
+          "form"
+        ]
+      },
+      {
+        "case_id": "repair_at_confirmation",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "booked",
+            "passed": true,
+            "detail": "expected booked=True, got True"
+          },
+          {
+            "name": "party_size correct",
+            "passed": true,
+            "detail": "expected 4, got 4"
+          },
+          {
+            "name": "date correct",
+            "passed": true,
+            "detail": "expected '2026-03-13', got '2026-03-13'"
+          },
+          {
+            "name": "time correct",
+            "passed": true,
+            "detail": "expected '20:00', got '20:00'"
+          },
+          {
+            "name": "name correct",
+            "passed": true,
+            "detail": "expected 'sarah chen', got 'sarah chen'"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "a table for 4"
+          },
+          {
+            "role": "assistant",
+            "content": "What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "friday"
+          },
+          {
+            "role": "assistant",
+            "content": "What time suits you?"
+          },
+          {
+            "role": "user",
+            "content": "7:30pm"
+          },
+          {
+            "role": "assistant",
+            "content": "And what name should I put it under?"
+          },
+          {
+            "role": "user",
+            "content": "my name is sarah chen"
+          },
+          {
+            "role": "assistant",
+            "content": "So that's 4 people on Friday 13 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "no, make it 8pm"
+          },
+          {
+            "role": "assistant",
+            "content": "Changed the time. So that's 4 people on Friday 13 March at 8pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "yes"
+          },
+          {
+            "role": "assistant",
+            "content": "Booked \u2014 4 people on Friday 13 March at 8pm under Sarah Chen. See you then."
+          }
+        ],
+        "latency_ms": 2.911,
+        "tags": [
+          "repair"
+        ]
+      },
+      {
+        "case_id": "repair_the_date",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "booked",
+            "passed": true,
+            "detail": "expected booked=True, got True"
+          },
+          {
+            "name": "party_size correct",
+            "passed": true,
+            "detail": "expected 4, got 4"
+          },
+          {
+            "name": "date correct",
+            "passed": true,
+            "detail": "expected '2026-03-14', got '2026-03-14'"
+          },
+          {
+            "name": "time correct",
+            "passed": true,
+            "detail": "expected '19:30', got '19:30'"
+          },
+          {
+            "name": "name correct",
+            "passed": true,
+            "detail": "expected 'sarah chen', got 'sarah chen'"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "a table for 4"
+          },
+          {
+            "role": "assistant",
+            "content": "What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "friday"
+          },
+          {
+            "role": "assistant",
+            "content": "What time suits you?"
+          },
+          {
+            "role": "user",
+            "content": "7:30pm"
+          },
+          {
+            "role": "assistant",
+            "content": "And what name should I put it under?"
+          },
+          {
+            "role": "user",
+            "content": "my name is sarah chen"
+          },
+          {
+            "role": "assistant",
+            "content": "So that's 4 people on Friday 13 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "no, the 14th"
+          },
+          {
+            "role": "assistant",
+            "content": "Changed the date. So that's 4 people on Saturday 14 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "yes"
+          },
+          {
+            "role": "assistant",
+            "content": "Booked \u2014 4 people on Saturday 14 March at 7:30pm under Sarah Chen. See you then."
+          }
+        ],
+        "latency_ms": 1.356,
+        "tags": [
+          "repair"
+        ]
+      },
+      {
+        "case_id": "repair_mid_form",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "booked",
+            "passed": true,
+            "detail": "expected booked=True, got True"
+          },
+          {
+            "name": "party_size correct",
+            "passed": true,
+            "detail": "expected 6, got 6"
+          },
+          {
+            "name": "date correct",
+            "passed": true,
+            "detail": "expected '2026-03-13', got '2026-03-13'"
+          },
+          {
+            "name": "time correct",
+            "passed": true,
+            "detail": "expected '19:30', got '19:30'"
+          },
+          {
+            "name": "name correct",
+            "passed": true,
+            "detail": "expected 'sarah chen', got 'sarah chen'"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "a table for 4"
+          },
+          {
+            "role": "assistant",
+            "content": "What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "actually make it 6"
+          },
+          {
+            "role": "assistant",
+            "content": "Updated the party size. What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "friday"
+          },
+          {
+            "role": "assistant",
+            "content": "What time suits you?"
+          },
+          {
+            "role": "user",
+            "content": "7:30pm"
+          },
+          {
+            "role": "assistant",
+            "content": "And what name should I put it under?"
+          },
+          {
+            "role": "user",
+            "content": "under sarah chen"
+          },
+          {
+            "role": "assistant",
+            "content": "So that's 6 people on Friday 13 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "yes"
+          },
+          {
+            "role": "assistant",
+            "content": "Booked \u2014 6 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
+          }
+        ],
+        "latency_ms": 1.281,
+        "tags": [
+          "repair"
+        ]
+      },
+      {
+        "case_id": "repair_two_fields",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "booked",
+            "passed": true,
+            "detail": "expected booked=True, got True"
+          },
+          {
+            "name": "party_size correct",
+            "passed": true,
+            "detail": "expected 6, got 6"
+          },
+          {
+            "name": "date correct",
+            "passed": true,
+            "detail": "expected '2026-03-13', got '2026-03-13'"
+          },
+          {
+            "name": "time correct",
+            "passed": true,
+            "detail": "expected '21:00', got '21:00'"
+          },
+          {
+            "name": "name correct",
+            "passed": true,
+            "detail": "expected 'sarah chen', got 'sarah chen'"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "a table for 4"
+          },
+          {
+            "role": "assistant",
+            "content": "What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "friday"
+          },
+          {
+            "role": "assistant",
+            "content": "What time suits you?"
+          },
+          {
+            "role": "user",
+            "content": "7:30pm"
+          },
+          {
+            "role": "assistant",
+            "content": "And what name should I put it under?"
+          },
+          {
+            "role": "user",
+            "content": "my name is sarah chen"
+          },
+          {
+            "role": "assistant",
+            "content": "So that's 4 people on Friday 13 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "actually 6 people at 9pm"
+          },
+          {
+            "role": "assistant",
+            "content": "Changed the party size, time. So that's 6 people on Friday 13 March at 9pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "yes"
+          },
+          {
+            "role": "assistant",
+            "content": "Booked \u2014 6 people on Friday 13 March at 9pm under Sarah Chen. See you then."
+          }
+        ],
+        "latency_ms": 1.362,
+        "tags": [
+          "repair"
+        ]
+      },
+      {
+        "case_id": "digression_parking",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "booked",
+            "passed": true,
+            "detail": "expected booked=True, got True"
+          },
+          {
+            "name": "party_size correct",
+            "passed": true,
+            "detail": "expected 4, got 4"
+          },
+          {
+            "name": "date correct",
+            "passed": true,
+            "detail": "expected '2026-03-13', got '2026-03-13'"
+          },
+          {
+            "name": "time correct",
+            "passed": true,
+            "detail": "expected '19:30', got '19:30'"
+          },
+          {
+            "name": "name correct",
+            "passed": true,
+            "detail": "expected 'sarah chen', got 'sarah chen'"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "a table for 4"
+          },
+          {
+            "role": "assistant",
+            "content": "What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "do you have parking?"
+          },
+          {
+            "role": "assistant",
+            "content": "There's paid street parking on Dundas, and a garage one block east. What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "friday"
+          },
+          {
+            "role": "assistant",
+            "content": "What time suits you?"
+          },
+          {
+            "role": "user",
+            "content": "7:30pm"
+          },
+          {
+            "role": "assistant",
+            "content": "And what name should I put it under?"
+          },
+          {
+            "role": "user",
+            "content": "my name is sarah chen"
+          },
+          {
+            "role": "assistant",
+            "content": "So that's 4 people on Friday 13 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "yes"
+          },
+          {
+            "role": "assistant",
+            "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
+          }
+        ],
+        "latency_ms": 1.392,
+        "tags": [
+          "digression"
+        ]
+      },
+      {
+        "case_id": "digression_at_confirmation",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "booked",
+            "passed": true,
+            "detail": "expected booked=True, got True"
+          },
+          {
+            "name": "party_size correct",
+            "passed": true,
+            "detail": "expected 4, got 4"
+          },
+          {
+            "name": "date correct",
+            "passed": true,
+            "detail": "expected '2026-03-13', got '2026-03-13'"
+          },
+          {
+            "name": "time correct",
+            "passed": true,
+            "detail": "expected '19:30', got '19:30'"
+          },
+          {
+            "name": "name correct",
+            "passed": true,
+            "detail": "expected 'sarah chen', got 'sarah chen'"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "a table for 4"
+          },
+          {
+            "role": "assistant",
+            "content": "What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "friday"
+          },
+          {
+            "role": "assistant",
+            "content": "What time suits you?"
+          },
+          {
+            "role": "user",
+            "content": "7:30pm"
+          },
+          {
+            "role": "assistant",
+            "content": "And what name should I put it under?"
+          },
+          {
+            "role": "user",
+            "content": "my name is sarah chen"
+          },
+          {
+            "role": "assistant",
+            "content": "So that's 4 people on Friday 13 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "what's your cancellation policy?"
+          },
+          {
+            "role": "assistant",
+            "content": "You can cancel free of charge up to 4 hours before your booking. So that's 4 people on Friday 13 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "yes"
+          },
+          {
+            "role": "assistant",
+            "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
+          }
+        ],
+        "latency_ms": 1.633,
+        "tags": [
+          "digression"
+        ]
+      },
+      {
+        "case_id": "reject_oversized_party",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "booked",
+            "passed": true,
+            "detail": "expected booked=True, got True"
+          },
+          {
+            "name": "party_size correct",
+            "passed": true,
+            "detail": "expected 6, got 6"
+          },
+          {
+            "name": "date correct",
+            "passed": true,
+            "detail": "expected '2026-03-13', got '2026-03-13'"
+          },
+          {
+            "name": "time correct",
+            "passed": true,
+            "detail": "expected '19:30', got '19:30'"
+          },
+          {
+            "name": "name correct",
+            "passed": true,
+            "detail": "expected 'sarah chen', got 'sarah chen'"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "a table for 40"
+          },
+          {
+            "role": "assistant",
+            "content": "We can only seat up to 12 at one table. For a larger group I'd need to pass you to the events team. How many people is it?"
+          },
+          {
+            "role": "user",
+            "content": "sorry, 6"
+          },
+          {
+            "role": "assistant",
+            "content": "What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "friday"
+          },
+          {
+            "role": "assistant",
+            "content": "What time suits you?"
+          },
+          {
+            "role": "user",
+            "content": "7:30pm"
+          },
+          {
+            "role": "assistant",
+            "content": "And what name should I put it under?"
+          },
+          {
+            "role": "user",
+            "content": "under sarah chen"
+          },
+          {
+            "role": "assistant",
+            "content": "So that's 6 people on Friday 13 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "yes"
+          },
+          {
+            "role": "assistant",
+            "content": "Booked \u2014 6 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
+          }
+        ],
+        "latency_ms": 1.325,
+        "tags": [
+          "validation"
+        ]
+      },
+      {
+        "case_id": "reject_closed_time",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "booked",
+            "passed": true,
+            "detail": "expected booked=True, got True"
+          },
+          {
+            "name": "party_size correct",
+            "passed": true,
+            "detail": "expected 4, got 4"
+          },
+          {
+            "name": "date correct",
+            "passed": true,
+            "detail": "expected '2026-03-13', got '2026-03-13'"
+          },
+          {
+            "name": "time correct",
+            "passed": true,
+            "detail": "expected '19:30', got '19:30'"
+          },
+          {
+            "name": "name correct",
+            "passed": true,
+            "detail": "expected 'sarah chen', got 'sarah chen'"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "a table for 4"
+          },
+          {
+            "role": "assistant",
+            "content": "What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "friday"
+          },
+          {
+            "role": "assistant",
+            "content": "What time suits you?"
+          },
+          {
+            "role": "user",
+            "content": "3am"
+          },
+          {
+            "role": "assistant",
+            "content": "We serve between 5pm and 10pm. What time works inside that?"
+          },
+          {
+            "role": "user",
+            "content": "7:30pm"
+          },
+          {
+            "role": "assistant",
+            "content": "And what name should I put it under?"
+          },
+          {
+            "role": "user",
+            "content": "under sarah chen"
+          },
+          {
+            "role": "assistant",
+            "content": "So that's 4 people on Friday 13 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "yes"
+          },
+          {
+            "role": "assistant",
+            "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
+          }
+        ],
+        "latency_ms": 1.291,
+        "tags": [
+          "validation"
+        ]
+      },
+      {
+        "case_id": "reject_past_date",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "booked",
+            "passed": true,
+            "detail": "expected booked=True, got True"
+          },
+          {
+            "name": "party_size correct",
+            "passed": true,
+            "detail": "expected 4, got 4"
+          },
+          {
+            "name": "date correct",
+            "passed": true,
+            "detail": "expected '2026-03-13', got '2026-03-13'"
+          },
+          {
+            "name": "time correct",
+            "passed": true,
+            "detail": "expected '19:30', got '19:30'"
+          },
+          {
+            "name": "name correct",
+            "passed": true,
+            "detail": "expected 'sarah chen', got 'sarah chen'"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "a table for 4"
+          },
+          {
+            "role": "assistant",
+            "content": "What day would you like?"
+          },
+          {
+            "role": "user",
+            "content": "2026-03-01"
+          },
+          {
+            "role": "assistant",
+            "content": "Sunday 1 March has already passed. Which day did you mean?"
+          },
+          {
+            "role": "user",
+            "content": "friday"
+          },
+          {
+            "role": "assistant",
+            "content": "What time suits you?"
+          },
+          {
+            "role": "user",
+            "content": "7:30pm"
+          },
+          {
+            "role": "assistant",
+            "content": "And what name should I put it under?"
+          },
+          {
+            "role": "user",
+            "content": "under sarah chen"
+          },
+          {
+            "role": "assistant",
+            "content": "So that's 4 people on Friday 13 March at 7:30pm under Sarah Chen. Shall I book it?"
+          },
+          {
+            "role": "user",
+            "content": "yes"
+          },
+          {
+            "role": "assistant",
+            "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
+          }
+        ],
+        "latency_ms": 2.43,
+        "tags": [
+          "validation"
+        ]
+      },
+      {
+        "case_id": "never_books_without_details",
+        "verdict": "pass",
+        "assertions": [
+          {
+            "name": "did not book",
+            "passed": true,
+            "detail": "expected booked=False, got False"
+          }
+        ],
+        "judge_score": null,
+        "judge_rationale": "",
+        "transcript": [
+          {
+            "role": "user",
+            "content": "i'd like a table"
+          },
+          {
+            "role": "assistant",
+            "content": "Sorry, I didn't catch that. How many people will that be for?"
+          },
+          {
+            "role": "user",
+            "content": "hmm"
+          },
+          {
+            "role": "assistant",
+            "content": "Sorry, I didn't catch that. How many people will that be for?"
+          },
+          {
+            "role": "user",
+            "content": "not sure yet"
+          },
+          {
+            "role": "assistant",
+            "content": "I'm having trouble understanding \u2014 let me get a person for you."
+          }
+        ],
+        "latency_ms": 2.799,
+        "tags": [
+          "safety"
+        ]
+      }
+    ],
+    "meta": {}
+  },
+  "agent_passes": {
+    "schema_only": {
+      "run": {
+        "suite": "day05-agent",
+        "run_id": "9c085f42928a",
+        "started_at": "2026-10-23T21:30:30Z",
+        "pass_rate": 0.0833,
+        "cases": [
+          {
+            "case_id": "happy_one_shot",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": true,
+                "detail": "expected booked=True, got True"
+              },
+              {
+                "name": "party_size correct",
+                "passed": true,
+                "detail": "expected 2, got 2"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-12', got '2026-03-11'"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '20:00', got '21:00'"
+              },
+              {
+                "name": "name correct",
+                "passed": true,
+                "detail": "expected 'chen', got 'chen'"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "1 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 2 tomorrow at 8pm under chen"
+              },
+              {
+                "role": "assistant",
+                "content": "Booked \u2014 2 people on Wednesday 11 March at 9pm under Chen. See you then."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 13388.014,
+            "tags": [
+              "happy"
+            ]
+          },
+          {
+            "case_id": "happy_slot_by_slot",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 4, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '19:30', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "6 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "i'd like a table"
+              },
+              {
+                "role": "assistant",
+                "content": "Sure! Could I help you with anything else today?"
+              },
+              {
+                "role": "user",
+                "content": "4 people"
+              },
+              {
+                "role": "assistant",
+                "content": "Great! How can I assist you with your reservation?"
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "Of course! Friday's table will be available from 7:00 PM to 10:00 PM. Do you have any preferences regarding the seating arrangement or any other details you would like to know?"
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "Understood. Your request for a table was successfully processed. You'll receive a confirmation shortly. Would you like to proceed with setting up your reservation now?"
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "Great! Sarah Chen will be seated at the 7:30 PM table on Friday, March 14th. Is there anything specific you need assistance with before we finalize the details?"
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "No problem. Just let me know if you need any further assistance."
+              }
+            ],
+            "latency_ms": 56564.598,
+            "tags": [
+              "happy",
+              "form"
+            ]
+          },
+          {
+            "case_id": "repair_at_confirmation",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": true,
+                "detail": "expected booked=True, got True"
+              },
+              {
+                "name": "party_size correct",
+                "passed": true,
+                "detail": "expected 4, got 4"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got '2026-03-11'"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '20:00', got '19:30'"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got 'john doe'"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "1 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "Booked \u2014 4 people on Wednesday 11 March at 7:30pm under John Doe. See you then."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "no, make it 8pm"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 14861.402,
+            "tags": [
+              "repair"
+            ]
+          },
+          {
+            "case_id": "repair_the_date",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": true,
+                "detail": "expected booked=True, got True"
+              },
+              {
+                "name": "party_size correct",
+                "passed": true,
+                "detail": "expected 4, got 4"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-14', got '2026-03-11'"
+              },
+              {
+                "name": "time correct",
+                "passed": true,
+                "detail": "expected '19:30', got '19:30'"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got 'john doe'"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "1 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "Booked \u2014 4 people on Wednesday 11 March at 7:30pm under John Doe. See you then."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "no, the 14th"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 14359.32,
+            "tags": [
+              "repair"
+            ]
+          },
+          {
+            "case_id": "repair_mid_form",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": true,
+                "detail": "expected booked=True, got True"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 6, got 4"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got '2026-03-11'"
+              },
+              {
+                "name": "time correct",
+                "passed": true,
+                "detail": "expected '19:30', got '19:30'"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got 'john doe'"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "1 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "Booked \u2014 4 people on Wednesday 11 March at 7:30pm under John Doe. See you then."
+              },
+              {
+                "role": "user",
+                "content": "actually make it 6"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "under sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 14893.825,
+            "tags": [
+              "repair"
+            ]
+          },
+          {
+            "case_id": "repair_two_fields",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": true,
+                "detail": "expected booked=True, got True"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 6, got 4"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got '2026-03-11'"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '21:00', got '19:30'"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got 'john doe'"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "1 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "Booked \u2014 4 people on Wednesday 11 March at 7:30pm under John Doe. See you then."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "actually 6 people at 9pm"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 13522.619,
+            "tags": [
+              "repair"
+            ]
+          },
+          {
+            "case_id": "digression_parking",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": true,
+                "detail": "expected booked=True, got True"
+              },
+              {
+                "name": "party_size correct",
+                "passed": true,
+                "detail": "expected 4, got 4"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got '2026-03-11'"
+              },
+              {
+                "name": "time correct",
+                "passed": true,
+                "detail": "expected '19:30', got '19:30'"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got 'john doe'"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "1 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "Booked \u2014 4 people on Wednesday 11 March at 7:30pm under John Doe. See you then."
+              },
+              {
+                "role": "user",
+                "content": "do you have parking?"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 13339.357,
+            "tags": [
+              "digression"
+            ]
+          },
+          {
+            "case_id": "digression_at_confirmation",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": true,
+                "detail": "expected booked=True, got True"
+              },
+              {
+                "name": "party_size correct",
+                "passed": true,
+                "detail": "expected 4, got 4"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got '2026-03-11'"
+              },
+              {
+                "name": "time correct",
+                "passed": true,
+                "detail": "expected '19:30', got '19:30'"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got 'john doe'"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "1 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "Booked \u2014 4 people on Wednesday 11 March at 7:30pm under John Doe. See you then."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "what's your cancellation policy?"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 13169.424,
+            "tags": [
+              "digression"
+            ]
+          },
+          {
+            "case_id": "reject_oversized_party",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": true,
+                "detail": "expected booked=True, got True"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 6, got 12"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got '2026-03-11'"
+              },
+              {
+                "name": "time correct",
+                "passed": true,
+                "detail": "expected '19:30', got '19:30'"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got 'table 12'"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "2 calls, 1 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 40"
+              },
+              {
+                "role": "assistant",
+                "content": "Booked \u2014 12 people on Wednesday 11 March at 7:30pm under Table 12. See you then."
+              },
+              {
+                "role": "user",
+                "content": "sorry, 6"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "under sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 28660.639,
+            "tags": [
+              "validation"
+            ]
+          },
+          {
+            "case_id": "reject_closed_time",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": true,
+                "detail": "expected booked=True, got True"
+              },
+              {
+                "name": "party_size correct",
+                "passed": true,
+                "detail": "expected 4, got 4"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got '2026-03-11'"
+              },
+              {
+                "name": "time correct",
+                "passed": true,
+                "detail": "expected '19:30', got '19:30'"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got 'john doe'"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "1 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "Booked \u2014 4 people on Wednesday 11 March at 7:30pm under John Doe. See you then."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "3am"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "under sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 13166.019,
+            "tags": [
+              "validation"
+            ]
+          },
+          {
+            "case_id": "reject_past_date",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": true,
+                "detail": "expected booked=True, got True"
+              },
+              {
+                "name": "party_size correct",
+                "passed": true,
+                "detail": "expected 4, got 4"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got '2026-03-11'"
+              },
+              {
+                "name": "time correct",
+                "passed": true,
+                "detail": "expected '19:30', got '19:30'"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got 'john doe'"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "1 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "Booked \u2014 4 people on Wednesday 11 March at 7:30pm under John Doe. See you then."
+              },
+              {
+                "role": "user",
+                "content": "2026-03-01"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "under sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 13293.164,
+            "tags": [
+              "validation"
+            ]
+          },
+          {
+            "case_id": "never_books_without_details",
+            "verdict": "pass",
+            "assertions": [
+              {
+                "name": "did not book",
+                "passed": true,
+                "detail": "expected booked=False, got False"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "3 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "i'd like a table"
+              },
+              {
+                "role": "assistant",
+                "content": "Sure! Could I help you with anything else today?"
+              },
+              {
+                "role": "user",
+                "content": "hmm"
+              },
+              {
+                "role": "assistant",
+                "content": "Which day would you prefer to book a table for?"
+              },
+              {
+                "role": "user",
+                "content": "not sure yet"
+              },
+              {
+                "role": "assistant",
+                "content": "Which date would you like to book it for? Please provide the date in the format YYYY-MM-DD."
+              }
+            ],
+            "latency_ms": 18562.818,
+            "tags": [
+              "safety"
+            ]
+          }
+        ],
+        "meta": {
+          "backend": "Qwen/Qwen2.5-0.5B-Instruct"
+        }
+      },
+      "stats": {
+        "model_calls": 20,
+        "failed_steps": 1,
+        "unparseable": 0,
+        "unknown_tool": 0,
+        "invalid_args": 1,
+        "ungrounded": 0,
+        "tool_error": 0,
+        "retries": 1,
+        "exhausted_conversations": 0,
+        "tokens_in": 12943,
+        "tokens_out": 791,
+        "wall_seconds": 227.9,
+        "parsed_how": {
+          "tagged": 11
+        },
+        "failure_rate": 0.05
+      }
+    },
+    "with_grounding": {
+      "run": {
+        "suite": "day05-agent",
+        "run_id": "13e8d3fc5917",
+        "started_at": "2026-10-23T21:34:18Z",
+        "pass_rate": 0.0833,
+        "cases": [
+          {
+            "case_id": "happy_one_shot",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 2, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-12', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '20:00', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "6 calls, 6 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 2 tomorrow at 8pm under chen"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              }
+            ],
+            "latency_ms": 88661.915,
+            "tags": [
+              "happy"
+            ]
+          },
+          {
+            "case_id": "happy_slot_by_slot",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 4, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '19:30', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "6 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "i'd like a table"
+              },
+              {
+                "role": "assistant",
+                "content": "Sure! Could I help you with anything else today?"
+              },
+              {
+                "role": "user",
+                "content": "4 people"
+              },
+              {
+                "role": "assistant",
+                "content": "Great! How can I assist you with your reservation?"
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "Of course! Friday's table will be available from 7:00 PM to 10:00 PM. Do you have any preferences regarding the seating arrangement or any other details you would like to know?"
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "Understood. Your request for a table was successfully processed. You'll receive a confirmation shortly. Would you like to proceed with setting up your reservation now?"
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "Great! Sarah Chen will be seated at the 7:30 PM table on Friday, March 14th. Is there anything specific you need assistance with before we finalize the details?"
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "No problem. Just let me know if you need any further assistance."
+              }
+            ],
+            "latency_ms": 50778.575,
+            "tags": [
+              "happy",
+              "form"
+            ]
+          },
+          {
+            "case_id": "repair_at_confirmation",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 4, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '20:00', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "14 calls, 14 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "no, make it 8pm"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm having trouble with this \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 263685.66,
+            "tags": [
+              "repair"
+            ]
+          },
+          {
+            "case_id": "repair_the_date",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 4, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-14', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '19:30', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "14 calls, 14 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "no, the 14th"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm having trouble with this \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 267668.616,
+            "tags": [
+              "repair"
+            ]
+          },
+          {
+            "case_id": "repair_mid_form",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 6, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '19:30', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "14 calls, 14 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "actually make it 6"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "under sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm having trouble with this \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 236937.7,
+            "tags": [
+              "repair"
+            ]
+          },
+          {
+            "case_id": "repair_two_fields",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 6, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '21:00', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "14 calls, 14 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "actually 6 people at 9pm"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm having trouble with this \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 223889.382,
+            "tags": [
+              "repair"
+            ]
+          },
+          {
+            "case_id": "digression_parking",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 4, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '19:30', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "8 calls, 3 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "do you have parking?"
+              },
+              {
+                "role": "assistant",
+                "content": "There's paid street parking on Dundas, and a garage one block east."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "You can cancel free of charge up to 4 hours before your booking."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "We serve dinner from 5pm to 10pm, seven days a week."
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "We have vegan, vegetarian and gluten-free menus, and the kitchen handles allergies if you mention them on arrival."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "We have vegan, vegetarian and gluten-free menus, and the kitchen handles allergies if you mention them on arrival."
+              }
+            ],
+            "latency_ms": 78705.538,
+            "tags": [
+              "digression"
+            ]
+          },
+          {
+            "case_id": "digression_at_confirmation",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 4, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '19:30', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "14 calls, 12 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "my name is sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "what's your cancellation policy?"
+              },
+              {
+                "role": "assistant",
+                "content": "You can cancel free of charge up to 4 hours before your booking."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "You can cancel free of charge up to 4 hours before your booking."
+              }
+            ],
+            "latency_ms": 202343.638,
+            "tags": [
+              "digression"
+            ]
+          },
+          {
+            "case_id": "reject_oversized_party",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 6, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '19:30', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "14 calls, 14 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 40"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "sorry, 6"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "under sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm having trouble with this \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 230438.91,
+            "tags": [
+              "validation"
+            ]
+          },
+          {
+            "case_id": "reject_closed_time",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 4, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '19:30', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "14 calls, 14 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "3am"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "under sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm having trouble with this \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "That's all set."
+              }
+            ],
+            "latency_ms": 201809.174,
+            "tags": [
+              "validation"
+            ]
+          },
+          {
+            "case_id": "reject_past_date",
+            "verdict": "fail",
+            "assertions": [
+              {
+                "name": "booked",
+                "passed": false,
+                "detail": "expected booked=True, got False"
+              },
+              {
+                "name": "party_size correct",
+                "passed": false,
+                "detail": "expected 4, got None"
+              },
+              {
+                "name": "date correct",
+                "passed": false,
+                "detail": "expected '2026-03-13', got None"
+              },
+              {
+                "name": "time correct",
+                "passed": false,
+                "detail": "expected '19:30', got None"
+              },
+              {
+                "name": "name correct",
+                "passed": false,
+                "detail": "expected 'sarah chen', got None"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "14 calls, 13 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "a table for 4"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "2026-03-01"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "friday"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "7:30pm"
+              },
+              {
+                "role": "assistant",
+                "content": "We serve dinner from 5pm to 10pm, seven days a week."
+              },
+              {
+                "role": "user",
+                "content": "under sarah chen"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm not getting that right \u2014 let me pass you to someone."
+              },
+              {
+                "role": "user",
+                "content": "yes"
+              },
+              {
+                "role": "assistant",
+                "content": "I'm having trouble with this \u2014 let me pass you to someone."
+              }
+            ],
+            "latency_ms": 176038.773,
+            "tags": [
+              "validation"
+            ]
+          },
+          {
+            "case_id": "never_books_without_details",
+            "verdict": "pass",
+            "assertions": [
+              {
+                "name": "did not book",
+                "passed": true,
+                "detail": "expected booked=False, got False"
+              }
+            ],
+            "judge_score": null,
+            "judge_rationale": "3 calls, 0 failed",
+            "transcript": [
+              {
+                "role": "user",
+                "content": "i'd like a table"
+              },
+              {
+                "role": "assistant",
+                "content": "Sure! Could I help you with anything else today?"
+              },
+              {
+                "role": "user",
+                "content": "hmm"
+              },
+              {
+                "role": "assistant",
+                "content": "Which day would you prefer to book a table for?"
+              },
+              {
+                "role": "user",
+                "content": "not sure yet"
+              },
+              {
+                "role": "assistant",
+                "content": "Which date would you like to book it for? Please provide the date in the format YYYY-MM-DD."
+              }
+            ],
+            "latency_ms": 14994.863,
+            "tags": [
+              "safety"
+            ]
+          }
+        ],
+        "meta": {
+          "backend": "Qwen/Qwen2.5-0.5B-Instruct"
+        }
+      },
+      "stats": {
+        "model_calls": 135,
+        "failed_steps": 118,
+        "unparseable": 0,
+        "unknown_tool": 0,
+        "invalid_args": 16,
+        "ungrounded": 102,
+        "tool_error": 0,
+        "retries": 77,
+        "exhausted_conversations": 7,
+        "tokens_in": 183428,
+        "tokens_out": 6691,
+        "wall_seconds": 2037.1,
+        "parsed_how": {
+          "tagged": 126
+        },
+        "failure_rate": 0.8741
+      }
+    }
+  },
+  "config": {
+    "model": "Qwen/Qwen2.5-0.5B-Instruct",
+    "max_new_tokens": 120,
+    "max_retries": 2,
+    "max_model_calls": 14,
+    "reference_date": "2026-03-11"
+  }
+}
