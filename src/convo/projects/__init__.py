@@ -11,6 +11,12 @@ from convo.projects import (
     day01_hub,  # noqa: F401  (import registers the day)
     day02_intent_nlu,  # noqa: F401
     day03_embed_router,  # noqa: F401
+    day04_dialog_engine,  # noqa: F401
 )
 
-__all__ = ["day01_hub", "day02_intent_nlu", "day03_embed_router"]
+__all__ = [
+    "day01_hub",
+    "day02_intent_nlu",
+    "day03_embed_router",
+    "day04_dialog_engine",
+]

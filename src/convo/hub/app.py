@@ -54,13 +54,22 @@ def build_hub() -> gr.Blocks:
         fill_width=True,
         analytics_enabled=False,
     ) as demo:
+        # Nested by week on purpose: 21 tabs in one strip overflow the bar and
+        # every day past the third becomes unreachable by clicking. Four
+        # top-level tabs with seven each fits at laptop width.
+        grouped = by_week()
         with gr.Tabs():
             with gr.Tab("Overview"):
                 _landing()
-            for project in projects():
-                with gr.Tab(project.label):
-                    if project.builder is not None:
-                        project.builder()
-                    else:
-                        _placeholder(project)
+            for week in WEEKS:
+                days = grouped.get(week.number, [])
+                done = sum(p.status == "shipped" for p in days)
+                with gr.Tab(f"Week {week.number} ({done}/{len(days)})"):
+                    with gr.Tabs():
+                        for project in days:
+                            with gr.Tab(project.label):
+                                if project.builder is not None:
+                                    project.builder()
+                                else:
+                                    _placeholder(project)
     return demo

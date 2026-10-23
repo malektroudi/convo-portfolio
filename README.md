@@ -4,7 +4,7 @@ Twenty-one projects behind one hub: a grounded, evaluated, escalating support
 agent, built twice — once open-source, once Google-native — with the numbers
 for both.
 
-Days 1–3 of 21 are shipped. The hub lists every remaining day and shows its
+Days 1–4 of 21 are shipped. The hub lists every remaining day and shows its
 brief, so progress is visible rather than implied.
 
 ## Run it
@@ -78,6 +78,11 @@ src/convo/
       results.py   loads the cached comparison
       ui.py        the tab
       artifacts/   both approaches' score matrices (~6 MB)
+    day04_dialog_engine/
+      extract.py   deterministic parsers — dates, times, counts, names
+      flow.py      the flow as data: pages, slots, validators, digressions
+      engine.py    the state machine; one turn in, one TurnResult out
+      ui.py        chat beside a live state inspector
 ```
 
 ### Adding a day
@@ -230,6 +235,81 @@ needs only a handful of examples, check what its nearest neighbours in the
 existing taxonomy are. Few-shot routing works when an intent occupies its own
 region of embedding space and fails when it overlaps an existing one — and you
 can measure that before collecting any data.
+
+## Day 4: the dialogue engine, with no model in it
+
+A restaurant booking as an explicit state machine — pages, a form of typed
+parameters, per-slot validators, a confirmation step, routes between them.
+Intent and entity handling are patterns and parsers, not a model. This is the
+same shape Conversational Agents (formerly Dialogflow CX) gives you, written
+out so the mechanism is visible rather than drawn in a console; **day 19
+rebuilds this exact flow in the managed product and compares the two.**
+
+Nothing to train and no artifact to build — `uv run python -m convo.hub` and
+open Week 1 → day 04. Four scripted conversations replay from buttons.
+
+### The two cases that matter
+
+Everything else in a booking bot is bookkeeping. These two are where demos
+fall over:
+
+**Repair.** At the confirmation, "no, make it 8pm" has to change the time and
+re-confirm — not read the "no" as a rejection and dump the user into a menu.
+The engine checks for a correction *before* a plain yes/no, so a denial
+carrying a value is a repair and a bare denial is an amend:
+
+```
+bot:  So that's 4 people on Friday 13 March at 7:30pm under Sarah. Shall I book it?
+user: no, make it 8pm
+bot:  Changed the time. So that's 4 people on Friday 13 March at 8pm under Sarah. Shall I book it?
+```
+
+**Digression.** An off-task question mid-form has to be answered and then
+resume at the *same* slot, with the form intact:
+
+```
+user: a table for 4
+bot:  What day would you like?
+user: do you have parking?
+bot:  There's paid street parking on Dundas, and a garage one block east.
+      What day would you like?
+```
+
+Digressions are checked before form filling, so "do you have parking?" is
+never mined for a date, and they don't count against the failed-prompt counter
+that escalates to a human.
+
+### Decisions worth defending
+
+**Ambiguous input is refused, not guessed.** `3/4` is April 3rd to most of the
+world and March 4th in the US. The parser returns nothing and the bot asks,
+which costs one turn; guessing books the wrong night. ISO dates are accepted
+because they are unambiguous.
+
+**Names need a carrier phrase.** "my name is sarah" and "under okonkwo" parse;
+a bare word does not. Free-form name guessing writes *Friday* on the
+reservation.
+
+**A rejected value keeps the old one.** An invalid correction at the
+confirmation ("no, make it 3am") is refused and the existing time survives, so
+a bad repair cannot empty a filled form.
+
+**Three failed prompts escalate.** Not a retry loop — the counter resets on
+any progress, and digressions don't count. Day 13 builds the real handoff on
+top of this.
+
+### Observability is the deliverable
+
+Every turn returns a `TurnResult` recording what was extracted, which slots
+filled or were overwritten, which were rejected and why, the page move, the
+transition reason and the turn time. That record is what the live inspector
+renders, and it is what day 6's eval harness will assert against — the engine
+is observable by construction rather than by adding logging afterwards.
+
+The whole thing is deterministic: the clock is injected rather than read, so
+the same transcript always produces the same slots and the same replies. A
+test asserts exactly that, because without it an eval suite over this engine
+would be flaky by design.
 
 ## Two deliberate choices
 
