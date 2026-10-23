@@ -141,11 +141,22 @@ class TestRegistry:
         assert registry.get(1).status == "shipped"
         assert registry.get(1).builder is not None
 
-    def test_planned_days_have_a_brief_and_no_builder(self):
+    def test_shipped_days_have_a_builder_and_planned_days_do_not(self):
+        import convo.projects  # noqa: F401
+
+        shipped = registry.shipped()
         planned = [p for p in registry.projects() if p.status == "planned"]
-        assert planned, "day 1 should be the only shipped day at this point"
+
+        assert shipped, "at least day 1 should be shipped"
+        assert all(p.builder is not None for p in shipped)
+        assert planned, "the plan is not finished yet"
         assert all(p.brief.strip() for p in planned)
         assert all(p.builder is None for p in planned)
+
+    def test_day_two_is_shipped(self):
+        import convo.projects  # noqa: F401
+
+        assert registry.get(2).status == "shipped"
 
     def test_shipping_an_unknown_day_is_an_error(self):
         with pytest.raises(KeyError):

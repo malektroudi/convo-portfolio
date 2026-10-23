@@ -61,7 +61,21 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(payload, default=str, ensure_ascii=False)
 
 
-def setup(level: str | None = None) -> None:
+# Libraries that log every HTTP request at INFO. At our own INFO level they
+# bury the lines we actually wrote, so they get clamped unless asked for.
+NOISY = (
+    "httpx",
+    "httpcore",
+    "urllib3",
+    "filelock",
+    "fsspec",
+    "huggingface_hub",
+    "asyncio",
+    "matplotlib",
+)
+
+
+def setup(level: str | None = None, quiet_libraries: bool = True) -> None:
     """Install the JSON formatter on the root logger. Safe to call twice."""
     resolved = (level or os.environ.get("LOG_LEVEL") or "INFO").upper()
     root = logging.getLogger()
@@ -71,6 +85,9 @@ def setup(level: str | None = None) -> None:
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(JsonFormatter())
     root.addHandler(handler)
+    if quiet_libraries:
+        for name in NOISY:
+            logging.getLogger(name).setLevel(logging.WARNING)
 
 
 def get_logger(name: str) -> logging.Logger:

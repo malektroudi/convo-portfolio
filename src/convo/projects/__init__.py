@@ -7,6 +7,9 @@ components, then add the import below. Days that are not imported stay
 
 from __future__ import annotations
 
-from convo.projects import day01_hub  # noqa: F401  (import registers the day)
+from convo.projects import (
+    day01_hub,  # noqa: F401  (import registers the day)
+    day02_intent_nlu,  # noqa: F401
+)
 
-__all__ = ["day01_hub"]
+__all__ = ["day01_hub", "day02_intent_nlu"]

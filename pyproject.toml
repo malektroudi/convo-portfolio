@@ -5,6 +5,7 @@ description = "Conversational AI engineering portfolio: 21 projects behind one h
 requires-python = ">=3.11"
 dependencies = [
     "gradio>=5.9,<6",
+    "numpy>=1.26,<3",
     "pydantic>=2.9,<3",
 ]
 
@@ -12,6 +13,13 @@ dependencies = [
 dev = [
     "pytest>=8.3,<9",
     "ruff>=0.8,<1",
+]
+# Training only. Deliberately NOT a runtime dependency: the hub serves cached
+# logits, so the Cloud Run image stays small enough for the free tier.
+train = [
+    "torch>=2.5,<3",
+    "transformers>=4.46,<6",
+    "datasets>=3.0,<5",
 ]
 
 [project.scripts]

@@ -10,3 +10,8 @@ build/
 .gradio/
 runs/
 prices.toml
+models/
+*.log
+clinc_probe.json
+# The training CLI's own scratch output; the kept artifact lives in the package.
+/artifacts/
