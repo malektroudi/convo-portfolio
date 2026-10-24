@@ -42,13 +42,23 @@ jobs:
       - name: Boot it and check it serves
         run: |
           docker run -d --name hub -p 8080:8080 convo-portfolio:ci
-          for i in $(seq 1 30); do
-            if curl -fsS http://localhost:8080/ >/dev/null 2>&1; then
-              echo "hub answered after ${i}s"
-              exit 0
-            fi
-            sleep 1
-          done
-          echo "hub never answered; logs follow" >&2
-          docker logs hub >&2
-          exit 1
+          # Gradio's first paint in a cold container took ~20s locally, so the
+          # retry window is generous and paced. curl's own retry is used rather
+          # than a bare loop, which otherwise burns every attempt in a second.
+          if curl -fsS --retry 60 --retry-delay 2 --retry-all-errors \
+               --retry-connrefused -o /dev/null http://localhost:8080/; then
+            echo "hub answered"
+          else
+            echo "hub never answered; logs follow" >&2
+            docker logs hub >&2
+            exit 1
+          fi
+
+      - name: The image must not carry torch
+        run: |
+          # The whole point of caching artifacts is that the runtime stays small.
+          if docker run --rm convo-portfolio:ci python -c "import torch" 2>/dev/null; then
+            echo "torch leaked into the runtime image" >&2
+            exit 1
+          fi
+          echo "no torch in the image, as intended"

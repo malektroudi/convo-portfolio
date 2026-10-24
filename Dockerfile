@@ -10,7 +10,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Dependencies first, so a source-only change does not reinstall the world.
-COPY pyproject.toml README.md ./
+# No README.md here: .dockerignore excludes *.md to keep the image lean, and
+# pyproject declares no `readme` field, so the build does not need it. Copying
+# it anyway is what broke this build until the image was first exercised.
+COPY pyproject.toml ./
 COPY src/ ./src/
 RUN pip install --no-cache-dir .
 
