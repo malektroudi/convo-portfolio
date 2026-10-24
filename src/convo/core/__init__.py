@@ -5,7 +5,16 @@ point: the projects change, these do not.
 """
 
 from convo.core.costs import Call, CostMeter, Price, UnpricedModel
-from convo.core.evals import Assertion, CaseResult, Comparison, EvalRun
+from convo.core.evals import (
+    DIMENSIONS,
+    EFFICIENCY,
+    SAFETY,
+    TASK,
+    Assertion,
+    CaseResult,
+    Comparison,
+    EvalRun,
+)
 from convo.core.logging import get_logger, setup
 from convo.core.registry import (
     PLAN,
@@ -22,7 +31,11 @@ from convo.core.registry import (
 from convo.core.tracing import Span, Trace, current_trace, span, trace
 
 __all__ = [
+    "DIMENSIONS",
+    "EFFICIENCY",
     "PLAN",
+    "SAFETY",
+    "TASK",
     "WEEKS",
     "Assertion",
     "Call",

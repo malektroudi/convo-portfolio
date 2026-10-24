@@ -4,7 +4,7 @@ Twenty-one projects behind one hub: a grounded, evaluated, escalating support
 agent, built twice — once open-source, once Google-native — with the numbers
 for both.
 
-Days 1–5 of 21 are shipped. The hub lists every remaining day and shows its
+Days 1–6 of 21 are shipped. The hub lists every remaining day and shows its
 brief, so progress is visible rather than implied.
 
 ## Run it
@@ -93,6 +93,14 @@ src/convo/
       benchmark.py runs both, twice                     (needs `train` extra)
       ui.py        the three-way comparison
       artifacts/   the cached comparison (~200 KB)
+    day06_eval_harness/
+      outcome.py   one shape both bots report into
+      suite.py     32 scripted conversations, day 5's twelve plus twenty
+      scorers.py   deterministic checks, each tagged with its dimension
+      harness.py   adapters + the run loop
+      gate.py      the CI gate: thresholds and a baseline diff
+      ui.py        the scoreboard CI blocks on
+      baselines/   the committed reference run
 ```
 
 ### Adding a day
@@ -394,6 +402,87 @@ absolute numbers here are about 0.5B, not about tool-calling agents in general.
 What generalises is the *shape* of the finding: schema validation does not
 constrain semantics, provenance checking does, and pass rate hides the
 difference.
+
+## Day 6: the eval harness CI blocks on
+
+32 scripted conversations — day 5's twelve, imported rather than copied, plus
+twenty aimed at safety — scored on three dimensions with three different bars
+and judged against a committed baseline.
+
+```bash
+uv run python -m convo.projects.day06_eval_harness.gate
+uv run python -m convo.projects.day06_eval_harness.gate --update-baseline
+```
+
+### Why three numbers instead of one
+
+Day 5 made the case. A guard there eliminated **ten false confirmations** and
+the pass rate did not move, because a single score counts *booked the wrong
+table* and *booked nothing* as the same kind of wrong. On that number the fix
+looked worthless and you would delete it.
+
+So every assertion carries a dimension, and each gets its own bar:
+
+| dimension | bar | asks |
+|---|---|---|
+| **safety** | 100% | did it avoid lying about state, inventing details, echoing secrets? |
+| **task** | 90% | did it do what the guest asked, with the right details? |
+| **efficiency** | 90% | did it get there without wasting turns or model calls? |
+
+Safety is held to 1.0 deliberately. A bot that fails to help is recoverable; a
+bot that tells a guest their table is booked when it is not sends someone to a
+restaurant that is not expecting them. Those do not belong on one scale.
+
+### The gate fails two different ways
+
+A **threshold breach** is absolute — below the bar, regardless of history. A
+**regression** is relative — something that used to pass now does not, even
+when the absolute numbers still clear the bar. The second exists because the
+mirror image of day 5's finding (a change that quietly trades safety for task
+success) sails through any gate watching one number. `EvalRun.compare()`
+reports regressions *per dimension*, so a flat pass rate cannot hide one.
+
+### A suite nobody has seen fail is not a suite
+
+Day 4 scores **100% on all three dimensions**, which is an honest result for a
+deterministic state machine — it genuinely cannot invent a slot or echo a card
+number. But that also means the suite proves nothing by passing. So the tests
+drive deliberately broken bots and assert the right axis catches each:
+
+- a bot that invents a name → **safety** drops, efficiency untouched
+- a bot that books everything → **task and safety** both drop
+- a bot that echoes every user message back → **safety** only, and at least the
+  three PII scenarios
+- a bot that takes 99 turns → **efficiency** zero, task and safety untouched
+
+That the dimensions move independently is the evidence they are measuring
+different things.
+
+### A scorer bug worth recording
+
+The first run flagged three of day 4's conversations for "invented details".
+All three were false positives: the scorer was substring-matching, so a bot
+that correctly resolved "friday" to `2026-03-13` looked like it had made the
+date up. The fix was to stop writing a second, worse oracle and reuse day 5's
+`grounding.py`, which resolves the guest's words before comparing. One
+grounding oracle now validates both bots, which is also what keeps the
+comparison fair.
+
+### What is deliberately not here
+
+**There is no LLM judge.** The plan called for one, and rubric-scored judging
+is the right tool for the subjective dimensions a mechanical assertion cannot
+reach — tone, whether a reply actually answered. It is not here because a judge
+you have not validated is just a second unvalidated model, and the only models
+available were a 0.5B local model that day 5 measured as unreliable and a
+Gemini key that does not exist yet. An unvalidated judge would have added noise
+to a gate whose entire value is that it is trustworthy enough to block a build.
+
+The harness is shaped to take one: scorers are pluggable and return dimensioned
+assertions, so a judge is another scorer. What it would need first is an
+agreement check — run the judge over cases whose verdict is mechanically known,
+and measure how often it agrees — because a judge that disagrees with ground
+truth should not be trusted on anything softer.
 
 ## Two deliberate choices
 

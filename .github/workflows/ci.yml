@@ -28,6 +28,15 @@ jobs:
       - name: Test
         run: uv run pytest -q
 
+      # The conversational eval gate. Separate from the unit tests on purpose:
+      # these are end-to-end conversations scored on task, safety and
+      # efficiency, judged against a committed baseline. A change that trades
+      # safety for task success leaves the overall pass rate flat, so the gate
+      # watches each dimension and the diff against the baseline, not one
+      # number. Safety's bar is 1.0.
+      - name: Conversational evals
+        run: uv run python -m convo.projects.day06_eval_harness.gate
+
   # The container is what Cloud Run actually runs, so build it on every PR.
   # Day 6 extends this job with the eval suite, and day 18 turns the eval
   # pass rate into a deploy gate.
