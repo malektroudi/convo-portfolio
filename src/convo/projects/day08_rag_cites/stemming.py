@@ -29,6 +29,21 @@ from __future__ import annotations
 # Doubled consonants that an -ed or -ing ending created: "stopped" -> "stopp".
 DOUBLED = "bdfglmnprt"
 
+MIN_STEM = 3
+"""Shortest stem a strip may leave.
+
+Without it the rules fire on words that merely *end* in a suffix. "need" is
+not a past tense, but it ends in -ed, so stripping gave "ne" — while "needs"
+gave "need" and "needed" gave "need", so the base form was the one word in its
+own family that did not match. "added" lost its doubled consonant down to
+"ad". Day 11's lexicon found both, because document headings exercise
+vocabulary the retrieval path never reached.
+
+A strip that would leave less than this is not taken at all, rather than
+falling through to a weaker rule: "goes" is better left alone than reduced to
+"goe", which matches nothing either and is harder to reason about.
+"""
+
 
 def stem(word: str) -> str:
     """Reduce a lowercase word to a form its inflections share."""
@@ -46,8 +61,18 @@ def stem(word: str) -> str:
     elif len(stemmed) > 3 and stemmed.endswith("s") and not stemmed.endswith("ss"):
         stemmed = stemmed[:-1]
 
+    if len(stemmed) < MIN_STEM:
+        return word
+
     # "stopped" -> "stopp" -> "stop", so it meets "stop" and "stopping".
-    if stripped_verb and len(stemmed) > 2 and stemmed[-1] == stemmed[-2] and stemmed[-1] in DOUBLED:
+    # Skipped rather than abandoned when it would overshoot: "added" -> "add"
+    # is already right, and undoubling it to "ad" is what broke it.
+    if (
+        stripped_verb
+        and len(stemmed) > MIN_STEM
+        and stemmed[-1] == stemmed[-2]
+        and stemmed[-1] in DOUBLED
+    ):
         stemmed = stemmed[:-1]
 
     # The step that makes the forms actually converge.

@@ -861,7 +861,11 @@ paraphrase is likelier to differ from the passage by an inflection than a
 keyword question is. It does not come close to closing the gap.
 
 That is day 11's problem, not a reranker's: a question that shares no words
-with its answer needs rewriting before retrieval, not reordering after.
+with its answer needs rewriting before retrieval, not reordering after. Day 11
+tested that and found it only half true — rewriting helps the dense and
+reranked stacks and *hurts* BM25, and the one question here that no condition
+rescues is rescued by nothing day 11 tried either, including a hand-written
+standalone rewrite.
 
 ### A confound worth naming
 
@@ -1009,6 +1013,186 @@ A regex bug worth recording: the obvious card pattern
 ate the space after the number *and* made the same card redact to two different
 placeholders depending on what followed it. It now always ends on a digit.
 
+## Day 11: multi-turn RAG, and a rewriter that mostly does not help
+
+Day 9 ended by saying a question that shares no words with its answer needs
+rewriting *before* retrieval rather than reordering after. Day 11 tests that,
+and the answer is more awkward than the prediction.
+
+```bash
+uv run python -m convo.projects.day11_multiturn_rag.build
+```
+
+Twelve conversations, 32 turns, **20 of them follow-ups** that do not stand on
+their own — *"is it free on Sundays"*, *"what about for a private event"*,
+*"how much is it"*. Opening turns are scored separately throughout: they are
+standalone by construction, and averaging them in would dilute every
+difference with twelve questions no rewriter touches.
+
+### Four conditions, because three of them are baselines
+
+| | |
+|---|---|
+| `raw` | the follow-up as typed — what single-turn RAG actually receives |
+| `concat` | the previous turn glued on — the cheap fix, and the honest baseline |
+| `rewrite` | four rules: pronoun, substitute, ellipsis, carryover |
+| `oracle` | the hand-written standalone question — the ceiling |
+
+The oracle is the point. Any rewriter beats doing nothing on *"is it free on
+Sundays"*, so "we improved on raw" is not a finding. The useful question is how
+much of the **available** improvement gets captured, and that needs a ceiling.
+The oracles were written by hand before any rule existed, so the rules were not
+tuned to hit them.
+
+### The result, and it is not the one I expected
+
+Follow-up turns only, structural chunking, 49 chunks:
+
+| retriever | raw | concat | rewrite | oracle | gap closed |
+|---|---|---|---|---|---|
+| bm25 | **0.727** | 0.654 | 0.713 | 0.836 | **−13%** |
+| dense | 0.642 | 0.607 | 0.713 | 0.825 | **+39%** |
+| hybrid + rerank | 0.706 | 0.722 | 0.749 | 0.900 | **+22%** |
+
+*MRR. "Gap closed" is how far rewriting travels from `raw` towards `oracle`.*
+
+**Rule-based rewriting helps semantic retrieval and hurts lexical retrieval**,
+and the mechanism is mechanical rather than mysterious. Resolving a pronoun
+replaces one stopword with a multi-word article title. For an embedding that is
+extra context and the vector sharpens. For BM25 it is three more terms
+competing for weight, and they point at the article the conversation *started*
+in rather than the one it has moved to:
+
+```
+and if it is five days before              -> rank 1  (five, days already match)
+and if private events is five days before  -> rank 4  (pulled back to turn 1)
+```
+
+**Gluing the previous turn on is worse than doing nothing** on two retrievers
+out of three. It is what most systems reach for first, it costs nothing, and on
+this set it costs 0.07 MRR on BM25.
+
+**The ceiling rises with retriever quality.** The reranker has both the best
+oracle (0.900) and one of the larger gaps left unclosed. A better retriever
+does not make rewriting less worthwhile — it raises what good rewriting is
+worth, which is the opposite of the intuition that a strong model will figure
+it out by itself.
+
+### What each rule actually bought
+
+Cumulative, BM25, follow-ups only:
+
+| rules | hit@1 | MRR | added |
+|---|---|---|---|
+| pronoun | 60% | 0.6725 | — |
+| + substitute | 60% | 0.6725 | **+0.0000** |
+| + ellipsis | 65% | 0.7125 | +0.0400 |
+| + carryover | 65% | 0.7125 | **+0.0000** |
+| + guard *(tuned, see below)* | 70% | 0.7500 | +0.0375 |
+
+Two of the four rules contribute nothing measurable. `substitute` fired once,
+turning *"what about the back room"* into *"is the back room wheelchair
+accessible"* — a better-formed question that retrieved identically, because
+BM25 had already found the article from "back room". `carryover` never fired at
+all. Both are kept and reported at zero rather than quietly deleted, because
+"this rule was worth nothing on twenty turns" is a result, and a table where
+every row earns its place has usually had the losing rows removed.
+
+`+guard` suppresses pronoun resolution on turns that already carry three or
+more content words. It was written **after** reading the failures above, so it
+has seen its own test and its number is optimistic — a hypothesis worth a
+held-out conversation set, not a result. It is reported apart from the headline
+for that reason, and the default rule set does not include it.
+
+### Memory depth, and why the honest answer is that it barely matters
+
+| turns remembered | MRR |
+|---|---|
+| 1 | 0.6958 |
+| 2 | 0.7125 |
+| 3 | 0.7125 |
+| 5 | 0.7125 |
+| all | 0.7125 |
+
+One turn of history is not enough and two is, after which more memory changes
+nothing — on conversations that are three turns long, which is close to
+tautological and is why the claim here is narrow. The interesting case is the
+one this sweep cannot show: remembering *more* should eventually hurt, because
+stale topics compete to resolve pronouns. That needs longer conversations than
+this set has, and saying so is more useful than presenting five identical
+numbers as a finding.
+
+### Evidence beats inference, and it is not free
+
+Memory stores a topic per turn from two sources: what the user said, and what
+retrieval landed on. The second covers the many questions that name no topic at
+all — *"where can I park"* names none, yet it is exactly what "it" refers to
+next.
+
+But an inferred topic is a guess built on a guess:
+
+```
+do I need a deposit for a table of eight   names "deposits"
+what if there are twenty of us             names nothing, and retrieval misses
+how much is it                             "it" = ?
+```
+
+Resolving by recency alone takes whatever article the failed middle turn hit —
+on this run, the vegan menu. Preferring what the user *said* reaches back past
+it to the deposit. That fix moved this turn from a miss to rank 3, and cost a
+different turn one rank in the cancelling conversation, where the user's own
+words (*"a private event"*) point at the dress-code article while retrieval's
+inference pointed at the right one. Net **MRR 0.700 → 0.713**: a real
+improvement, and not a free one.
+
+### Where the whole approach stops
+
+**Rewriting is not a retrieval fix.** *"when do you go back to normal"* misses
+under every condition **including the oracle** — the hand-written standalone
+question retrieves nothing relevant either, because the answer reads *"Regular
+dinner service resumes on 2 January"* and shares no content word with the
+question. No amount of resolving pronouns helps a question whose answer is
+written in different words. That is a retrieval problem, and day 9 measured it.
+
+**The lexicon does not generalise.** Topics are derived from document titles
+and headings, which is honest for a fourteen-article help centre and costs
+nothing to keep current — add an article and the lexicon extends itself, which
+a test asserts. It is also exactly the move that stops working at a thousand
+articles or in an open domain, where this would need an entity linker or a
+model.
+
+**Four of twenty follow-ups cross to a different article.** The rest are
+answered by the article their conversation was already in, which is why `raw`
+looks as strong as it does: BM25 finds the right article from one or two
+content words whatever the pronoun is doing. A set weighted towards
+topic-switching would make every rewriter look better, this one included —
+which is a good reason to state the proportion rather than rebalance the set
+after seeing the numbers.
+
+**And the obvious comparison is missing.** The standard approach is to hand the
+transcript to an LLM and ask for a standalone question. That needs a key this
+project does not have, so what is measured here is the gap a *free,
+deterministic* rewriter leaves — not a claim that rules beat a model. The
+oracle is a hand-written ceiling, not a prediction of what a model would
+produce.
+
+### A bug in yesterday's stemmer, found by today's lexicon
+
+Building the lexicon ran the stemmer over document headings — vocabulary the
+retrieval path had never touched — and three word families turned out to be
+broken. `need` ends in `-ed`, so stripping gave `"ne"`, while `needs` and
+`needed` both gave `"need"`: the base form was the one word in its own family
+that matched neither of its own inflections. `added` lost its doubled consonant
+down to `"ad"`.
+
+The fix is a floor on how short a strip may leave a stem, plus skipping the
+undoubling step rather than abandoning the whole strip when it would overshoot.
+**Days 8, 9 and 10 were rebuilt and every published figure held** — the only
+movement anywhere was hybrid MRR from 0.7038 to 0.7035. The cost is that
+`go`/`going` and `use`/`used` no longer converge, pinned as a known limitation:
+stripping those leaves one or two characters, and a suffix stemmer has no way
+to know which short words are verbs.
+
 ## What I would do differently
 
 **Check the deployment constraint before architecting around it.** Day 1 was
@@ -1051,6 +1235,15 @@ got worse. What I would add is a test at the level of the shared function
 asserting the property its callers depend on — that inflections of a word match
 — rather than testing only the behaviour each caller happens to show. That test
 exists now, and it is the one I would have written first.
+
+**Build the ceiling before building the thing.** Day 11's oracle — the
+hand-written standalone version of each follow-up — took an hour and is the
+only reason the day has a result rather than a demo. Without it the honest
+summary would have been "rewriting improves MRR on two retrievers", which is
+true, unfalsifiable as stated, and hides that the rules capture under half of
+what was available and go backwards on the third. Every earlier day that
+reports a lift would have been sharper with a ceiling next to it; day 3's
+cold-start comparison is the one I would add it to first.
 
 **Gradio was the right call for one demo and the wrong one for twenty-one.**
 The hub is now 21 tabs, and several of them build HTML as strings inside Python

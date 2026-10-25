@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from convo.projects.day08_rag_cites.stemming import stem
+from convo.projects.day08_rag_cites.stemming import MIN_STEM, stem
 
 
 class TestConvergence:
@@ -79,6 +79,45 @@ class TestItDoesNotOverreach:
             assert stem(once) == once, f"{word} -> {once} -> {stem(once)}"
 
 
+class TestShortWordsSurviveTheRules:
+    """Words that merely *end* in a suffix must not be stripped into nothing.
+
+    Day 11's lexicon found these: document headings use vocabulary the
+    retrieval path never reached, and three families were broken by rules
+    firing on words too short to survive them.
+    """
+
+    @pytest.mark.parametrize(
+        "forms",
+        [
+            ("need", "needs", "needed"),
+            ("add", "adds", "added"),
+            ("feed", "feeds"),
+            ("seed", "seeds"),
+        ],
+    )
+    def test_a_short_base_form_is_not_stripped_below_its_family(self, forms):
+        stems = {stem(f) for f in forms}
+        assert len(stems) == 1, f"{forms} gave {stems}"
+
+    def test_the_base_form_is_not_the_odd_one_out(self):
+        # The original bug: "needs" and "needed" both gave "need" while "need"
+        # itself gave "ne", so the base form matched neither of its own
+        # inflections. That is worse than not stemming at all.
+        assert stem("need") == stem("needs") == stem("needed")
+
+    def test_undoubling_is_skipped_rather_than_abandoned(self):
+        # "added" -> "add" is already correct; undoubling it to "ad" was the
+        # bug. Skipping that one step must not cost the whole strip.
+        assert stem("added") == "add"
+        assert stem("stopped") == "stop"
+
+    def test_no_stem_is_shorter_than_the_floor(self):
+        words = ("need", "added", "used", "goes", "seed", "deed", "agreed", "being")
+        for word in words:
+            assert len(stem(word)) >= MIN_STEM, f"{word} -> {stem(word)!r}"
+
+
 class TestKnownLimitations:
     """Pinned rather than hidden. Each is a real cost of a suffix stemmer."""
 
@@ -91,6 +130,13 @@ class TestKnownLimitations:
 
     def test_it_over_stems_words_that_differ_by_a_trailing_e(self):
         assert stem("rating") == stem("rate") == stem("rat") == "rat"
+
+    def test_short_irregular_verbs_do_not_converge(self):
+        # The cost of the floor that fixed "need". Stripping these would leave
+        # one or two characters, so they are left as typed and their forms do
+        # not meet. A lemmatizer would catch them; a suffix stemmer cannot.
+        assert stem("go") != stem("going")
+        assert stem("use") != stem("used")
 
     def test_irregular_plurals_are_not_handled(self):
         # A lemmatizer would catch these; a suffix stemmer cannot.

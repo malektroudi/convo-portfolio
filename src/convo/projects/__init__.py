@@ -18,12 +18,14 @@ from convo.projects import (
     day08_rag_cites,  # noqa: F401
     day09_retrieval_evals,  # noqa: F401
     day10_guardrails,  # noqa: F401
+    day11_multiturn_rag,  # noqa: F401
 )
 
 __all__ = [
     "day08_rag_cites",
     "day09_retrieval_evals",
     "day10_guardrails",
+    "day11_multiturn_rag",
     "day01_hub",
     "day02_intent_nlu",
     "day03_embed_router",

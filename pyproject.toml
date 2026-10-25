@@ -46,6 +46,9 @@ ignore = ["SIM117"]
 # Wrapping them across lines would hide what is actually being matched, and a
 # label you cannot read at a glance is a label nobody checks.
 "src/convo/projects/day09_retrieval_evals/gold.py" = ["E501"]
+# Same reason: the gold quotes are verbatim corpus text and wrapping them
+# would stop them matching the source they are quoting.
+"src/convo/projects/day11_multiturn_rag/conversations.py" = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
