@@ -12,3 +12,7 @@ Dockerfile text eol=lf
 
 # Written by uv; never hand-merge it.
 uv.lock linguist-generated=true
+
+# Day 8's chunk offsets are character indexes into these files. A CRLF
+# checkout would shift every one of them, so pin the corpus to LF.
+src/convo/projects/day08_rag_cites/corpus/*.md text eol=lf

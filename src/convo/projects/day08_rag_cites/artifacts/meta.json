@@ -1,0 +1,1112 @@
+{
+  "encoder": "sentence-transformers/all-MiniLM-L6-v2",
+  "documents": [
+    {
+      "doc_id": "accessibility",
+      "title": "Accessibility",
+      "characters": 568
+    },
+    {
+      "doc_id": "allergens",
+      "title": "Allergens",
+      "characters": 751
+    },
+    {
+      "doc_id": "booking-how-to",
+      "title": "Booking a table",
+      "characters": 719
+    },
+    {
+      "doc_id": "cancellation-private-events",
+      "title": "Cancelling a private event",
+      "characters": 665
+    },
+    {
+      "doc_id": "cancellation-standard",
+      "title": "Cancelling a standard booking",
+      "characters": 682
+    },
+    {
+      "doc_id": "deposit-policy-2026",
+      "title": "Deposit policy (updated March 2026)",
+      "characters": 626
+    },
+    {
+      "doc_id": "dress-code",
+      "title": "Dress code",
+      "characters": 298
+    },
+    {
+      "doc_id": "holiday-hours",
+      "title": "Holiday hours",
+      "characters": 576
+    },
+    {
+      "doc_id": "large-groups",
+      "title": "Large groups",
+      "characters": 696
+    },
+    {
+      "doc_id": "late-arrival",
+      "title": "Running late",
+      "characters": 579
+    },
+    {
+      "doc_id": "menu-vegan",
+      "title": "Vegan and vegetarian menu",
+      "characters": 681
+    },
+    {
+      "doc_id": "opening-hours",
+      "title": "Opening hours",
+      "characters": 512
+    },
+    {
+      "doc_id": "parking",
+      "title": "Parking and getting here",
+      "characters": 509
+    },
+    {
+      "doc_id": "payment",
+      "title": "Paying",
+      "characters": 639
+    }
+  ],
+  "strategies": {
+    "fixed": {
+      "describe": "400 characters, no overlap. Cuts mid-sentence and loses the heading.",
+      "chunks": 27,
+      "mean_chars": 314.2,
+      "min_chars": 107,
+      "max_chars": 400,
+      "starts_mid_sentence": 13,
+      "items": [
+        {
+          "doc_id": "accessibility",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "accessibility",
+          "start": 400,
+          "end": 567,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "allergens",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "allergens",
+          "start": 400,
+          "end": 750,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "booking-how-to",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "booking-how-to",
+          "start": 401,
+          "end": 718,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "cancellation-private-events",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "cancellation-private-events",
+          "start": 400,
+          "end": 664,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "cancellation-standard",
+          "start": 0,
+          "end": 399,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "cancellation-standard",
+          "start": 400,
+          "end": 681,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "deposit-policy-2026",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "deposit-policy-2026",
+          "start": 400,
+          "end": 625,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "dress-code",
+          "start": 0,
+          "end": 297,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "holiday-hours",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "holiday-hours",
+          "start": 400,
+          "end": 575,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "large-groups",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "large-groups",
+          "start": 400,
+          "end": 695,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "late-arrival",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "late-arrival",
+          "start": 400,
+          "end": 578,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "menu-vegan",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "menu-vegan",
+          "start": 400,
+          "end": 680,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "opening-hours",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "opening-hours",
+          "start": 400,
+          "end": 511,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "parking",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "parking",
+          "start": 401,
+          "end": 508,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "payment",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed"
+        },
+        {
+          "doc_id": "payment",
+          "start": 400,
+          "end": 638,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed"
+        }
+      ]
+    },
+    "fixed-overlap": {
+      "describe": "400 characters with 80 of overlap, so a cut sentence survives in a neighbour.",
+      "chunks": 28,
+      "mean_chars": 343.0,
+      "min_chars": 110,
+      "max_chars": 400,
+      "starts_mid_sentence": 11,
+      "items": [
+        {
+          "doc_id": "accessibility",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "accessibility",
+          "start": 320,
+          "end": 567,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "allergens",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "allergens",
+          "start": 320,
+          "end": 720,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "allergens",
+          "start": 640,
+          "end": 750,
+          "heading": "",
+          "index": 2,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "booking-how-to",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "booking-how-to",
+          "start": 320,
+          "end": 718,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "cancellation-private-events",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "cancellation-private-events",
+          "start": 321,
+          "end": 664,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "cancellation-standard",
+          "start": 0,
+          "end": 399,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "cancellation-standard",
+          "start": 320,
+          "end": 681,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "deposit-policy-2026",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "deposit-policy-2026",
+          "start": 320,
+          "end": 625,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "dress-code",
+          "start": 0,
+          "end": 297,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "holiday-hours",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "holiday-hours",
+          "start": 320,
+          "end": 575,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "large-groups",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "large-groups",
+          "start": 320,
+          "end": 695,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "late-arrival",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "late-arrival",
+          "start": 320,
+          "end": 578,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "menu-vegan",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "menu-vegan",
+          "start": 320,
+          "end": 680,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "opening-hours",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "opening-hours",
+          "start": 320,
+          "end": 511,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "parking",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "parking",
+          "start": 320,
+          "end": 508,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "payment",
+          "start": 0,
+          "end": 400,
+          "heading": "",
+          "index": 0,
+          "strategy": "fixed-overlap-80"
+        },
+        {
+          "doc_id": "payment",
+          "start": 321,
+          "end": 638,
+          "heading": "",
+          "index": 1,
+          "strategy": "fixed-overlap-80"
+        }
+      ]
+    },
+    "structural": {
+      "describe": "Split on markdown headings, then paragraphs. Respects the author's shape.",
+      "chunks": 49,
+      "mean_chars": 146.5,
+      "min_chars": 44,
+      "max_chars": 222,
+      "starts_mid_sentence": 0,
+      "items": [
+        {
+          "doc_id": "accessibility",
+          "start": 32,
+          "end": 142,
+          "heading": "Getting in",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "accessibility",
+          "start": 157,
+          "end": 270,
+          "heading": "Washroom",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "accessibility",
+          "start": 284,
+          "end": 466,
+          "heading": "Seating",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "accessibility",
+          "start": 491,
+          "end": 567,
+          "heading": "Assistance animals",
+          "index": 3,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "allergens",
+          "start": 28,
+          "end": 189,
+          "heading": "Telling us",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "allergens",
+          "start": 224,
+          "end": 368,
+          "heading": "The fourteen major allergens",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "allergens",
+          "start": 394,
+          "end": 597,
+          "heading": "Cross-contamination",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "allergens",
+          "start": 620,
+          "end": 750,
+          "heading": "Severe allergies",
+          "index": 3,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "booking-how-to",
+          "start": 43,
+          "end": 265,
+          "heading": "Online and by phone",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "booking-how-to",
+          "start": 293,
+          "end": 505,
+          "heading": "What we need from you",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "booking-how-to",
+          "start": 524,
+          "end": 718,
+          "heading": "Confirmation",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "cancellation-private-events",
+          "start": 48,
+          "end": 264,
+          "heading": "Notice period",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "cancellation-private-events",
+          "start": 302,
+          "end": 455,
+          "heading": "Between fourteen and seven days",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "cancellation-private-events",
+          "start": 482,
+          "end": 664,
+          "heading": "Less than seven days",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "cancellation-standard",
+          "start": 51,
+          "end": 251,
+          "heading": "Notice period",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "cancellation-standard",
+          "start": 275,
+          "end": 447,
+          "heading": "Late cancellation",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "cancellation-standard",
+          "start": 466,
+          "end": 681,
+          "heading": "Not arriving",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "deposit-policy-2026",
+          "start": 56,
+          "end": 276,
+          "heading": "What changed",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "deposit-policy-2026",
+          "start": 305,
+          "end": 449,
+          "heading": "When a deposit applies",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "deposit-policy-2026",
+          "start": 474,
+          "end": 625,
+          "heading": "Paying and refunds",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "dress-code",
+          "start": 34,
+          "end": 128,
+          "heading": "There isn't one",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "dress-code",
+          "start": 149,
+          "end": 297,
+          "heading": "Private events",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "holiday-hours",
+          "start": 33,
+          "end": 184,
+          "heading": "Closed days",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "holiday-hours",
+          "start": 206,
+          "end": 349,
+          "heading": "Reduced service",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "holiday-hours",
+          "start": 383,
+          "end": 502,
+          "heading": "Thanksgiving and Canada Day",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "holiday-hours",
+          "start": 531,
+          "end": 575,
+          "heading": "Return to normal hours",
+          "index": 3,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "large-groups",
+          "start": 40,
+          "end": 189,
+          "heading": "Up to twelve guests",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "large-groups",
+          "start": 212,
+          "end": 384,
+          "heading": "More than twelve",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "large-groups",
+          "start": 399,
+          "end": 559,
+          "heading": "Deposits",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "large-groups",
+          "start": 575,
+          "end": 695,
+          "heading": "Set menus",
+          "index": 3,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "late-arrival",
+          "start": 33,
+          "end": 169,
+          "heading": "Grace period",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "late-arrival",
+          "start": 191,
+          "end": 371,
+          "heading": "Letting us know",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "late-arrival",
+          "start": 396,
+          "end": 578,
+          "heading": "Arriving very late",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "menu-vegan",
+          "start": 47,
+          "end": 267,
+          "heading": "What we offer",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "menu-vegan",
+          "start": 285,
+          "end": 408,
+          "heading": "Gluten-free",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "menu-vegan",
+          "start": 431,
+          "end": 558,
+          "heading": "Telling us ahead",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "menu-vegan",
+          "start": 574,
+          "end": 680,
+          "heading": "Allergens",
+          "index": 3,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "opening-hours",
+          "start": 36,
+          "end": 168,
+          "heading": "Dinner service",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "opening-hours",
+          "start": 180,
+          "end": 262,
+          "heading": "Lunch",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "opening-hours",
+          "start": 272,
+          "end": 391,
+          "heading": "Bar",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "opening-hours",
+          "start": 406,
+          "end": 511,
+          "heading": "Holidays",
+          "index": 3,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "parking",
+          "start": 47,
+          "end": 162,
+          "heading": "Street parking",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "parking",
+          "start": 175,
+          "end": 299,
+          "heading": "Garage",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "parking",
+          "start": 313,
+          "end": 424,
+          "heading": "Transit",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "parking",
+          "start": 439,
+          "end": 508,
+          "heading": "Bicycles",
+          "index": 3,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "payment",
+          "start": 29,
+          "end": 188,
+          "heading": "Cards and cash",
+          "index": 0,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "payment",
+          "start": 213,
+          "end": 361,
+          "heading": "Splitting the bill",
+          "index": 1,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "payment",
+          "start": 382,
+          "end": 532,
+          "heading": "Service charge",
+          "index": 2,
+          "strategy": "structural"
+        },
+        {
+          "doc_id": "payment",
+          "start": 549,
+          "end": 638,
+          "heading": "Gift cards",
+          "index": 3,
+          "strategy": "structural"
+        }
+      ]
+    }
+  },
+  "questions": [
+    {
+      "text": "how do I book a table",
+      "expect_doc": "booking-how-to",
+      "probe": ""
+    },
+    {
+      "text": "do you need my card details to hold a booking",
+      "expect_doc": "booking-how-to",
+      "probe": ""
+    },
+    {
+      "text": "how far ahead can I book",
+      "expect_doc": "booking-how-to",
+      "probe": ""
+    },
+    {
+      "text": "how long before do I have to cancel",
+      "expect_doc": "cancellation-standard",
+      "probe": "near-duplicate"
+    },
+    {
+      "text": "I need to cancel a private event, do I lose the deposit",
+      "expect_doc": "cancellation-private-events",
+      "probe": "near-duplicate"
+    },
+    {
+      "text": "what happens if I cancel a private event five days before",
+      "expect_doc": "cancellation-private-events",
+      "probe": "near-duplicate"
+    },
+    {
+      "text": "how much is the deposit for a private event",
+      "expect_doc": "deposit-policy-2026",
+      "probe": "superseded"
+    },
+    {
+      "text": "is the deposit per person or a flat fee",
+      "expect_doc": "deposit-policy-2026",
+      "probe": "superseded"
+    },
+    {
+      "text": "do I need a deposit for a table of eight",
+      "expect_doc": "deposit-policy-2026",
+      "probe": ""
+    },
+    {
+      "text": "we are a group of twenty, can you seat us",
+      "expect_doc": "large-groups",
+      "probe": ""
+    },
+    {
+      "text": "do large groups have to choose a set menu",
+      "expect_doc": "large-groups",
+      "probe": ""
+    },
+    {
+      "text": "what time do you open",
+      "expect_doc": "opening-hours",
+      "probe": "split"
+    },
+    {
+      "text": "do you serve lunch",
+      "expect_doc": "opening-hours",
+      "probe": ""
+    },
+    {
+      "text": "when does the kitchen take its last order",
+      "expect_doc": "opening-hours",
+      "probe": ""
+    },
+    {
+      "text": "are you open on christmas day",
+      "expect_doc": "holiday-hours",
+      "probe": "split"
+    },
+    {
+      "text": "what are your hours on new year's eve",
+      "expect_doc": "holiday-hours",
+      "probe": "split"
+    },
+    {
+      "text": "when do you go back to normal hours after the holidays",
+      "expect_doc": "holiday-hours",
+      "probe": ""
+    },
+    {
+      "text": "I have a severe nut allergy, what should I do",
+      "expect_doc": "allergens",
+      "probe": ""
+    },
+    {
+      "text": "can you guarantee an allergen free kitchen",
+      "expect_doc": "allergens",
+      "probe": ""
+    },
+    {
+      "text": "do you have vegan options",
+      "expect_doc": "menu-vegan",
+      "probe": ""
+    },
+    {
+      "text": "can vegan dishes be made gluten free",
+      "expect_doc": "menu-vegan",
+      "probe": ""
+    },
+    {
+      "text": "is the dining room wheelchair accessible",
+      "expect_doc": "accessibility",
+      "probe": ""
+    },
+    {
+      "text": "is the back room step free",
+      "expect_doc": "accessibility",
+      "probe": ""
+    },
+    {
+      "text": "are assistance dogs allowed",
+      "expect_doc": "accessibility",
+      "probe": ""
+    },
+    {
+      "text": "where can I park",
+      "expect_doc": "parking",
+      "probe": ""
+    },
+    {
+      "text": "is street parking free on sundays",
+      "expect_doc": "parking",
+      "probe": ""
+    },
+    {
+      "text": "how long do you hold my table if I am late",
+      "expect_doc": "late-arrival",
+      "probe": ""
+    },
+    {
+      "text": "what if I arrive an hour late",
+      "expect_doc": "late-arrival",
+      "probe": ""
+    },
+    {
+      "text": "is there a dress code",
+      "expect_doc": "dress-code",
+      "probe": ""
+    },
+    {
+      "text": "can we split the bill",
+      "expect_doc": "payment",
+      "probe": ""
+    },
+    {
+      "text": "is service charge added automatically",
+      "expect_doc": "payment",
+      "probe": ""
+    },
+    {
+      "text": "do gift cards expire",
+      "expect_doc": "payment",
+      "probe": ""
+    },
+    {
+      "text": "do you have EV charging",
+      "expect_doc": null,
+      "probe": "unanswerable"
+    },
+    {
+      "text": "can I bring my own wine",
+      "expect_doc": null,
+      "probe": "unanswerable"
+    }
+  ],
+  "built_seconds": 1.4
+}

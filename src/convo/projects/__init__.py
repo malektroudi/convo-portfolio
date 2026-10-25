@@ -15,9 +15,11 @@ from convo.projects import (
     day05_tool_agent,  # noqa: F401
     day06_eval_harness,  # noqa: F401
     day07_writeup,  # noqa: F401
+    day08_rag_cites,  # noqa: F401
 )
 
 __all__ = [
+    "day08_rag_cites",
     "day01_hub",
     "day02_intent_nlu",
     "day03_embed_router",

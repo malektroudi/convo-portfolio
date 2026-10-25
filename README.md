@@ -5,7 +5,7 @@ embedding router, a deterministic state machine and a tool-calling agent — the
 measured against each other on one eval suite, with a CI gate that blocks on a
 safety regression.
 
-Days 1–7 of 21 are shipped — week 1 complete. The hub lists every remaining day with its brief,
+Days 1–8 of 21 are shipped — week 1 complete, week 2 under way. The hub lists every remaining day with its brief,
 so progress is visible rather than implied.
 
 ![Day 4's dialogue engine mid-repair: the guest says "no, make it 8pm", the bot
@@ -194,6 +194,15 @@ src/convo/
       ui.py        the three-way comparison
       artifacts/   the cached comparison (~200 KB)
     day07_writeup/ the week-1 write-up tab, prose only
+    day08_rag_cites/
+      corpus/      14 synthetic help-centre articles, LF-pinned
+      chunking.py  three strategies, all carrying exact source offsets
+      index.py     BM25 (no model) and dense (from the artifact)
+      answer.py    narrows a chunk to the sentences that answer
+      questions.py 34 questions; day 9's eval set in embryo
+      build.py     embeds everything          (needs `train` extra)
+      ui.py        the retrieval debugger
+      artifacts/   the index (~190 KB)
     day06_eval_harness/
       outcome.py   one shape both bots report into
       suite.py     32 scripted conversations, day 5's twelve plus twenty
@@ -595,6 +604,93 @@ cost figure in a portfolio is worse than no figure.
 **Eval types came first.** `EvalRun.compare()` and `EvalRun.gate()` exist on
 day 1 even though the first real suite is day 6, because the CI gate in day 18
 has to read the same shape. Nothing about the eval format gets invented twice.
+
+## Day 8: RAG that actually cites
+
+A 14-article help centre, chunked three ways, with citations that point at
+**exact character offsets** in the source article.
+
+```bash
+uv sync --extra train
+uv run python -m convo.projects.day08_rag_cites.build   # ~190 KB artifact
+```
+
+### One invariant does all the work
+
+Every chunk, and every citation, satisfies:
+
+```
+document.text[start:end] == cited_text
+```
+
+It is asserted for every chunk of every document under every strategy, and for
+71 citations across the question set. That sounds pedantic until you notice
+what the usual alternative is: most RAG demos return a chunk id and call it a
+source, which is *unfalsifiable* — the chunk is the only record of itself, so
+nothing can check whether the cited text is really in the document, or whether
+the chunk merely mentions the topic without containing the answer.
+
+Keeping offsets means a reader can be shown the exact span highlighted inside
+the original article, and a test can assert the arithmetic. The artifact stores
+only `(doc_id, start, end)` and slices the text back out of the corpus at load
+time, so a wrong offset cannot hide behind a stored copy of itself.
+
+### Chunking changes the citation, not the retrieval
+
+This surprised me. All three strategies find the right article about equally
+often:
+
+| strategy | chunks | dense@1 | dense@3 | BM25@1 |
+|---|---|---|---|---|
+| fixed, 400 chars | 27 | 81% | 100% | 84% |
+| fixed + 80 overlap | 28 | 84% | 100% | 81% |
+| structural | 49 | 81% | 100% | 81% |
+
+What differs is whether the span you can show a human reads as a sentence:
+
+| strategy | chunks starting mid-sentence | citations starting mid-sentence | truncated | mean span |
+|---|---|---|---|---|
+| fixed | **48%** | 13% | 10% | 117 chars |
+| fixed + overlap | 39% | 0% | 10% | 116 chars |
+| structural | **0%** | **0%** | **0%** | 90 chars |
+
+The same question, two strategies:
+
+```
+[fixed]      '# Running late\n\n## Grace period\n\nWe hold your table for fifteen minutes…'
+[structural] 'We hold your table for fifteen minutes past the booking time.'
+```
+
+So the argument for structure-aware chunking is not that it retrieves better —
+on this corpus it does not. It is that it produces a span you can put in front
+of a user without embarrassment, which is the entire point of citing.
+
+### The corpus is synthetic, deliberately
+
+A public help centre would be more impressive to point at, but I could not
+control what is in it, and day 8 is about the cases where retrieval goes wrong.
+So the corpus was built containing them:
+
+- **near-duplicate** — standard and private-event cancellation policies, worded
+  similarly with different numbers (4 hours versus 14 days)
+- **superseded** — a 2026 deposit policy that explicitly replaces a per-head
+  figure still present in another article
+- **split** — regular hours and holiday hours live in separate articles, so
+  "are you open on Christmas Day" needs the second
+- **unanswerable** — nothing anywhere mentions EV charging, so a bot that
+  always answers gets caught
+
+### Why there is a BM25 retriever too
+
+The hub carries no encoder, so a typed question cannot be embedded at request
+time. Rather than ship 480 MB of torch to answer questions nobody has asked,
+the 34-question set is embedded into the artifact for dense retrieval, and
+free-text questions fall back to BM25 — which needs nothing and works on any
+input. Day 9 turns that pair into a hybrid and adds a reranker.
+
+It also makes a limitation visible for free: BM25 matches words, so "can I
+bring a dog" retrieves nothing even though the accessibility article welcomes
+assistance animals.
 
 ## What I would do differently
 
