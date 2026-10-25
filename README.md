@@ -1473,6 +1473,107 @@ unsurprising given the packet is assembled rather than generated — the guard
 exists for the version of this that uses a model to write the summary, which
 is the obvious next step and the obvious next hazard.
 
+## Day 14: the link, finally
+
+```bash
+uv run python -m convo.site.build --out site
+```
+
+Day 1 was built around Cloud Run, which needs a billing account even inside
+its free tier. Free Gradio hosting no longer exists either. So the headline
+deliverable of this whole repo — *a link you can put in an application* — has
+been missing since the first day, and has been admitted to in this file for
+twelve of them.
+
+What does exist, for nothing, is static hosting. And the architecture every
+day has followed makes that the easy path rather than a retreat: heavy work
+runs on a laptop and produces small committed artifacts, and the Gradio hub
+was only ever **one way of rendering them**.
+
+### The site is the architecture's own argument
+
+| | container | static site |
+|---|---|---|
+| size | 588 MB | **96 KB** |
+| needs a billing account | yes | no |
+| cold start | seconds | none |
+| external requests at load | — | **zero** |
+
+No framework, no build step, no CDN, no fonts fetched from anywhere, no
+analytics. One file of HTML per day with inline CSS. A test asserts no page
+reaches out to a single external URL, because a portfolio that stops rendering
+when someone else's CDN goes away is not a portfolio.
+
+### Rendering the artifacts twice is a real check
+
+The site and the Gradio tabs read the same artifacts through code that shares
+nothing — no display helpers, no formatting, no templates. That makes
+agreement between them evidence rather than tautology: a number that differs
+means one of the two is reading the file wrong, and it shows up immediately
+instead of silently.
+
+The clearest case is the one interactive piece. Day 10's threshold slider is
+reimplemented in about twenty lines of JavaScript over the stored reranker
+scores, and it reproduces day 10's Python scorer **exactly** at every
+threshold tested:
+
+```
+          answered   refused   falsely refused
+  −10         74%       78%          7%
+   −6.31      67%      100%         19%
+   −2         60%      100%         31%
+   +4         48%      100%         48%
+```
+
+A test pins that agreement by recomputing the metrics from the shipped payload
+and comparing against `score_threshold` directly. If the reduction ever drops
+a field the decision depends on, it fails.
+
+### No figure on the site is typed by hand
+
+This is the property worth the most and the easiest to lose. The failure mode
+for a portfolio site is not a crash — it is a number that was true in October
+and is quietly wrong in November, sitting on a page a stranger is judging you
+by.
+
+So the generator is split in two. `data.py` is the only module permitted to
+touch a result, and it pulls each day's figures from the same `results` module
+that day's Gradio tab calls. `render.py` receives strings and never computes
+anything. Three tests enforce it, over the parsed syntax tree rather than the
+text:
+
+- the renderer contains **no float literal** — integers like `depth=1` are
+  structure, but every float in a page like this is a rate, a score or a
+  duration
+- it quotes **no percentage, decimal or millisecond** in any string
+- it **imports nothing** from `convo.projects`, so it could not reach an
+  artifact if it tried
+
+That last one started as a style preference and immediately earned its place.
+The slider originally opened at a hand-typed `−6.25`, which was correct right
+up until day 10 was next rebuilt — at which point the page claiming every
+number is live would have been showing a stale one. The bounds, the starting
+position and the step all come from the scores now, and the test is what
+found it.
+
+### What a static site cannot do, said plainly
+
+The hub lets you type a free-text question and watch BM25 answer it, move day
+2's rejection threshold against real logits, and step through a dialogue
+engine's state. None of that survives the move: there is no Python at request
+time. One slider made it across because the arithmetic is small enough to
+reimplement honestly; everything else on the site is a *reading*, not a demo.
+
+Days with no artifact say so rather than inventing a card. Every page with
+figures carries a **what this does not show** note, because a portfolio that
+only reports its wins is a sales page.
+
+### Still not done
+
+The site builds and the deploy workflow is written, but **GitHub Pages needs
+the repository public**, and it is private. That is a decision rather than a
+task, which is why this section ends here rather than with a URL.
+
 ## What I would do differently
 
 **Check the deployment constraint before architecting around it.** Day 1 was
@@ -1526,6 +1627,14 @@ change. Every other day in this repo caches its artifact and compares against
 it; day 12 generates its input, and generated input needs a seed. The habit
 worth keeping is running the build twice and diffing before writing a single
 figure down.
+
+**The deliverable was reachable on day 1 and I did not look.** The static
+site took an afternoon and needed nothing that did not already exist — every
+artifact it reads was committed by day 13. What blocked it for twelve days was
+not difficulty, it was that day 1 picked Cloud Run, discovered on day 15 that
+it needs billing, and then kept building days instead of revisiting the
+decision. The check worth having is not "is the plan good" but "does the thing
+I promised exist yet", asked out loud, weekly.
 
 **Build the ceiling before building the thing.** Day 11's oracle — the
 hand-written standalone version of each follow-up — took an hour and is the

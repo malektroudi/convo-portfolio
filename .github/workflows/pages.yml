@@ -1,0 +1,66 @@
+# Build the static site from the committed artifacts and publish it.
+#
+# The site is generated at deploy time rather than committed, so it cannot
+# drift from the artifacts it reads: there is no checked-in HTML to forget to
+# regenerate after a rebuild. The cost is that a broken generator breaks the
+# deploy, which is why `ci.yml` runs the same build and its tests on every
+# push — this workflow should never be the first place a failure appears.
+#
+# Needs no ML stack. Every figure comes from a committed artifact, so this is
+# a plain Python job that finishes in seconds.
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a half-finished deploy, and never run two at once: Pages
+# publishes a whole directory, so an interrupted run can leave the live site
+# serving a partial build.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install (no train or voice extras)
+        run: uv sync --extra dev
+
+      - name: Generate the site
+        run: uv run python -m convo.site.build --out site
+
+      - name: It must have an index and at least one day
+        run: |
+          test -f site/index.html
+          test -f site/.nojekyll
+          test "$(find site/days -name '*.html' | wc -l)" -gt 0
+          du -sh site
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

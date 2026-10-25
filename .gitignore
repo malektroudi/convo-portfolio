@@ -15,3 +15,7 @@ models/
 clinc_probe.json
 # The training CLI's own scratch output; the kept artifact lives in the package.
 /artifacts/
+# The generated static site, built at deploy time from the artifacts so it
+# cannot drift from them. Anchored: an unanchored `site/` would also hide
+# the generator package at src/convo/site/.
+/site/

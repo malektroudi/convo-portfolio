@@ -37,6 +37,14 @@ jobs:
       - name: Conversational evals
         run: uv run python -m convo.projects.day06_eval_harness.gate
 
+      # The deploy workflow generates the site from the artifacts. Building it
+      # here too means a broken generator fails on the pull request rather
+      # than on the push that was supposed to publish it.
+      - name: The site must still build
+        run: |
+          uv run python -m convo.site.build --out /tmp/site
+          test -f /tmp/site/index.html
+
   # The container is what Cloud Run actually runs, so build it on every PR.
   # Day 6 extends this job with the eval suite, and day 18 turns the eval
   # pass rate into a deploy gate.
