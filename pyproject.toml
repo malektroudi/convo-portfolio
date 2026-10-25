@@ -41,6 +41,12 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 # Gradio layout is nested `with` blocks by design, and so are the span tests.
 ignore = ["SIM117"]
 
+[tool.ruff.lint.per-file-ignores]
+# Day 9's labels are verbatim quotes from the corpus, matched against it.
+# Wrapping them across lines would hide what is actually being matched, and a
+# label you cannot read at a glance is a label nobody checks.
+"src/convo/projects/day09_retrieval_evals/gold.py" = ["E501"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]

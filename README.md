@@ -5,7 +5,7 @@ embedding router, a deterministic state machine and a tool-calling agent — the
 measured against each other on one eval suite, with a CI gate that blocks on a
 safety regression.
 
-Days 1–8 of 21 are shipped — week 1 complete, week 2 under way. The hub lists every remaining day with its brief,
+Days 1–9 of 21 are shipped — week 1 complete, week 2 under way. The hub lists every remaining day with its brief,
 so progress is visible rather than implied.
 
 ![Day 4's dialogue engine mid-repair: the guest says "no, make it 8pm", the bot
@@ -159,6 +159,7 @@ src/convo/
     classification.py  threshold + confusion maths over any score array whose
                        row max is a confidence; day 2 feeds it softmax, day 3
                        cosine similarity, so both are scored by one code path
+    retrieval.py     hit@k, MRR, nDCG and reciprocal rank fusion
     registry.py      the 21-day plan as data, plus the project contract
   hub/         the Gradio app that renders whatever is registered
   projects/    one module per day; dayNN_slug.py calls ship(day, build)
@@ -203,6 +204,12 @@ src/convo/
       build.py     embeds everything          (needs `train` extra)
       ui.py        the retrieval debugger
       artifacts/   the index (~190 KB)
+    day09_retrieval_evals/
+      gold.py      42 labelled answer spans, chunking-independent
+      build.py     runs 4 retrievers over 3 chunkings  (needs `train` extra)
+      results.py   recomputes metrics from stored rankings
+      ui.py        the lift table and per-question drill-down
+      artifacts/   every ranking (~260 KB)
     day06_eval_harness/
       outcome.py   one shape both bots report into
       suite.py     32 scripted conversations, day 5's twelve plus twenty
@@ -691,6 +698,89 @@ input. Day 9 turns that pair into a hybrid and adds a reranker.
 It also makes a limitation visible for free: BM25 matches words, so "can I
 bring a dog" retrieves nothing even though the accessibility article welcomes
 assistance animals.
+
+## Day 9: make retrieval measurably better
+
+Four retrievers over three chunkings, scored against 42 labelled questions with
+hit@k, MRR and nDCG.
+
+```bash
+uv run python -m convo.projects.day09_retrieval_evals.build
+```
+
+### Fixing the measurement before fixing the retriever
+
+Day 8 ended at 100% dense@3 and could not be improved on — not because
+retrieval was good, but because the labels were document-level and there are
+only fourteen documents. A question landing anywhere in the right article
+counted as a hit.
+
+So day 9 relabels at the **span** level: each question is paired with a quote
+from the source, and chunk relevance is *derived* from overlap. Labelling
+chunks directly would have been the obvious move and the wrong one — there are
+three chunkings, so every label would need redoing for each, and changing a
+chunker would invalidate the ground truth it was being judged against. One
+span label works for every chunking, including ones not written yet. A test
+asserts exactly that.
+
+Finding the right *chunk* among 49 is a real problem: dense drops from 81% at
+document level to **55%** at chunk level.
+
+### The lift
+
+Structural chunking, 49 chunks, 42 questions:
+
+| retriever | hit@1 | vs dense | hit@3 | MRR | nDCG@5 | never found |
+|---|---|---|---|---|---|---|
+| bm25 | 52% | −3% | 64% | 0.59 | 0.60 | 10 |
+| dense | 55% | baseline | 86% | 0.71 | 0.75 | 0 |
+| hybrid | 60% | +5% | 86% | 0.72 | 0.75 | 0 |
+| **hybrid + rerank** | **69%** | **+14%** | 86% | **0.79** | **0.83** | 0 |
+
+**hit@1 55% → 69% and MRR 0.71 → 0.79, for 134 ms a query.** The reranker is a
+cross-encoder reading the question and passage together rather than comparing
+two vectors computed apart, and it pays for itself here.
+
+**Hybrid fusion on its own is not reliable.** It helps structural (+5) and
+fixed-overlap (+3) and *hurts* plain fixed chunking (67% → 57%). Reporting only
+the configuration where fusion looked good would have been easy and dishonest;
+it earns its place as a feeder for the reranker, not as a win by itself.
+
+Fusion is reciprocal rank fusion rather than a weighted blend of scores,
+because BM25 and cosine live on different scales with no principled conversion
+— any weighting would be a knob tuned until the chart improved. RRF reads
+positions only.
+
+### Where it stops working
+
+Ten of the 42 questions are deliberate paraphrases, phrased the way people
+actually ask, sharing almost no vocabulary with the passage that answers them
+("my mum uses a walker, will she manage the back room").
+
+| retriever | hit@1 keyword | hit@1 paraphrase | MRR keyword | MRR paraphrase |
+|---|---|---|---|---|
+| bm25 | 66% | **10%** | 0.72 | 0.18 |
+| dense | 62% | 30% | 0.76 | 0.53 |
+| hybrid + rerank | **81%** | **30%** | 0.86 | 0.56 |
+
+Two things fall out. **Lexical retrieval collapses** on paraphrase — 66% to
+10% — which is the clearest possible argument for not shipping BM25 alone.
+And **the reranker helps enormously on keyword questions (69% → 81%) and not
+at all on paraphrases (30% → 30%)**, because it reorders candidates retrieval
+already surfaced and cannot rescue a question whose answer never made the
+shortlist. Its MRR on paraphrases does improve (0.49 → 0.56), so it is
+reordering — just not often enough to change the top slot.
+
+That is day 11's problem, not a reranker's: a question that shares no words
+with its answer needs rewriting before retrieval, not reordering after.
+
+### A confound worth naming
+
+`fixed` scores higher than `structural` at every retriever — but it has 27
+chunks against 49. Retrieving one of 27 is a strictly easier problem. The
+finer chunking is harder to retrieve from *and* produces the better citation,
+which day 8 measured. Comparing their hit@1 as though it were a quality
+ranking would be wrong, and the tab says so next to the table.
 
 ## What I would do differently
 
