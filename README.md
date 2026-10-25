@@ -1193,6 +1193,150 @@ movement anywhere was hybrid MRR from 0.7038 to 0.7035. The cost is that
 stripping those leaves one or two characters, and a suffix stemmer has no way
 to know which short words are verbs.
 
+## Day 12: voice, and a budget that cannot be met
+
+```bash
+uv sync --extra train --extra voice
+uv run python -m convo.projects.day12_voice.build
+```
+
+Real audio, end to end, on a laptop CPU. Piper speaks the caller's question,
+`whisper-tiny.en` transcribes it back, one of two paths answers, and Piper
+speaks the answer. Nothing is simulated and no figure is quoted from someone
+else's benchmark.
+
+### The budget comes first, and it is one number divided up
+
+A person waiting for a voice assistant notices the gap at around **800 ms** and
+is fairly sure the thing is broken by two seconds. That is the whole budget,
+and the definition that matters is where it is measured from and to: **the
+caller stops speaking** to **the first audio sample**, not to the end of the
+reply. A voice turn is a silence somebody sits through, and nothing after the
+first sample is inside it.
+
+| stage | target | why |
+|---|---|---|
+| Endpointing | 300 ms | silence held before the turn is called finished |
+| STT finalise | 200 ms | endpoint to final transcript — partials do not count |
+| First speakable sentence | 150 ms | transcript to a *complete* sentence |
+| TTS first audio | 150 ms | first sentence to first sample |
+
+Written before measuring, which is the only way a budget means anything. Three
+of the four turn out to be wrong, and that is the useful part.
+
+### What it actually costs
+
+Median turn, 11 utterances, 8 fluent and 3 with a hesitation spliced in:
+
+| path | median | p90 | inside 800 ms |
+|---|---|---|---|
+| `cited` — days 8-11, no model | **958 ms** | 1113 ms | 27% |
+| `generated` — 0.5B streamed on CPU | **3033 ms** | 4709 ms | **0%** |
+
+The retrieval path misses the budget by 158 ms. The generated path misses it by
+a factor of four and lands past the two-second mark where a caller assumes the
+line has dropped — on *every single turn*.
+
+Stage by stage, for the median `cited` turn:
+
+```
+Endpointing                300 ms   1.00x
+STT finalise               494 ms   2.47x  <- worst
+First speakable sentence     7 ms   0.04x
+TTS first audio            157 ms   1.05x
+```
+
+Two things fall out. The 0.5B model is not viable for voice on a CPU, which is
+unsurprising. What *is* surprising is that with the model removed entirely, a
+38M-parameter recogniser and a small TTS still miss an 800 ms budget — the
+thinking was never the only problem.
+
+### Time-to-first-token is the wrong metric, and it flatters you
+
+| reply path | first token | first sentence | gap |
+|---|---|---|---|
+| `cited` | 5 ms | 5 ms | +0 |
+| `generated` | **688 ms** | **2205 ms** | **+1517 ms** |
+
+A token cannot be spoken. What gates the audio is the first *complete
+sentence*, and on a streamed model the two are a second and a half apart. A
+dashboard tracking TTFT would report 688 ms and look nearly healthy while
+callers sat through two and a half seconds of silence.
+
+This is the one finding here I would take to any voice project. TTFT is the
+number every inference provider advertises and every chat UI is built around,
+and it is the wrong unit for a medium where the output has to be *utterable*
+before it is worth anything.
+
+Speaking the first sentence rather than waiting for the whole reply is worth
+**134 ms** on the generated path and **−14 ms** on the cited path — noise
+either way, because a verified span is usually a single sentence, so the first
+sentence and the whole reply are the same string and there is nothing to
+overlap. The optimisation everyone reaches for first is worth nothing until the
+replies are long enough to have a second sentence.
+
+### Endpointing: the stage that breaks the budget by itself
+
+Nothing is computed while the endpointer waits. It is pure dead air, and it is
+the only stage whose correct value is a product decision rather than an
+engineering one. Shortening it does not buy speed — it cuts people off.
+
+| silence held | dead air | callers cut off | WER, hesitant | WER, fluent |
+|---|---|---|---|---|
+| 100 ms | 100 ms | **3/11** | 49% | 9% |
+| 300 ms *(budget)* | 300 ms | **3/11** | 49% | 9% |
+| 600 ms | 600 ms | 2/11 | 28% | 9% |
+| 800 ms | 800 ms | 1/11 | 13% | 9% |
+| **1000 ms** | 1000 ms | **0/11** | **0%** | 9% |
+
+**The shortest setting that cuts nobody off is 1000 ms — 125% of the entire
+800 ms budget, spent before a single instruction executes.** The budget is not
+merely missed, it is unreachable: endpointing alone exceeds it, and everything
+else is free.
+
+That is the result, and it is worth being precise about what it does and does
+not prove. It is a property of *energy-based* endpointing on utterances with
+real pauses. A neural VAD does better on where speech is; a semantic
+endpointer, which asks whether the words so far could be a finished question,
+does better still — and that is the actual answer, not a shorter timeout. What
+the sweep shows is that you cannot get there by tuning a threshold, which is
+exactly what a threshold sweep is for.
+
+This is the third time this portfolio has arrived at the same shape — day 2's
+rejection threshold, day 10's grounding threshold, and now a hangover — and it
+is the first one whose cost is paid in silence rather than in accuracy.
+
+### What is honest about the measurement, and what is not
+
+**The input audio is synthetic, and the word error rate should be read as a
+floor.** A Piper voice has no room tone, no clipping, no accent the recogniser
+has not heard and nobody talking over it. Seven of the eight fluent questions
+transcribe perfectly; the eighth, *"are assistance dogs allowed"*, comes back
+as *"Our Assistant Stogs allowed."* — a 75% error rate on one utterance, which
+is the whole of the 9% fluent average. On real telephone audio the number would
+be worse and this day would have nothing useful to say about by how much.
+
+**Latency, on the other hand, is close to fair.** Whisper spends the same time
+on clean audio as on dirty audio of the same length, so the timing transfers
+even though the accuracy does not.
+
+**The hesitations are constructed and labelled as such.** Piper reads a
+sentence straight through — the longest silence inside a synthesised question
+here is 40 ms, so no hangover would ever fire early and the endpointing
+tradeoff would have looked free. Real callers stop mid-sentence, so each of
+three questions is synthesised in two halves with a measured gap spliced
+between them. Without that the sweep would have had only a cost column.
+
+**Piper is not deterministic, which nearly cost the day its numbers.** It is a
+VITS-style model that samples from a latent distribution, so the same sentence
+synthesised twice gives different audio — different enough that one question
+transcribed perfectly on one run and as garbage on the next, and the fluent
+WER moved from 9% to 22% between two builds of unchanged code. Zeroing the
+noise scales fixes it, at the cost of the flattest possible reading of every
+line. A word error rate measured over a corpus that changes per run is not a
+measurement, and the first version of this section was being written before I
+noticed.
+
 ## What I would do differently
 
 **Check the deployment constraint before architecting around it.** Day 1 was
@@ -1235,6 +1379,17 @@ got worse. What I would add is a test at the level of the shared function
 asserting the property its callers depend on — that inflections of a word match
 — rather than testing only the behaviour each caller happens to show. That test
 exists now, and it is the one I would have written first.
+
+**Check that the measurement reproduces before reading anything into it.**
+Day 12 nearly shipped a word error rate that moved from 9% to 22% between two
+builds of unchanged code, because Piper samples from a latent distribution and
+I had assumed a local model with greedy decoding downstream meant a
+deterministic pipeline. The tell was there — the audio was a different *length*
+each run — and I only looked because the number moved after an unrelated
+change. Every other day in this repo caches its artifact and compares against
+it; day 12 generates its input, and generated input needs a seed. The habit
+worth keeping is running the build twice and diffing before writing a single
+figure down.
 
 **Build the ceiling before building the thing.** Day 11's oracle — the
 hand-written standalone version of each follow-up — took an hour and is the

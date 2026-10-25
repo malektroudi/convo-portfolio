@@ -1,0 +1,3752 @@
+{
+ "stt_model": "openai/whisper-tiny.en",
+ "tts_voice": "en_US-lessac-low",
+ "llm_model": "Qwen/Qwen2.5-0.5B-Instruct",
+ "sample_rate": 16000,
+ "default_hangover_ms": 300.0,
+ "silence_floor": 0.012,
+ "turns": [
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "stream",
+   "reply": {
+    "text": "Cancelling between fourteen and seven days before the event refunds half of the\ndeposit.",
+    "path": "cited",
+    "first_token_ms": 5.08,
+    "first_sentence_ms": 5.08,
+    "complete_ms": 5.08,
+    "first_sentence": "Cancelling between fourteen and seven days before the event refunds half of the\ndeposit."
+   },
+   "audio_ms": 3126.0,
+   "pause_ms": 20.0,
+   "first_audio_duration_ms": 4496.0,
+   "reply_audio_ms": 4496.0,
+   "budget": {
+    "total_ms": 958.56,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 418.94,
+      "target_ms": 200.0,
+      "over_ms": 218.94,
+      "ratio": 2.09
+     },
+     {
+      "key": "think",
+      "measured_ms": 5.08,
+      "target_ms": 150.0,
+      "over_ms": -144.92,
+      "ratio": 0.03
+     },
+     {
+      "key": "tts",
+      "measured_ms": 234.55,
+      "target_ms": 150.0,
+      "over_ms": 84.55,
+      "ratio": 1.56
+     }
+    ]
+   }
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "wait",
+   "reply": {
+    "text": "Cancelling between fourteen and seven days before the event refunds half of the\ndeposit.",
+    "path": "cited",
+    "first_token_ms": 5.08,
+    "first_sentence_ms": 5.08,
+    "complete_ms": 5.08,
+    "first_sentence": "Cancelling between fourteen and seven days before the event refunds half of the\ndeposit."
+   },
+   "audio_ms": 3126.0,
+   "pause_ms": 20.0,
+   "first_audio_duration_ms": 4496.0,
+   "reply_audio_ms": 4496.0,
+   "budget": {
+    "total_ms": 943.39,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 418.94,
+      "target_ms": 200.0,
+      "over_ms": 218.94,
+      "ratio": 2.09
+     },
+     {
+      "key": "think",
+      "measured_ms": 5.08,
+      "target_ms": 150.0,
+      "over_ms": -144.92,
+      "ratio": 0.03
+     },
+     {
+      "key": "tts",
+      "measured_ms": 219.37,
+      "target_ms": 150.0,
+      "over_ms": 69.37,
+      "ratio": 1.46
+     }
+    ]
+   }
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "stream",
+   "reply": {
+    "text": "state the answer, then offer the obvious next step.",
+    "path": "generated",
+    "first_token_ms": 576.87,
+    "first_sentence_ms": 2158.24,
+    "complete_ms": 2158.49,
+    "first_sentence": "state the answer, then offer the obvious next step."
+   },
+   "audio_ms": 3126.0,
+   "pause_ms": 20.0,
+   "first_audio_duration_ms": 2960.0,
+   "reply_audio_ms": 2960.0,
+   "budget": {
+    "total_ms": 3032.52,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 418.94,
+      "target_ms": 200.0,
+      "over_ms": 218.94,
+      "ratio": 2.09
+     },
+     {
+      "key": "think",
+      "measured_ms": 2158.24,
+      "target_ms": 150.0,
+      "over_ms": 2008.24,
+      "ratio": 14.39
+     },
+     {
+      "key": "tts",
+      "measured_ms": 155.35,
+      "target_ms": 150.0,
+      "over_ms": 5.35,
+      "ratio": 1.04
+     }
+    ]
+   }
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "wait",
+   "reply": {
+    "text": "state the answer, then offer the obvious next step.",
+    "path": "generated",
+    "first_token_ms": 576.87,
+    "first_sentence_ms": 2158.24,
+    "complete_ms": 2158.49,
+    "first_sentence": "state the answer, then offer the obvious next step."
+   },
+   "audio_ms": 3126.0,
+   "pause_ms": 20.0,
+   "first_audio_duration_ms": 2960.0,
+   "reply_audio_ms": 2960.0,
+   "budget": {
+    "total_ms": 3086.67,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 418.94,
+      "target_ms": 200.0,
+      "over_ms": 218.94,
+      "ratio": 2.09
+     },
+     {
+      "key": "think",
+      "measured_ms": 2158.49,
+      "target_ms": 150.0,
+      "over_ms": 2008.49,
+      "ratio": 14.39
+     },
+     {
+      "key": "tts",
+      "measured_ms": 209.24,
+      "target_ms": 150.0,
+      "over_ms": 59.24,
+      "ratio": 1.39
+     }
+    ]
+   }
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "heard": "Where can I park?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "stream",
+   "reply": {
+    "text": "I don't have anything in the help centre that answers that. The restaurant can tell you directly.",
+    "path": "cited",
+    "first_token_ms": 8.38,
+    "first_sentence_ms": 8.38,
+    "complete_ms": 8.38,
+    "first_sentence": "I don't have anything in the help centre that answers that."
+   },
+   "audio_ms": 2278.0,
+   "pause_ms": 60.0,
+   "first_audio_duration_ms": 2544.0,
+   "reply_audio_ms": 4432.0,
+   "budget": {
+    "total_ms": 969.69,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 542.03,
+      "target_ms": 200.0,
+      "over_ms": 342.03,
+      "ratio": 2.71
+     },
+     {
+      "key": "think",
+      "measured_ms": 8.38,
+      "target_ms": 150.0,
+      "over_ms": -141.62,
+      "ratio": 0.06
+     },
+     {
+      "key": "tts",
+      "measured_ms": 119.28,
+      "target_ms": 150.0,
+      "over_ms": -30.72,
+      "ratio": 0.8
+     }
+    ]
+   }
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "heard": "Where can I park?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "wait",
+   "reply": {
+    "text": "I don't have anything in the help centre that answers that. The restaurant can tell you directly.",
+    "path": "cited",
+    "first_token_ms": 8.38,
+    "first_sentence_ms": 8.38,
+    "complete_ms": 8.38,
+    "first_sentence": "I don't have anything in the help centre that answers that."
+   },
+   "audio_ms": 2278.0,
+   "pause_ms": 60.0,
+   "first_audio_duration_ms": 2544.0,
+   "reply_audio_ms": 4432.0,
+   "budget": {
+    "total_ms": 979.55,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 542.03,
+      "target_ms": 200.0,
+      "over_ms": 342.03,
+      "ratio": 2.71
+     },
+     {
+      "key": "think",
+      "measured_ms": 8.38,
+      "target_ms": 150.0,
+      "over_ms": -141.62,
+      "ratio": 0.06
+     },
+     {
+      "key": "tts",
+      "measured_ms": 129.14,
+      "target_ms": 150.0,
+      "over_ms": -20.86,
+      "ratio": 0.86
+     }
+    ]
+   }
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "heard": "Where can I park?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "stream",
+   "reply": {
+    "text": "There is paid street parking on Dundas, metered until 9pm on weekdays and until 6pm on Saturdays. The obvious next step would be to call the city's official website for more information about available spots.",
+    "path": "generated",
+    "first_token_ms": 762.22,
+    "first_sentence_ms": 4552.45,
+    "complete_ms": 7347.03,
+    "first_sentence": "There is paid street parking on Dundas, metered until 9pm on weekdays and until 6pm on Saturdays."
+   },
+   "audio_ms": 2278.0,
+   "pause_ms": 60.0,
+   "first_audio_duration_ms": 5536.0,
+   "reply_audio_ms": 11616.0,
+   "budget": {
+    "total_ms": 5625.52,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 542.03,
+      "target_ms": 200.0,
+      "over_ms": 342.03,
+      "ratio": 2.71
+     },
+     {
+      "key": "think",
+      "measured_ms": 4552.45,
+      "target_ms": 150.0,
+      "over_ms": 4402.45,
+      "ratio": 30.35
+     },
+     {
+      "key": "tts",
+      "measured_ms": 231.05,
+      "target_ms": 150.0,
+      "over_ms": 81.05,
+      "ratio": 1.54
+     }
+    ]
+   }
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "heard": "Where can I park?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "wait",
+   "reply": {
+    "text": "There is paid street parking on Dundas, metered until 9pm on weekdays and until 6pm on Saturdays. The obvious next step would be to call the city's official website for more information about available spots.",
+    "path": "generated",
+    "first_token_ms": 762.22,
+    "first_sentence_ms": 4552.45,
+    "complete_ms": 7347.03,
+    "first_sentence": "There is paid street parking on Dundas, metered until 9pm on weekdays and until 6pm on Saturdays."
+   },
+   "audio_ms": 2278.0,
+   "pause_ms": 60.0,
+   "first_audio_duration_ms": 5536.0,
+   "reply_audio_ms": 11616.0,
+   "budget": {
+    "total_ms": 8451.89,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 542.03,
+      "target_ms": 200.0,
+      "over_ms": 342.03,
+      "ratio": 2.71
+     },
+     {
+      "key": "think",
+      "measured_ms": 7347.03,
+      "target_ms": 150.0,
+      "over_ms": 7197.03,
+      "ratio": 48.98
+     },
+     {
+      "key": "tts",
+      "measured_ms": 262.83,
+      "target_ms": 150.0,
+      "over_ms": 112.83,
+      "ratio": 1.75
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "stream",
+   "reply": {
+    "text": "There are usually five vegan mains and three vegan desserts. The vegetarian\noptions are marked on the main menu rather than kept separately.",
+    "path": "cited",
+    "first_token_ms": 3.79,
+    "first_sentence_ms": 3.79,
+    "complete_ms": 3.79,
+    "first_sentence": "There are usually five vegan mains and three vegan desserts."
+   },
+   "audio_ms": 2758.0,
+   "pause_ms": 20.0,
+   "first_audio_duration_ms": 3184.0,
+   "reply_audio_ms": 6704.0,
+   "budget": {
+    "total_ms": 932.07,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 483.97,
+      "target_ms": 200.0,
+      "over_ms": 283.97,
+      "ratio": 2.42
+     },
+     {
+      "key": "think",
+      "measured_ms": 3.79,
+      "target_ms": 150.0,
+      "over_ms": -146.21,
+      "ratio": 0.03
+     },
+     {
+      "key": "tts",
+      "measured_ms": 144.3,
+      "target_ms": 150.0,
+      "over_ms": -5.7,
+      "ratio": 0.96
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "wait",
+   "reply": {
+    "text": "There are usually five vegan mains and three vegan desserts. The vegetarian\noptions are marked on the main menu rather than kept separately.",
+    "path": "cited",
+    "first_token_ms": 3.79,
+    "first_sentence_ms": 3.79,
+    "complete_ms": 3.79,
+    "first_sentence": "There are usually five vegan mains and three vegan desserts."
+   },
+   "audio_ms": 2758.0,
+   "pause_ms": 20.0,
+   "first_audio_duration_ms": 3184.0,
+   "reply_audio_ms": 6704.0,
+   "budget": {
+    "total_ms": 916.52,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 483.97,
+      "target_ms": 200.0,
+      "over_ms": 283.97,
+      "ratio": 2.42
+     },
+     {
+      "key": "think",
+      "measured_ms": 3.79,
+      "target_ms": 150.0,
+      "over_ms": -146.21,
+      "ratio": 0.03
+     },
+     {
+      "key": "tts",
+      "measured_ms": 128.76,
+      "target_ms": 150.0,
+      "over_ms": -21.24,
+      "ratio": 0.86
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "stream",
+   "reply": {
+    "text": "Yes, we do! We have vegan mains like tofu stir-fry and lentil soup, and vegan desserts such as banana bread and chocolate cake.",
+    "path": "generated",
+    "first_token_ms": 766.8,
+    "first_sentence_ms": 1172.77,
+    "complete_ms": 4580.68,
+    "first_sentence": "Yes, we do!"
+   },
+   "audio_ms": 2758.0,
+   "pause_ms": 20.0,
+   "first_audio_duration_ms": 1120.0,
+   "reply_audio_ms": 7360.0,
+   "budget": {
+    "total_ms": 2009.56,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 483.97,
+      "target_ms": 200.0,
+      "over_ms": 283.97,
+      "ratio": 2.42
+     },
+     {
+      "key": "think",
+      "measured_ms": 1172.77,
+      "target_ms": 150.0,
+      "over_ms": 1022.77,
+      "ratio": 7.82
+     },
+     {
+      "key": "tts",
+      "measured_ms": 52.81,
+      "target_ms": 150.0,
+      "over_ms": -97.19,
+      "ratio": 0.35
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "wait",
+   "reply": {
+    "text": "Yes, we do! We have vegan mains like tofu stir-fry and lentil soup, and vegan desserts such as banana bread and chocolate cake.",
+    "path": "generated",
+    "first_token_ms": 766.8,
+    "first_sentence_ms": 1172.77,
+    "complete_ms": 4580.68,
+    "first_sentence": "Yes, we do!"
+   },
+   "audio_ms": 2758.0,
+   "pause_ms": 20.0,
+   "first_audio_duration_ms": 1120.0,
+   "reply_audio_ms": 7360.0,
+   "budget": {
+    "total_ms": 5426.43,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 483.97,
+      "target_ms": 200.0,
+      "over_ms": 283.97,
+      "ratio": 2.42
+     },
+     {
+      "key": "think",
+      "measured_ms": 4580.68,
+      "target_ms": 150.0,
+      "over_ms": 4430.68,
+      "ratio": 30.54
+     },
+     {
+      "key": "tts",
+      "measured_ms": 61.77,
+      "target_ms": 150.0,
+      "over_ms": -88.23,
+      "ratio": 0.41
+     }
+    ]
+   }
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "stream",
+   "reply": {
+    "text": "From 1 March 2026 the private event deposit is a flat 200 CAD regardless of\nparty size.",
+    "path": "cited",
+    "first_token_ms": 3.68,
+    "first_sentence_ms": 3.68,
+    "complete_ms": 3.68,
+    "first_sentence": "From 1 March 2026 the private event deposit is a flat 200 CAD regardless of\nparty size."
+   },
+   "audio_ms": 3574.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 5744.0,
+   "reply_audio_ms": 5744.0,
+   "budget": {
+    "total_ms": 1215.3,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 636.62,
+      "target_ms": 200.0,
+      "over_ms": 436.62,
+      "ratio": 3.18
+     },
+     {
+      "key": "think",
+      "measured_ms": 3.68,
+      "target_ms": 150.0,
+      "over_ms": -146.32,
+      "ratio": 0.02
+     },
+     {
+      "key": "tts",
+      "measured_ms": 275.0,
+      "target_ms": 150.0,
+      "over_ms": 125.0,
+      "ratio": 1.83
+     }
+    ]
+   }
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "wait",
+   "reply": {
+    "text": "From 1 March 2026 the private event deposit is a flat 200 CAD regardless of\nparty size.",
+    "path": "cited",
+    "first_token_ms": 3.68,
+    "first_sentence_ms": 3.68,
+    "complete_ms": 3.68,
+    "first_sentence": "From 1 March 2026 the private event deposit is a flat 200 CAD regardless of\nparty size."
+   },
+   "audio_ms": 3574.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 5744.0,
+   "reply_audio_ms": 5744.0,
+   "budget": {
+    "total_ms": 1215.22,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 636.62,
+      "target_ms": 200.0,
+      "over_ms": 436.62,
+      "ratio": 3.18
+     },
+     {
+      "key": "think",
+      "measured_ms": 3.68,
+      "target_ms": 150.0,
+      "over_ms": -146.32,
+      "ratio": 0.02
+     },
+     {
+      "key": "tts",
+      "measured_ms": 274.92,
+      "target_ms": 150.0,
+      "over_ms": 124.92,
+      "ratio": 1.83
+     }
+    ]
+   }
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "stream",
+   "reply": {
+    "text": "The deposit for a private event is $200 CAD.",
+    "path": "generated",
+    "first_token_ms": 695.84,
+    "first_sentence_ms": 2387.34,
+    "complete_ms": 2387.54,
+    "first_sentence": "The deposit for a private event is $200 CAD."
+   },
+   "audio_ms": 3574.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 2880.0,
+   "reply_audio_ms": 2880.0,
+   "budget": {
+    "total_ms": 3477.97,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 636.62,
+      "target_ms": 200.0,
+      "over_ms": 436.62,
+      "ratio": 3.18
+     },
+     {
+      "key": "think",
+      "measured_ms": 2387.34,
+      "target_ms": 150.0,
+      "over_ms": 2237.34,
+      "ratio": 15.92
+     },
+     {
+      "key": "tts",
+      "measured_ms": 154.01,
+      "target_ms": 150.0,
+      "over_ms": 4.01,
+      "ratio": 1.03
+     }
+    ]
+   }
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "wait",
+   "reply": {
+    "text": "The deposit for a private event is $200 CAD.",
+    "path": "generated",
+    "first_token_ms": 695.84,
+    "first_sentence_ms": 2387.34,
+    "complete_ms": 2387.54,
+    "first_sentence": "The deposit for a private event is $200 CAD."
+   },
+   "audio_ms": 3574.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 2880.0,
+   "reply_audio_ms": 2880.0,
+   "budget": {
+    "total_ms": 3475.38,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 636.62,
+      "target_ms": 200.0,
+      "over_ms": 436.62,
+      "ratio": 3.18
+     },
+     {
+      "key": "think",
+      "measured_ms": 2387.54,
+      "target_ms": 150.0,
+      "over_ms": 2237.54,
+      "ratio": 15.92
+     },
+     {
+      "key": "tts",
+      "measured_ms": 151.21,
+      "target_ms": 150.0,
+      "over_ms": 1.21,
+      "ratio": 1.01
+     }
+    ]
+   }
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "stream",
+   "reply": {
+    "text": "There is an accessible washroom on the same floor as the dining room, with\ngrab rails and a 150cm turning circle.",
+    "path": "cited",
+    "first_token_ms": 4.7,
+    "first_sentence_ms": 4.7,
+    "complete_ms": 4.7,
+    "first_sentence": "There is an accessible washroom on the same floor as the dining room, with\ngrab rails and a 150cm turning circle."
+   },
+   "audio_ms": 3686.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 6512.0,
+   "reply_audio_ms": 6512.0,
+   "budget": {
+    "total_ms": 1055.31,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 450.7,
+      "target_ms": 200.0,
+      "over_ms": 250.7,
+      "ratio": 2.25
+     },
+     {
+      "key": "think",
+      "measured_ms": 4.7,
+      "target_ms": 150.0,
+      "over_ms": -145.3,
+      "ratio": 0.03
+     },
+     {
+      "key": "tts",
+      "measured_ms": 299.91,
+      "target_ms": 150.0,
+      "over_ms": 149.91,
+      "ratio": 2.0
+     }
+    ]
+   }
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "wait",
+   "reply": {
+    "text": "There is an accessible washroom on the same floor as the dining room, with\ngrab rails and a 150cm turning circle.",
+    "path": "cited",
+    "first_token_ms": 4.7,
+    "first_sentence_ms": 4.7,
+    "complete_ms": 4.7,
+    "first_sentence": "There is an accessible washroom on the same floor as the dining room, with\ngrab rails and a 150cm turning circle."
+   },
+   "audio_ms": 3686.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 6512.0,
+   "reply_audio_ms": 6512.0,
+   "budget": {
+    "total_ms": 1033.36,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 450.7,
+      "target_ms": 200.0,
+      "over_ms": 250.7,
+      "ratio": 2.25
+     },
+     {
+      "key": "think",
+      "measured_ms": 4.7,
+      "target_ms": 150.0,
+      "over_ms": -145.3,
+      "ratio": 0.03
+     },
+     {
+      "key": "tts",
+      "measured_ms": 277.97,
+      "target_ms": 150.0,
+      "over_ms": 127.97,
+      "ratio": 1.85
+     }
+    ]
+   }
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "stream",
+   "reply": {
+    "text": "Yes, the dining room is wheelchair accessible.",
+    "path": "generated",
+    "first_token_ms": 779.48,
+    "first_sentence_ms": 1715.43,
+    "complete_ms": 1715.65,
+    "first_sentence": "Yes, the dining room is wheelchair accessible."
+   },
+   "audio_ms": 3686.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 2848.0,
+   "reply_audio_ms": 2848.0,
+   "budget": {
+    "total_ms": 2585.86,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 450.7,
+      "target_ms": 200.0,
+      "over_ms": 250.7,
+      "ratio": 2.25
+     },
+     {
+      "key": "think",
+      "measured_ms": 1715.43,
+      "target_ms": 150.0,
+      "over_ms": 1565.43,
+      "ratio": 11.44
+     },
+     {
+      "key": "tts",
+      "measured_ms": 119.73,
+      "target_ms": 150.0,
+      "over_ms": -30.27,
+      "ratio": 0.8
+     }
+    ]
+   }
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "wait",
+   "reply": {
+    "text": "Yes, the dining room is wheelchair accessible.",
+    "path": "generated",
+    "first_token_ms": 779.48,
+    "first_sentence_ms": 1715.43,
+    "complete_ms": 1715.65,
+    "first_sentence": "Yes, the dining room is wheelchair accessible."
+   },
+   "audio_ms": 3686.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 2848.0,
+   "reply_audio_ms": 2848.0,
+   "budget": {
+    "total_ms": 2580.94,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 450.7,
+      "target_ms": 200.0,
+      "over_ms": 250.7,
+      "ratio": 2.25
+     },
+     {
+      "key": "think",
+      "measured_ms": 1715.65,
+      "target_ms": 150.0,
+      "over_ms": 1565.65,
+      "ratio": 11.44
+     },
+     {
+      "key": "tts",
+      "measured_ms": 114.59,
+      "target_ms": 150.0,
+      "over_ms": -35.41,
+      "ratio": 0.76
+     }
+    ]
+   }
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "stream",
+   "reply": {
+    "text": "A private event booking must be cancelled at least fourteen days before the\nevent date for a full refund of the deposit.",
+    "path": "cited",
+    "first_token_ms": 6.59,
+    "first_sentence_ms": 6.59,
+    "complete_ms": 6.59,
+    "first_sentence": "A private event booking must be cancelled at least fourteen days before the\nevent date for a full refund of the deposit."
+   },
+   "audio_ms": 4454.0,
+   "pause_ms": 60.0,
+   "first_audio_duration_ms": 5840.0,
+   "reply_audio_ms": 5840.0,
+   "budget": {
+    "total_ms": 1113.34,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 519.98,
+      "target_ms": 200.0,
+      "over_ms": 319.98,
+      "ratio": 2.6
+     },
+     {
+      "key": "think",
+      "measured_ms": 6.59,
+      "target_ms": 150.0,
+      "over_ms": -143.41,
+      "ratio": 0.04
+     },
+     {
+      "key": "tts",
+      "measured_ms": 286.76,
+      "target_ms": 150.0,
+      "over_ms": 136.76,
+      "ratio": 1.91
+     }
+    ]
+   }
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "wait",
+   "reply": {
+    "text": "A private event booking must be cancelled at least fourteen days before the\nevent date for a full refund of the deposit.",
+    "path": "cited",
+    "first_token_ms": 6.59,
+    "first_sentence_ms": 6.59,
+    "complete_ms": 6.59,
+    "first_sentence": "A private event booking must be cancelled at least fourteen days before the\nevent date for a full refund of the deposit."
+   },
+   "audio_ms": 4454.0,
+   "pause_ms": 60.0,
+   "first_audio_duration_ms": 5840.0,
+   "reply_audio_ms": 5840.0,
+   "budget": {
+    "total_ms": 1117.78,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 519.98,
+      "target_ms": 200.0,
+      "over_ms": 319.98,
+      "ratio": 2.6
+     },
+     {
+      "key": "think",
+      "measured_ms": 6.59,
+      "target_ms": 150.0,
+      "over_ms": -143.41,
+      "ratio": 0.04
+     },
+     {
+      "key": "tts",
+      "measured_ms": 291.2,
+      "target_ms": 150.0,
+      "over_ms": 141.2,
+      "ratio": 1.94
+     }
+    ]
+   }
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "stream",
+   "reply": {
+    "text": "The deposit will not be refunded.",
+    "path": "generated",
+    "first_token_ms": 681.37,
+    "first_sentence_ms": 1528.27,
+    "complete_ms": 1528.5,
+    "first_sentence": "The deposit will not be refunded."
+   },
+   "audio_ms": 4454.0,
+   "pause_ms": 60.0,
+   "first_audio_duration_ms": 1712.0,
+   "reply_audio_ms": 1712.0,
+   "budget": {
+    "total_ms": 2432.96,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 519.98,
+      "target_ms": 200.0,
+      "over_ms": 319.98,
+      "ratio": 2.6
+     },
+     {
+      "key": "think",
+      "measured_ms": 1528.27,
+      "target_ms": 150.0,
+      "over_ms": 1378.27,
+      "ratio": 10.19
+     },
+     {
+      "key": "tts",
+      "measured_ms": 84.7,
+      "target_ms": 150.0,
+      "over_ms": -65.3,
+      "ratio": 0.56
+     }
+    ]
+   }
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "wait",
+   "reply": {
+    "text": "The deposit will not be refunded.",
+    "path": "generated",
+    "first_token_ms": 681.37,
+    "first_sentence_ms": 1528.27,
+    "complete_ms": 1528.5,
+    "first_sentence": "The deposit will not be refunded."
+   },
+   "audio_ms": 4454.0,
+   "pause_ms": 60.0,
+   "first_audio_duration_ms": 1712.0,
+   "reply_audio_ms": 1712.0,
+   "budget": {
+    "total_ms": 2438.11,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 519.98,
+      "target_ms": 200.0,
+      "over_ms": 319.98,
+      "ratio": 2.6
+     },
+     {
+      "key": "think",
+      "measured_ms": 1528.5,
+      "target_ms": 150.0,
+      "over_ms": 1378.5,
+      "ratio": 10.19
+     },
+     {
+      "key": "tts",
+      "measured_ms": 89.63,
+      "target_ms": 150.0,
+      "over_ms": -60.37,
+      "ratio": 0.6
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "stream",
+   "reply": {
+    "text": "A phone number is optional but helps if we need to reach you about a\ndelay. We do not ask for card details to hold a regular table.",
+    "path": "cited",
+    "first_token_ms": 6.63,
+    "first_sentence_ms": 6.63,
+    "complete_ms": 6.63,
+    "first_sentence": "A phone number is optional but helps if we need to reach you about a\ndelay."
+   },
+   "audio_ms": 3814.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 3312.0,
+   "reply_audio_ms": 6384.0,
+   "budget": {
+    "total_ms": 957.78,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 494.27,
+      "target_ms": 200.0,
+      "over_ms": 294.27,
+      "ratio": 2.47
+     },
+     {
+      "key": "think",
+      "measured_ms": 6.63,
+      "target_ms": 150.0,
+      "over_ms": -143.37,
+      "ratio": 0.04
+     },
+     {
+      "key": "tts",
+      "measured_ms": 156.88,
+      "target_ms": 150.0,
+      "over_ms": 6.88,
+      "ratio": 1.05
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0,
+   "path": "cited",
+   "strategy": "wait",
+   "reply": {
+    "text": "A phone number is optional but helps if we need to reach you about a\ndelay. We do not ask for card details to hold a regular table.",
+    "path": "cited",
+    "first_token_ms": 6.63,
+    "first_sentence_ms": 6.63,
+    "complete_ms": 6.63,
+    "first_sentence": "A phone number is optional but helps if we need to reach you about a\ndelay."
+   },
+   "audio_ms": 3814.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 3312.0,
+   "reply_audio_ms": 6384.0,
+   "budget": {
+    "total_ms": 949.87,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 494.27,
+      "target_ms": 200.0,
+      "over_ms": 294.27,
+      "ratio": 2.47
+     },
+     {
+      "key": "think",
+      "measured_ms": 6.63,
+      "target_ms": 150.0,
+      "over_ms": -143.37,
+      "ratio": 0.04
+     },
+     {
+      "key": "tts",
+      "measured_ms": 148.98,
+      "target_ms": 150.0,
+      "over_ms": -1.02,
+      "ratio": 0.99
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "stream",
+   "reply": {
+    "text": "The obvious next step would be to inform the customer that they don't need their card details to hold a reservation.",
+    "path": "generated",
+    "first_token_ms": 762.15,
+    "first_sentence_ms": 3677.4,
+    "complete_ms": 3677.63,
+    "first_sentence": "The obvious next step would be to inform the customer that they don't need their card details to hold a reservation."
+   },
+   "audio_ms": 3814.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 6000.0,
+   "reply_audio_ms": 6000.0,
+   "budget": {
+    "total_ms": 4708.83,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 494.27,
+      "target_ms": 200.0,
+      "over_ms": 294.27,
+      "ratio": 2.47
+     },
+     {
+      "key": "think",
+      "measured_ms": 3677.4,
+      "target_ms": 150.0,
+      "over_ms": 3527.4,
+      "ratio": 24.52
+     },
+     {
+      "key": "tts",
+      "measured_ms": 237.17,
+      "target_ms": 150.0,
+      "over_ms": 87.17,
+      "ratio": 1.58
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0,
+   "path": "generated",
+   "strategy": "wait",
+   "reply": {
+    "text": "The obvious next step would be to inform the customer that they don't need their card details to hold a reservation.",
+    "path": "generated",
+    "first_token_ms": 762.15,
+    "first_sentence_ms": 3677.4,
+    "complete_ms": 3677.63,
+    "first_sentence": "The obvious next step would be to inform the customer that they don't need their card details to hold a reservation."
+   },
+   "audio_ms": 3814.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 6000.0,
+   "reply_audio_ms": 6000.0,
+   "budget": {
+    "total_ms": 4739.06,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 494.27,
+      "target_ms": 200.0,
+      "over_ms": 294.27,
+      "ratio": 2.47
+     },
+     {
+      "key": "think",
+      "measured_ms": 3677.63,
+      "target_ms": 150.0,
+      "over_ms": 3527.63,
+      "ratio": 24.52
+     },
+     {
+      "key": "tts",
+      "measured_ms": 267.16,
+      "target_ms": 150.0,
+      "over_ms": 117.16,
+      "ratio": 1.78
+     }
+    ]
+   }
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75,
+   "path": "cited",
+   "strategy": "stream",
+   "reply": {
+    "text": "Assistance animals are welcome throughout the restaurant, including the bar.",
+    "path": "cited",
+    "first_token_ms": 4.58,
+    "first_sentence_ms": 4.58,
+    "complete_ms": 4.58,
+    "first_sentence": "Assistance animals are welcome throughout the restaurant, including the bar."
+   },
+   "audio_ms": 3062.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 3824.0,
+   "reply_audio_ms": 3824.0,
+   "budget": {
+    "total_ms": 898.7,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 405.14,
+      "target_ms": 200.0,
+      "over_ms": 205.14,
+      "ratio": 2.03
+     },
+     {
+      "key": "think",
+      "measured_ms": 4.58,
+      "target_ms": 150.0,
+      "over_ms": -145.42,
+      "ratio": 0.03
+     },
+     {
+      "key": "tts",
+      "measured_ms": 188.97,
+      "target_ms": 150.0,
+      "over_ms": 38.97,
+      "ratio": 1.26
+     }
+    ]
+   }
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75,
+   "path": "cited",
+   "strategy": "wait",
+   "reply": {
+    "text": "Assistance animals are welcome throughout the restaurant, including the bar.",
+    "path": "cited",
+    "first_token_ms": 4.58,
+    "first_sentence_ms": 4.58,
+    "complete_ms": 4.58,
+    "first_sentence": "Assistance animals are welcome throughout the restaurant, including the bar."
+   },
+   "audio_ms": 3062.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 3824.0,
+   "reply_audio_ms": 3824.0,
+   "budget": {
+    "total_ms": 862.65,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 405.14,
+      "target_ms": 200.0,
+      "over_ms": 205.14,
+      "ratio": 2.03
+     },
+     {
+      "key": "think",
+      "measured_ms": 4.58,
+      "target_ms": 150.0,
+      "over_ms": -145.42,
+      "ratio": 0.03
+     },
+     {
+      "key": "tts",
+      "measured_ms": 152.93,
+      "target_ms": 150.0,
+      "over_ms": 2.93,
+      "ratio": 1.02
+     }
+    ]
+   }
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75,
+   "path": "generated",
+   "strategy": "stream",
+   "reply": {
+    "text": "The assistant allowed assistance dogs to enter the restaurant, including the bar.",
+    "path": "generated",
+    "first_token_ms": 572.71,
+    "first_sentence_ms": 2349.6,
+    "complete_ms": 2349.75,
+    "first_sentence": "The assistant allowed assistance dogs to enter the restaurant, including the bar."
+   },
+   "audio_ms": 3062.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 4000.0,
+   "reply_audio_ms": 4000.0,
+   "budget": {
+    "total_ms": 3215.82,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 405.14,
+      "target_ms": 200.0,
+      "over_ms": 205.14,
+      "ratio": 2.03
+     },
+     {
+      "key": "think",
+      "measured_ms": 2349.6,
+      "target_ms": 150.0,
+      "over_ms": 2199.6,
+      "ratio": 15.66
+     },
+     {
+      "key": "tts",
+      "measured_ms": 161.08,
+      "target_ms": 150.0,
+      "over_ms": 11.08,
+      "ratio": 1.07
+     }
+    ]
+   }
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75,
+   "path": "generated",
+   "strategy": "wait",
+   "reply": {
+    "text": "The assistant allowed assistance dogs to enter the restaurant, including the bar.",
+    "path": "generated",
+    "first_token_ms": 572.71,
+    "first_sentence_ms": 2349.6,
+    "complete_ms": 2349.75,
+    "first_sentence": "The assistant allowed assistance dogs to enter the restaurant, including the bar."
+   },
+   "audio_ms": 3062.0,
+   "pause_ms": 40.0,
+   "first_audio_duration_ms": 4000.0,
+   "reply_audio_ms": 4000.0,
+   "budget": {
+    "total_ms": 3216.39,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": 300.0,
+      "target_ms": 300.0,
+      "over_ms": 0.0,
+      "ratio": 1.0
+     },
+     {
+      "key": "stt",
+      "measured_ms": 405.14,
+      "target_ms": 200.0,
+      "over_ms": 205.14,
+      "ratio": 2.03
+     },
+     {
+      "key": "think",
+      "measured_ms": 2349.75,
+      "target_ms": 150.0,
+      "over_ms": 2199.75,
+      "ratio": 15.67
+     },
+     {
+      "key": "tts",
+      "measured_ms": 161.5,
+      "target_ms": 150.0,
+      "over_ms": 11.5,
+      "ratio": 1.08
+     }
+    ]
+   }
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "heard": "How long before?",
+   "wer": 0.625,
+   "path": "cited",
+   "strategy": "stream",
+   "reply": {
+    "text": "Cancelling between fourteen and seven days before the event refunds half of the\ndeposit.",
+    "path": "cited",
+    "first_token_ms": 3.6,
+    "first_sentence_ms": 3.6,
+    "complete_ms": 3.6,
+    "first_sentence": "Cancelling between fourteen and seven days before the event refunds half of the\ndeposit."
+   },
+   "audio_ms": 3872.0,
+   "pause_ms": 440.0,
+   "first_audio_duration_ms": 4496.0,
+   "reply_audio_ms": 4496.0,
+   "budget": {
+    "total_ms": -545.51,
+    "met": true,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1140.0,
+      "target_ms": 300.0,
+      "over_ms": -1440.0,
+      "ratio": -3.8
+     },
+     {
+      "key": "stt",
+      "measured_ms": 383.2,
+      "target_ms": 200.0,
+      "over_ms": 183.2,
+      "ratio": 1.92
+     },
+     {
+      "key": "think",
+      "measured_ms": 3.6,
+      "target_ms": 150.0,
+      "over_ms": -146.4,
+      "ratio": 0.02
+     },
+     {
+      "key": "tts",
+      "measured_ms": 207.69,
+      "target_ms": 150.0,
+      "over_ms": 57.69,
+      "ratio": 1.38
+     }
+    ]
+   }
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "heard": "How long before?",
+   "wer": 0.625,
+   "path": "cited",
+   "strategy": "wait",
+   "reply": {
+    "text": "Cancelling between fourteen and seven days before the event refunds half of the\ndeposit.",
+    "path": "cited",
+    "first_token_ms": 3.6,
+    "first_sentence_ms": 3.6,
+    "complete_ms": 3.6,
+    "first_sentence": "Cancelling between fourteen and seven days before the event refunds half of the\ndeposit."
+   },
+   "audio_ms": 3872.0,
+   "pause_ms": 440.0,
+   "first_audio_duration_ms": 4496.0,
+   "reply_audio_ms": 4496.0,
+   "budget": {
+    "total_ms": -583.52,
+    "met": true,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1140.0,
+      "target_ms": 300.0,
+      "over_ms": -1440.0,
+      "ratio": -3.8
+     },
+     {
+      "key": "stt",
+      "measured_ms": 383.2,
+      "target_ms": 200.0,
+      "over_ms": 183.2,
+      "ratio": 1.92
+     },
+     {
+      "key": "think",
+      "measured_ms": 3.6,
+      "target_ms": 150.0,
+      "over_ms": -146.4,
+      "ratio": 0.02
+     },
+     {
+      "key": "tts",
+      "measured_ms": 169.68,
+      "target_ms": 150.0,
+      "over_ms": 19.68,
+      "ratio": 1.13
+     }
+    ]
+   }
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "heard": "How long before?",
+   "wer": 0.625,
+   "path": "generated",
+   "strategy": "stream",
+   "reply": {
+    "text": "The question is asking for the timeframe before which deposits are refunded. The answer is \"fourteen to seven days.\"",
+    "path": "generated",
+    "first_token_ms": 614.9,
+    "first_sentence_ms": 2205.2,
+    "complete_ms": 3542.69,
+    "first_sentence": "The question is asking for the timeframe before which deposits are refunded."
+   },
+   "audio_ms": 3872.0,
+   "pause_ms": 440.0,
+   "first_audio_duration_ms": 3728.0,
+   "reply_audio_ms": 5632.0,
+   "budget": {
+    "total_ms": 1584.34,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1140.0,
+      "target_ms": 300.0,
+      "over_ms": -1440.0,
+      "ratio": -3.8
+     },
+     {
+      "key": "stt",
+      "measured_ms": 383.2,
+      "target_ms": 200.0,
+      "over_ms": 183.2,
+      "ratio": 1.92
+     },
+     {
+      "key": "think",
+      "measured_ms": 2205.2,
+      "target_ms": 150.0,
+      "over_ms": 2055.2,
+      "ratio": 14.7
+     },
+     {
+      "key": "tts",
+      "measured_ms": 135.94,
+      "target_ms": 150.0,
+      "over_ms": -14.06,
+      "ratio": 0.91
+     }
+    ]
+   }
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "heard": "How long before?",
+   "wer": 0.625,
+   "path": "generated",
+   "strategy": "wait",
+   "reply": {
+    "text": "The question is asking for the timeframe before which deposits are refunded. The answer is \"fourteen to seven days.\"",
+    "path": "generated",
+    "first_token_ms": 614.9,
+    "first_sentence_ms": 2205.2,
+    "complete_ms": 3542.69,
+    "first_sentence": "The question is asking for the timeframe before which deposits are refunded."
+   },
+   "audio_ms": 3872.0,
+   "pause_ms": 440.0,
+   "first_audio_duration_ms": 3728.0,
+   "reply_audio_ms": 5632.0,
+   "budget": {
+    "total_ms": 2923.83,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1140.0,
+      "target_ms": 300.0,
+      "over_ms": -1440.0,
+      "ratio": -3.8
+     },
+     {
+      "key": "stt",
+      "measured_ms": 383.2,
+      "target_ms": 200.0,
+      "over_ms": 183.2,
+      "ratio": 1.92
+     },
+     {
+      "key": "think",
+      "measured_ms": 3542.69,
+      "target_ms": 150.0,
+      "over_ms": 3392.69,
+      "ratio": 23.62
+     },
+     {
+      "key": "tts",
+      "measured_ms": 137.93,
+      "target_ms": 150.0,
+      "over_ms": -12.07,
+      "ratio": 0.92
+     }
+    ]
+   }
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "heard": "How much is the deposit?",
+   "wer": 0.4444,
+   "path": "cited",
+   "strategy": "stream",
+   "reply": {
+    "text": "From 1 March 2026 the private event deposit is a flat 200 CAD regardless of\nparty size.",
+    "path": "cited",
+    "first_token_ms": 4.77,
+    "first_sentence_ms": 4.77,
+    "complete_ms": 4.77,
+    "first_sentence": "From 1 March 2026 the private event deposit is a flat 200 CAD regardless of\nparty size."
+   },
+   "audio_ms": 4152.0,
+   "pause_ms": 700.0,
+   "first_audio_duration_ms": 5744.0,
+   "reply_audio_ms": 5744.0,
+   "budget": {
+    "total_ms": -532.27,
+    "met": true,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1220.0,
+      "target_ms": 300.0,
+      "over_ms": -1520.0,
+      "ratio": -4.07
+     },
+     {
+      "key": "stt",
+      "measured_ms": 418.24,
+      "target_ms": 200.0,
+      "over_ms": 218.24,
+      "ratio": 2.09
+     },
+     {
+      "key": "think",
+      "measured_ms": 4.77,
+      "target_ms": 150.0,
+      "over_ms": -145.23,
+      "ratio": 0.03
+     },
+     {
+      "key": "tts",
+      "measured_ms": 264.73,
+      "target_ms": 150.0,
+      "over_ms": 114.73,
+      "ratio": 1.76
+     }
+    ]
+   }
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "heard": "How much is the deposit?",
+   "wer": 0.4444,
+   "path": "cited",
+   "strategy": "wait",
+   "reply": {
+    "text": "From 1 March 2026 the private event deposit is a flat 200 CAD regardless of\nparty size.",
+    "path": "cited",
+    "first_token_ms": 4.77,
+    "first_sentence_ms": 4.77,
+    "complete_ms": 4.77,
+    "first_sentence": "From 1 March 2026 the private event deposit is a flat 200 CAD regardless of\nparty size."
+   },
+   "audio_ms": 4152.0,
+   "pause_ms": 700.0,
+   "first_audio_duration_ms": 5744.0,
+   "reply_audio_ms": 5744.0,
+   "budget": {
+    "total_ms": -559.12,
+    "met": true,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1220.0,
+      "target_ms": 300.0,
+      "over_ms": -1520.0,
+      "ratio": -4.07
+     },
+     {
+      "key": "stt",
+      "measured_ms": 418.24,
+      "target_ms": 200.0,
+      "over_ms": 218.24,
+      "ratio": 2.09
+     },
+     {
+      "key": "think",
+      "measured_ms": 4.77,
+      "target_ms": 150.0,
+      "over_ms": -145.23,
+      "ratio": 0.03
+     },
+     {
+      "key": "tts",
+      "measured_ms": 237.88,
+      "target_ms": 150.0,
+      "over_ms": 87.88,
+      "ratio": 1.59
+     }
+    ]
+   }
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "heard": "How much is the deposit?",
+   "wer": 0.4444,
+   "path": "generated",
+   "strategy": "stream",
+   "reply": {
+    "text": "The deposit is $200 CAD.",
+    "path": "generated",
+    "first_token_ms": 630.62,
+    "first_sentence_ms": 1683.93,
+    "complete_ms": 1684.08,
+    "first_sentence": "The deposit is $200 CAD."
+   },
+   "audio_ms": 4152.0,
+   "pause_ms": 700.0,
+   "first_audio_duration_ms": 2128.0,
+   "reply_audio_ms": 2128.0,
+   "budget": {
+    "total_ms": 974.01,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1220.0,
+      "target_ms": 300.0,
+      "over_ms": -1520.0,
+      "ratio": -4.07
+     },
+     {
+      "key": "stt",
+      "measured_ms": 418.24,
+      "target_ms": 200.0,
+      "over_ms": 218.24,
+      "ratio": 2.09
+     },
+     {
+      "key": "think",
+      "measured_ms": 1683.93,
+      "target_ms": 150.0,
+      "over_ms": 1533.93,
+      "ratio": 11.23
+     },
+     {
+      "key": "tts",
+      "measured_ms": 91.85,
+      "target_ms": 150.0,
+      "over_ms": -58.15,
+      "ratio": 0.61
+     }
+    ]
+   }
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "heard": "How much is the deposit?",
+   "wer": 0.4444,
+   "path": "generated",
+   "strategy": "wait",
+   "reply": {
+    "text": "The deposit is $200 CAD.",
+    "path": "generated",
+    "first_token_ms": 630.62,
+    "first_sentence_ms": 1683.93,
+    "complete_ms": 1684.08,
+    "first_sentence": "The deposit is $200 CAD."
+   },
+   "audio_ms": 4152.0,
+   "pause_ms": 700.0,
+   "first_audio_duration_ms": 2128.0,
+   "reply_audio_ms": 2128.0,
+   "budget": {
+    "total_ms": 973.21,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1220.0,
+      "target_ms": 300.0,
+      "over_ms": -1520.0,
+      "ratio": -4.07
+     },
+     {
+      "key": "stt",
+      "measured_ms": 418.24,
+      "target_ms": 200.0,
+      "over_ms": 218.24,
+      "ratio": 2.09
+     },
+     {
+      "key": "think",
+      "measured_ms": 1684.08,
+      "target_ms": 150.0,
+      "over_ms": 1534.08,
+      "ratio": 11.23
+     },
+     {
+      "key": "tts",
+      "measured_ms": 90.9,
+      "target_ms": 150.0,
+      "over_ms": -59.1,
+      "ratio": 0.61
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "heard": "Do you need my card details?",
+   "wer": 0.4,
+   "path": "cited",
+   "strategy": "stream",
+   "reply": {
+    "text": "A phone number is optional but helps if we need to reach you about a\ndelay. We do not ask for card details to hold a regular table.",
+    "path": "cited",
+    "first_token_ms": 3.61,
+    "first_sentence_ms": 3.61,
+    "complete_ms": 3.61,
+    "first_sentence": "A phone number is optional but helps if we need to reach you about a\ndelay."
+   },
+   "audio_ms": 4738.0,
+   "pause_ms": 880.0,
+   "first_audio_duration_ms": 3312.0,
+   "reply_audio_ms": 6384.0,
+   "budget": {
+    "total_ms": -719.26,
+    "met": true,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1340.0,
+      "target_ms": 300.0,
+      "over_ms": -1640.0,
+      "ratio": -4.47
+     },
+     {
+      "key": "stt",
+      "measured_ms": 462.07,
+      "target_ms": 200.0,
+      "over_ms": 262.07,
+      "ratio": 2.31
+     },
+     {
+      "key": "think",
+      "measured_ms": 3.61,
+      "target_ms": 150.0,
+      "over_ms": -146.39,
+      "ratio": 0.02
+     },
+     {
+      "key": "tts",
+      "measured_ms": 155.06,
+      "target_ms": 150.0,
+      "over_ms": 5.06,
+      "ratio": 1.03
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "heard": "Do you need my card details?",
+   "wer": 0.4,
+   "path": "cited",
+   "strategy": "wait",
+   "reply": {
+    "text": "A phone number is optional but helps if we need to reach you about a\ndelay. We do not ask for card details to hold a regular table.",
+    "path": "cited",
+    "first_token_ms": 3.61,
+    "first_sentence_ms": 3.61,
+    "complete_ms": 3.61,
+    "first_sentence": "A phone number is optional but helps if we need to reach you about a\ndelay."
+   },
+   "audio_ms": 4738.0,
+   "pause_ms": 880.0,
+   "first_audio_duration_ms": 3312.0,
+   "reply_audio_ms": 6384.0,
+   "budget": {
+    "total_ms": -716.65,
+    "met": true,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1340.0,
+      "target_ms": 300.0,
+      "over_ms": -1640.0,
+      "ratio": -4.47
+     },
+     {
+      "key": "stt",
+      "measured_ms": 462.07,
+      "target_ms": 200.0,
+      "over_ms": 262.07,
+      "ratio": 2.31
+     },
+     {
+      "key": "think",
+      "measured_ms": 3.61,
+      "target_ms": 150.0,
+      "over_ms": -146.39,
+      "ratio": 0.02
+     },
+     {
+      "key": "tts",
+      "measured_ms": 157.67,
+      "target_ms": 150.0,
+      "over_ms": 7.67,
+      "ratio": 1.05
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "heard": "Do you need my card details?",
+   "wer": 0.4,
+   "path": "generated",
+   "strategy": "stream",
+   "reply": {
+    "text": "The obvious next step would be to inform the customer that they don't need their card details for holding a regular table.",
+    "path": "generated",
+    "first_token_ms": 688.41,
+    "first_sentence_ms": 3773.73,
+    "complete_ms": 3773.94,
+    "first_sentence": "The obvious next step would be to inform the customer that they don't need their card details for holding a regular table."
+   },
+   "audio_ms": 4738.0,
+   "pause_ms": 880.0,
+   "first_audio_duration_ms": 6320.0,
+   "reply_audio_ms": 6320.0,
+   "budget": {
+    "total_ms": 3182.11,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1340.0,
+      "target_ms": 300.0,
+      "over_ms": -1640.0,
+      "ratio": -4.47
+     },
+     {
+      "key": "stt",
+      "measured_ms": 462.07,
+      "target_ms": 200.0,
+      "over_ms": 262.07,
+      "ratio": 2.31
+     },
+     {
+      "key": "think",
+      "measured_ms": 3773.73,
+      "target_ms": 150.0,
+      "over_ms": 3623.73,
+      "ratio": 25.16
+     },
+     {
+      "key": "tts",
+      "measured_ms": 286.31,
+      "target_ms": 150.0,
+      "over_ms": 136.31,
+      "ratio": 1.91
+     }
+    ]
+   }
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "heard": "Do you need my card details?",
+   "wer": 0.4,
+   "path": "generated",
+   "strategy": "wait",
+   "reply": {
+    "text": "The obvious next step would be to inform the customer that they don't need their card details for holding a regular table.",
+    "path": "generated",
+    "first_token_ms": 688.41,
+    "first_sentence_ms": 3773.73,
+    "complete_ms": 3773.94,
+    "first_sentence": "The obvious next step would be to inform the customer that they don't need their card details for holding a regular table."
+   },
+   "audio_ms": 4738.0,
+   "pause_ms": 880.0,
+   "first_audio_duration_ms": 6320.0,
+   "reply_audio_ms": 6320.0,
+   "budget": {
+    "total_ms": 3166.53,
+    "met": false,
+    "stages": [
+     {
+      "key": "endpoint",
+      "measured_ms": -1340.0,
+      "target_ms": 300.0,
+      "over_ms": -1640.0,
+      "ratio": -4.47
+     },
+     {
+      "key": "stt",
+      "measured_ms": 462.07,
+      "target_ms": 200.0,
+      "over_ms": 262.07,
+      "ratio": 2.31
+     },
+     {
+      "key": "think",
+      "measured_ms": 3773.94,
+      "target_ms": 150.0,
+      "over_ms": 3623.94,
+      "ratio": 25.16
+     },
+     {
+      "key": "tts",
+      "measured_ms": 270.52,
+      "target_ms": 150.0,
+      "over_ms": 120.52,
+      "ratio": 1.8
+     }
+    ]
+   }
+  }
+ ],
+ "sweep": [
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 100.0,
+   "wait_ms": 100.0,
+   "truncated": false,
+   "endpoint_ms": 1860.0,
+   "last_speech_ms": 1760.0,
+   "stt_ms": 480.47,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 200.0,
+   "wait_ms": 200.0,
+   "truncated": false,
+   "endpoint_ms": 1960.0,
+   "last_speech_ms": 1760.0,
+   "stt_ms": 430.38,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 300.0,
+   "wait_ms": 300.0,
+   "truncated": false,
+   "endpoint_ms": 2060.0,
+   "last_speech_ms": 1760.0,
+   "stt_ms": 417.46,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 400.0,
+   "wait_ms": 400.0,
+   "truncated": false,
+   "endpoint_ms": 2160.0,
+   "last_speech_ms": 1760.0,
+   "stt_ms": 429.94,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 600.0,
+   "wait_ms": 600.0,
+   "truncated": false,
+   "endpoint_ms": 2360.0,
+   "last_speech_ms": 1760.0,
+   "stt_ms": 419.01,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 800.0,
+   "wait_ms": 800.0,
+   "truncated": false,
+   "endpoint_ms": 2560.0,
+   "last_speech_ms": 1760.0,
+   "stt_ms": 434.88,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 1000.0,
+   "wait_ms": 1000.0,
+   "truncated": false,
+   "endpoint_ms": 2760.0,
+   "last_speech_ms": 1760.0,
+   "stt_ms": 431.45,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 1200.0,
+   "wait_ms": 1200.0,
+   "truncated": false,
+   "endpoint_ms": 2960.0,
+   "last_speech_ms": 1760.0,
+   "stt_ms": 421.48,
+   "heard": "How long before do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 100.0,
+   "wait_ms": 100.0,
+   "truncated": false,
+   "endpoint_ms": 1080.0,
+   "last_speech_ms": 980.0,
+   "stt_ms": 583.46,
+   "heard": "Where can I park?",
+   "wer": 0.0
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 200.0,
+   "wait_ms": 200.0,
+   "truncated": false,
+   "endpoint_ms": 1180.0,
+   "last_speech_ms": 980.0,
+   "stt_ms": 608.9,
+   "heard": "Where can I park?",
+   "wer": 0.0
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 300.0,
+   "wait_ms": 300.0,
+   "truncated": false,
+   "endpoint_ms": 1280.0,
+   "last_speech_ms": 980.0,
+   "stt_ms": 676.05,
+   "heard": "Where can I park?",
+   "wer": 0.0
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 400.0,
+   "wait_ms": 400.0,
+   "truncated": false,
+   "endpoint_ms": 1380.0,
+   "last_speech_ms": 980.0,
+   "stt_ms": 632.19,
+   "heard": "Where can I park?",
+   "wer": 0.0
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 600.0,
+   "wait_ms": 600.0,
+   "truncated": false,
+   "endpoint_ms": 1580.0,
+   "last_speech_ms": 980.0,
+   "stt_ms": 688.54,
+   "heard": "Where can I park?",
+   "wer": 0.0
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 800.0,
+   "wait_ms": 800.0,
+   "truncated": false,
+   "endpoint_ms": 1780.0,
+   "last_speech_ms": 980.0,
+   "stt_ms": 681.59,
+   "heard": "Where can I park?",
+   "wer": 0.0
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 1000.0,
+   "wait_ms": 1000.0,
+   "truncated": false,
+   "endpoint_ms": 1980.0,
+   "last_speech_ms": 980.0,
+   "stt_ms": 607.62,
+   "heard": "Where can I park?",
+   "wer": 0.0
+  },
+  {
+   "question": "where can I park",
+   "label": "where can I park",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 1200.0,
+   "wait_ms": 1200.0,
+   "truncated": false,
+   "endpoint_ms": 2180.0,
+   "last_speech_ms": 980.0,
+   "stt_ms": 510.84,
+   "heard": "Where can I park?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 100.0,
+   "wait_ms": 100.0,
+   "truncated": false,
+   "endpoint_ms": 1460.0,
+   "last_speech_ms": 1360.0,
+   "stt_ms": 429.98,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 200.0,
+   "wait_ms": 200.0,
+   "truncated": false,
+   "endpoint_ms": 1560.0,
+   "last_speech_ms": 1360.0,
+   "stt_ms": 408.13,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 300.0,
+   "wait_ms": 300.0,
+   "truncated": false,
+   "endpoint_ms": 1660.0,
+   "last_speech_ms": 1360.0,
+   "stt_ms": 420.26,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 400.0,
+   "wait_ms": 400.0,
+   "truncated": false,
+   "endpoint_ms": 1760.0,
+   "last_speech_ms": 1360.0,
+   "stt_ms": 406.76,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 600.0,
+   "wait_ms": 600.0,
+   "truncated": false,
+   "endpoint_ms": 1960.0,
+   "last_speech_ms": 1360.0,
+   "stt_ms": 429.68,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 800.0,
+   "wait_ms": 800.0,
+   "truncated": false,
+   "endpoint_ms": 2160.0,
+   "last_speech_ms": 1360.0,
+   "stt_ms": 428.29,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 1000.0,
+   "wait_ms": 1000.0,
+   "truncated": false,
+   "endpoint_ms": 2360.0,
+   "last_speech_ms": 1360.0,
+   "stt_ms": 422.71,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you have vegan options",
+   "label": "do you have vegan options",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 20.0,
+   "hangover_ms": 1200.0,
+   "wait_ms": 1200.0,
+   "truncated": false,
+   "endpoint_ms": 2560.0,
+   "last_speech_ms": 1360.0,
+   "stt_ms": 470.27,
+   "heard": "Do you have vegan options?",
+   "wer": 0.0
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 100.0,
+   "wait_ms": 100.0,
+   "truncated": false,
+   "endpoint_ms": 2320.0,
+   "last_speech_ms": 2220.0,
+   "stt_ms": 505.16,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 200.0,
+   "wait_ms": 200.0,
+   "truncated": false,
+   "endpoint_ms": 2420.0,
+   "last_speech_ms": 2220.0,
+   "stt_ms": 489.29,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 300.0,
+   "wait_ms": 300.0,
+   "truncated": false,
+   "endpoint_ms": 2520.0,
+   "last_speech_ms": 2220.0,
+   "stt_ms": 486.98,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 400.0,
+   "wait_ms": 400.0,
+   "truncated": false,
+   "endpoint_ms": 2620.0,
+   "last_speech_ms": 2220.0,
+   "stt_ms": 492.24,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 600.0,
+   "wait_ms": 600.0,
+   "truncated": false,
+   "endpoint_ms": 2820.0,
+   "last_speech_ms": 2220.0,
+   "stt_ms": 521.33,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 800.0,
+   "wait_ms": 800.0,
+   "truncated": false,
+   "endpoint_ms": 3020.0,
+   "last_speech_ms": 2220.0,
+   "stt_ms": 679.01,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 1000.0,
+   "wait_ms": 1000.0,
+   "truncated": false,
+   "endpoint_ms": 3220.0,
+   "last_speech_ms": 2220.0,
+   "stt_ms": 724.52,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 1200.0,
+   "wait_ms": 1200.0,
+   "truncated": false,
+   "endpoint_ms": 3420.0,
+   "last_speech_ms": 2220.0,
+   "stt_ms": 613.03,
+   "heard": "How much is the deposit for a private event?",
+   "wer": 0.0
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 100.0,
+   "wait_ms": 100.0,
+   "truncated": false,
+   "endpoint_ms": 2420.0,
+   "last_speech_ms": 2320.0,
+   "stt_ms": 538.93,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 200.0,
+   "wait_ms": 200.0,
+   "truncated": false,
+   "endpoint_ms": 2520.0,
+   "last_speech_ms": 2320.0,
+   "stt_ms": 512.97,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 300.0,
+   "wait_ms": 300.0,
+   "truncated": false,
+   "endpoint_ms": 2620.0,
+   "last_speech_ms": 2320.0,
+   "stt_ms": 489.98,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 400.0,
+   "wait_ms": 400.0,
+   "truncated": false,
+   "endpoint_ms": 2720.0,
+   "last_speech_ms": 2320.0,
+   "stt_ms": 481.43,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 600.0,
+   "wait_ms": 600.0,
+   "truncated": false,
+   "endpoint_ms": 2920.0,
+   "last_speech_ms": 2320.0,
+   "stt_ms": 531.74,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 800.0,
+   "wait_ms": 800.0,
+   "truncated": false,
+   "endpoint_ms": 3120.0,
+   "last_speech_ms": 2320.0,
+   "stt_ms": 493.59,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 1000.0,
+   "wait_ms": 1000.0,
+   "truncated": false,
+   "endpoint_ms": 3320.0,
+   "last_speech_ms": 2320.0,
+   "stt_ms": 443.66,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0
+  },
+  {
+   "question": "is the dining room wheelchair accessible",
+   "label": "is the dining room wheelchair accessible",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 1200.0,
+   "wait_ms": 1200.0,
+   "truncated": false,
+   "endpoint_ms": 3520.0,
+   "last_speech_ms": 2320.0,
+   "stt_ms": 444.85,
+   "heard": "Is the dining room wheelchair accessible?",
+   "wer": 0.0
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 100.0,
+   "wait_ms": 100.0,
+   "truncated": false,
+   "endpoint_ms": 3180.0,
+   "last_speech_ms": 3080.0,
+   "stt_ms": 541.41,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 200.0,
+   "wait_ms": 200.0,
+   "truncated": false,
+   "endpoint_ms": 3280.0,
+   "last_speech_ms": 3080.0,
+   "stt_ms": 535.2,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 300.0,
+   "wait_ms": 300.0,
+   "truncated": false,
+   "endpoint_ms": 3380.0,
+   "last_speech_ms": 3080.0,
+   "stt_ms": 518.7,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 400.0,
+   "wait_ms": 400.0,
+   "truncated": false,
+   "endpoint_ms": 3480.0,
+   "last_speech_ms": 3080.0,
+   "stt_ms": 546.71,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 600.0,
+   "wait_ms": 600.0,
+   "truncated": false,
+   "endpoint_ms": 3680.0,
+   "last_speech_ms": 3080.0,
+   "stt_ms": 610.72,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 800.0,
+   "wait_ms": 800.0,
+   "truncated": false,
+   "endpoint_ms": 3880.0,
+   "last_speech_ms": 3080.0,
+   "stt_ms": 615.79,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 1000.0,
+   "wait_ms": 1000.0,
+   "truncated": false,
+   "endpoint_ms": 4080.0,
+   "last_speech_ms": 3080.0,
+   "stt_ms": 565.42,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0
+  },
+  {
+   "question": "what happens if I cancel a private event five days before",
+   "label": "what happens if I cancel a private event five days before",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 60.0,
+   "hangover_ms": 1200.0,
+   "wait_ms": 1200.0,
+   "truncated": false,
+   "endpoint_ms": 4280.0,
+   "last_speech_ms": 3080.0,
+   "stt_ms": 535.24,
+   "heard": "What happens if I cancel a private event five days before?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 100.0,
+   "wait_ms": 100.0,
+   "truncated": false,
+   "endpoint_ms": 2560.0,
+   "last_speech_ms": 2460.0,
+   "stt_ms": 596.61,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 200.0,
+   "wait_ms": 200.0,
+   "truncated": false,
+   "endpoint_ms": 2660.0,
+   "last_speech_ms": 2460.0,
+   "stt_ms": 564.37,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 300.0,
+   "wait_ms": 300.0,
+   "truncated": false,
+   "endpoint_ms": 2760.0,
+   "last_speech_ms": 2460.0,
+   "stt_ms": 567.35,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 400.0,
+   "wait_ms": 400.0,
+   "truncated": false,
+   "endpoint_ms": 2860.0,
+   "last_speech_ms": 2460.0,
+   "stt_ms": 529.51,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 600.0,
+   "wait_ms": 600.0,
+   "truncated": false,
+   "endpoint_ms": 3060.0,
+   "last_speech_ms": 2460.0,
+   "stt_ms": 500.39,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 800.0,
+   "wait_ms": 800.0,
+   "truncated": false,
+   "endpoint_ms": 3260.0,
+   "last_speech_ms": 2460.0,
+   "stt_ms": 513.79,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 1000.0,
+   "wait_ms": 1000.0,
+   "truncated": false,
+   "endpoint_ms": 3460.0,
+   "last_speech_ms": 2460.0,
+   "stt_ms": 518.39,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 1200.0,
+   "wait_ms": 1200.0,
+   "truncated": false,
+   "endpoint_ms": 3660.0,
+   "last_speech_ms": 2460.0,
+   "stt_ms": 510.21,
+   "heard": "Do you need my card details to hold a booking?",
+   "wer": 0.0
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 100.0,
+   "wait_ms": 100.0,
+   "truncated": false,
+   "endpoint_ms": 1800.0,
+   "last_speech_ms": 1700.0,
+   "stt_ms": 397.15,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 200.0,
+   "wait_ms": 200.0,
+   "truncated": false,
+   "endpoint_ms": 1900.0,
+   "last_speech_ms": 1700.0,
+   "stt_ms": 398.53,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 300.0,
+   "wait_ms": 300.0,
+   "truncated": false,
+   "endpoint_ms": 2000.0,
+   "last_speech_ms": 1700.0,
+   "stt_ms": 370.26,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 400.0,
+   "wait_ms": 400.0,
+   "truncated": false,
+   "endpoint_ms": 2100.0,
+   "last_speech_ms": 1700.0,
+   "stt_ms": 376.4,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 600.0,
+   "wait_ms": 600.0,
+   "truncated": false,
+   "endpoint_ms": 2300.0,
+   "last_speech_ms": 1700.0,
+   "stt_ms": 415.1,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 800.0,
+   "wait_ms": 800.0,
+   "truncated": false,
+   "endpoint_ms": 2500.0,
+   "last_speech_ms": 1700.0,
+   "stt_ms": 423.26,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 1000.0,
+   "wait_ms": 1000.0,
+   "truncated": false,
+   "endpoint_ms": 2700.0,
+   "last_speech_ms": 1700.0,
+   "stt_ms": 435.82,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75
+  },
+  {
+   "question": "are assistance dogs allowed",
+   "label": "are assistance dogs allowed",
+   "hesitant": false,
+   "gap_ms": 0.0,
+   "pause_ms": 40.0,
+   "hangover_ms": 1200.0,
+   "wait_ms": 1200.0,
+   "truncated": false,
+   "endpoint_ms": 2900.0,
+   "last_speech_ms": 1700.0,
+   "stt_ms": 430.29,
+   "heard": "Our Assistant Stogs allowed.",
+   "wer": 0.75
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "gap_ms": 250.0,
+   "pause_ms": 440.0,
+   "hangover_ms": 100.0,
+   "wait_ms": -1340.0,
+   "truncated": true,
+   "endpoint_ms": 1160.0,
+   "last_speech_ms": 2500.0,
+   "stt_ms": 356.39,
+   "heard": "How long before?",
+   "wer": 0.625
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "gap_ms": 250.0,
+   "pause_ms": 440.0,
+   "hangover_ms": 200.0,
+   "wait_ms": -1240.0,
+   "truncated": true,
+   "endpoint_ms": 1260.0,
+   "last_speech_ms": 2500.0,
+   "stt_ms": 382.89,
+   "heard": "How long before?",
+   "wer": 0.625
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "gap_ms": 250.0,
+   "pause_ms": 440.0,
+   "hangover_ms": 300.0,
+   "wait_ms": -1140.0,
+   "truncated": true,
+   "endpoint_ms": 1360.0,
+   "last_speech_ms": 2500.0,
+   "stt_ms": 388.35,
+   "heard": "How long before?",
+   "wer": 0.625
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "gap_ms": 250.0,
+   "pause_ms": 440.0,
+   "hangover_ms": 400.0,
+   "wait_ms": -1040.0,
+   "truncated": true,
+   "endpoint_ms": 1460.0,
+   "last_speech_ms": 2500.0,
+   "stt_ms": 384.37,
+   "heard": "How long before?",
+   "wer": 0.625
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "gap_ms": 250.0,
+   "pause_ms": 440.0,
+   "hangover_ms": 600.0,
+   "wait_ms": 600.0,
+   "truncated": false,
+   "endpoint_ms": 3100.0,
+   "last_speech_ms": 2500.0,
+   "stt_ms": 501.46,
+   "heard": "How long before? Do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "gap_ms": 250.0,
+   "pause_ms": 440.0,
+   "hangover_ms": 800.0,
+   "wait_ms": 800.0,
+   "truncated": false,
+   "endpoint_ms": 3300.0,
+   "last_speech_ms": 2500.0,
+   "stt_ms": 499.49,
+   "heard": "How long before? Do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "gap_ms": 250.0,
+   "pause_ms": 440.0,
+   "hangover_ms": 1000.0,
+   "wait_ms": 1000.0,
+   "truncated": false,
+   "endpoint_ms": 3500.0,
+   "last_speech_ms": 2500.0,
+   "stt_ms": 492.29,
+   "heard": "How long before? Do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "how long before do I have to cancel",
+   "label": "how long before do I have to cancel [hesitation]",
+   "hesitant": true,
+   "gap_ms": 250.0,
+   "pause_ms": 440.0,
+   "hangover_ms": 1200.0,
+   "wait_ms": 1200.0,
+   "truncated": false,
+   "endpoint_ms": 3700.0,
+   "last_speech_ms": 2500.0,
+   "stt_ms": 506.38,
+   "heard": "How long before? Do I have to cancel?",
+   "wer": 0.0
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "gap_ms": 450.0,
+   "pause_ms": 700.0,
+   "hangover_ms": 100.0,
+   "wait_ms": -1420.0,
+   "truncated": true,
+   "endpoint_ms": 1420.0,
+   "last_speech_ms": 2840.0,
+   "stt_ms": 397.88,
+   "heard": "How much is the deposit?",
+   "wer": 0.4444
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "gap_ms": 450.0,
+   "pause_ms": 700.0,
+   "hangover_ms": 200.0,
+   "wait_ms": -1320.0,
+   "truncated": true,
+   "endpoint_ms": 1520.0,
+   "last_speech_ms": 2840.0,
+   "stt_ms": 368.24,
+   "heard": "How much is the deposit?",
+   "wer": 0.4444
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "gap_ms": 450.0,
+   "pause_ms": 700.0,
+   "hangover_ms": 300.0,
+   "wait_ms": -1220.0,
+   "truncated": true,
+   "endpoint_ms": 1620.0,
+   "last_speech_ms": 2840.0,
+   "stt_ms": 381.64,
+   "heard": "How much is the deposit?",
+   "wer": 0.4444
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "gap_ms": 450.0,
+   "pause_ms": 700.0,
+   "hangover_ms": 400.0,
+   "wait_ms": -1120.0,
+   "truncated": true,
+   "endpoint_ms": 1720.0,
+   "last_speech_ms": 2840.0,
+   "stt_ms": 412.46,
+   "heard": "How much is the deposit?",
+   "wer": 0.4444
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "gap_ms": 450.0,
+   "pause_ms": 700.0,
+   "hangover_ms": 600.0,
+   "wait_ms": -920.0,
+   "truncated": true,
+   "endpoint_ms": 1920.0,
+   "last_speech_ms": 2840.0,
+   "stt_ms": 456.83,
+   "heard": "How much is the deposit?",
+   "wer": 0.4444
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "gap_ms": 450.0,
+   "pause_ms": 700.0,
+   "hangover_ms": 800.0,
+   "wait_ms": 800.0,
+   "truncated": false,
+   "endpoint_ms": 3640.0,
+   "last_speech_ms": 2840.0,
+   "stt_ms": 529.98,
+   "heard": "How much is the deposit? For a private event.",
+   "wer": 0.0
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "gap_ms": 450.0,
+   "pause_ms": 700.0,
+   "hangover_ms": 1000.0,
+   "wait_ms": 1000.0,
+   "truncated": false,
+   "endpoint_ms": 3840.0,
+   "last_speech_ms": 2840.0,
+   "stt_ms": 519.72,
+   "heard": "How much is the deposit? For a private event.",
+   "wer": 0.0
+  },
+  {
+   "question": "how much is the deposit for a private event",
+   "label": "how much is the deposit for a private event [hesitation]",
+   "hesitant": true,
+   "gap_ms": 450.0,
+   "pause_ms": 700.0,
+   "hangover_ms": 1200.0,
+   "wait_ms": 1200.0,
+   "truncated": false,
+   "endpoint_ms": 4040.0,
+   "last_speech_ms": 2840.0,
+   "stt_ms": 525.39,
+   "heard": "How much is the deposit? For a private event.",
+   "wer": 0.0
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "gap_ms": 700.0,
+   "pause_ms": 880.0,
+   "hangover_ms": 100.0,
+   "wait_ms": -1540.0,
+   "truncated": true,
+   "endpoint_ms": 1820.0,
+   "last_speech_ms": 3360.0,
+   "stt_ms": 445.75,
+   "heard": "Do you need my card details?",
+   "wer": 0.4
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "gap_ms": 700.0,
+   "pause_ms": 880.0,
+   "hangover_ms": 200.0,
+   "wait_ms": -1440.0,
+   "truncated": true,
+   "endpoint_ms": 1920.0,
+   "last_speech_ms": 3360.0,
+   "stt_ms": 467.91,
+   "heard": "Do you need my card details?",
+   "wer": 0.4
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "gap_ms": 700.0,
+   "pause_ms": 880.0,
+   "hangover_ms": 300.0,
+   "wait_ms": -1340.0,
+   "truncated": true,
+   "endpoint_ms": 2020.0,
+   "last_speech_ms": 3360.0,
+   "stt_ms": 492.8,
+   "heard": "Do you need my card details?",
+   "wer": 0.4
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "gap_ms": 700.0,
+   "pause_ms": 880.0,
+   "hangover_ms": 400.0,
+   "wait_ms": -1240.0,
+   "truncated": true,
+   "endpoint_ms": 2120.0,
+   "last_speech_ms": 3360.0,
+   "stt_ms": 522.07,
+   "heard": "Do you need my card details?",
+   "wer": 0.4
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "gap_ms": 700.0,
+   "pause_ms": 880.0,
+   "hangover_ms": 600.0,
+   "wait_ms": -1040.0,
+   "truncated": true,
+   "endpoint_ms": 2320.0,
+   "last_speech_ms": 3360.0,
+   "stt_ms": 520.34,
+   "heard": "Do you need my card details?",
+   "wer": 0.4
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "gap_ms": 700.0,
+   "pause_ms": 880.0,
+   "hangover_ms": 800.0,
+   "wait_ms": -840.0,
+   "truncated": true,
+   "endpoint_ms": 2520.0,
+   "last_speech_ms": 3360.0,
+   "stt_ms": 550.04,
+   "heard": "Do you need my card details?",
+   "wer": 0.4
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "gap_ms": 700.0,
+   "pause_ms": 880.0,
+   "hangover_ms": 1000.0,
+   "wait_ms": 1000.0,
+   "truncated": false,
+   "endpoint_ms": 4360.0,
+   "last_speech_ms": 3360.0,
+   "stt_ms": 552.8,
+   "heard": "Do you need my card details? To hold a booking.",
+   "wer": 0.0
+  },
+  {
+   "question": "do you need my card details to hold a booking",
+   "label": "do you need my card details to hold a booking [hesitation]",
+   "hesitant": true,
+   "gap_ms": 700.0,
+   "pause_ms": 880.0,
+   "hangover_ms": 1200.0,
+   "wait_ms": 1200.0,
+   "truncated": false,
+   "endpoint_ms": 4560.0,
+   "last_speech_ms": 3360.0,
+   "stt_ms": 540.94,
+   "heard": "Do you need my card details? To hold a booking.",
+   "wer": 0.0
+  }
+ ]
+}

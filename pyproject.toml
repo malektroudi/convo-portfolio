@@ -21,6 +21,13 @@ train = [
     "transformers>=4.46,<6",
     "datasets>=3.0,<5",
 ]
+# Day 12 only, and build-time only for the same reason: the hub plays a
+# committed wav and reads committed timings, so neither onnxruntime nor a
+# voice model goes anywhere near the serving image.
+voice = [
+    "piper-tts>=1.8,<2",
+    "soundfile>=0.12,<1",
+]
 
 [project.scripts]
 convo-hub = "convo.hub.__main__:main"
