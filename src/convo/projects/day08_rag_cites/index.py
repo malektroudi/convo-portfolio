@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from convo.projects.day08_rag_cites.chunking import Chunk
+from convo.projects.day08_rag_cites.stemming import stem
 
 WORD = re.compile(r"[a-z0-9]+")
 
@@ -130,7 +131,28 @@ STOPWORDS = frozenset(
 
 
 def tokenise(text: str) -> list[str]:
-    return [w for w in WORD.findall(text.lower()) if w not in STOPWORDS]
+    """Words, minus stopwords, reduced to stems.
+
+    Stemming is applied exactly once per side. The stemmer is not idempotent
+    for stems ending in -s, so a second pass anywhere would quietly break
+    matching; there is a test pinning that.
+    """
+    return [stem(w) for w in WORD.findall(text.lower()) if w not in STOPWORDS]
+
+
+def surface_forms(query: str) -> dict[str, str]:
+    """Map each query stem back to the word the reader actually typed.
+
+    Stems are matching keys, not labels. A citation that reports it matched
+    "dunda" and "park" tells a reader nothing; one that reports "Dundas" and
+    "parking" tells them why the span was chosen. First spelling wins, which
+    is the one in the question.
+    """
+    forms: dict[str, str] = {}
+    for word in WORD.findall(query.lower()):
+        if word not in STOPWORDS:
+            forms.setdefault(stem(word), word)
+    return forms
 
 
 @dataclass
@@ -199,7 +221,9 @@ class BM25:
 
     def search(self, query: str, k: int = 5) -> list[Hit]:
         scores = self.score(query)
-        order = np.argsort(-scores)[:k]
+        # Stable: stemming collapses vocabulary, so exact ties are common now.
+        # A tie broken by quicksort's pivot is not reproducible; corpus order is.
+        order = np.argsort(-scores, kind="stable")[:k]
         return [
             Hit(self.chunks[i], float(scores[i]), rank, "bm25")
             for rank, i in enumerate(order, start=1)
@@ -230,7 +254,7 @@ class DenseIndex:
         if norm:
             vector = vector / norm
         scores = self.embeddings @ vector
-        order = np.argsort(-scores)[:k]
+        order = np.argsort(-scores, kind="stable")[:k]
         return [
             Hit(self.chunks[i], float(scores[i]), rank, "dense")
             for rank, i in enumerate(order, start=1)

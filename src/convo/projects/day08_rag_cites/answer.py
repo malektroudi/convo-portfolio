@@ -25,7 +25,7 @@ import re
 from dataclasses import dataclass
 
 from convo.projects.day08_rag_cites.chunking import Chunk, Document
-from convo.projects.day08_rag_cites.index import tokenise
+from convo.projects.day08_rag_cites.index import surface_forms, tokenise
 
 # Split after . ! ? when followed by space/newline, keeping offsets recoverable.
 SENTENCE = re.compile(r"(?<=[.!?])\s+")
@@ -87,16 +87,22 @@ def sentences(chunk: Chunk) -> list[Sentence]:
     return out
 
 
-def _overlap(sentence: str, query_terms: set[str]) -> tuple[float, tuple[str, ...]]:
+def _overlap(sentence: str, query_terms: dict[str, str]) -> tuple[float, tuple[str, ...]]:
+    """Score a sentence against the query, and name the terms that matched.
+
+    Matching is on stems; the names returned are the query's own spellings,
+    because matched_terms is read by a person.
+    """
     terms = tokenise(sentence)
     if not terms:
         return 0.0, ()
-    matched = tuple(sorted(set(terms) & query_terms))
-    if not matched:
+    hit_stems = set(terms) & set(query_terms)
+    if not hit_stems:
         return 0.0, ()
+    matched = tuple(sorted(query_terms[s] for s in hit_stems))
     # Coverage of the question, with a mild length penalty so a long sentence
     # does not win merely by containing more words.
-    coverage = len(matched) / max(len(query_terms), 1)
+    coverage = len(hit_stems) / max(len(query_terms), 1)
     density = len(matched) / math.sqrt(len(terms))
     return round(coverage * 0.75 + density * 0.25, 6), matched
 
@@ -109,7 +115,7 @@ def cite(chunk: Chunk, query: str, max_sentences: int = 2) -> Citation | None:
     should cite both, while two unrelated sentences from opposite ends of a
     chunk should not be stitched into one misleading span.
     """
-    query_terms = set(tokenise(query))
+    query_terms = surface_forms(query)
     pieces = sentences(chunk)
     if not pieces or not query_terms:
         return None

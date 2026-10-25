@@ -225,8 +225,8 @@ def build() -> None:
         "All three strategies find the right article about equally often — 81–84% "
         "at rank 1 and 100% within the top 3. What changes is whether the span you "
         "can show a human reads as a sentence. Fixed chunking starts 48% of its "
-        "chunks mid-sentence and drags markdown headings into 13% of its citations; "
-        "structural chunking starts none and cites spans a fifth shorter."
+        "chunks mid-sentence and drags markdown headings into 9% of its citations; "
+        "structural chunking starts none and cites spans a sixth shorter."
     )
     gr.HTML(_strategy_table(index))
 
