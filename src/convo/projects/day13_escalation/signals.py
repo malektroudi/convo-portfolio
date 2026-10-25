@@ -68,7 +68,7 @@ HIGH_STAKES_PATTERNS = (
     "legal",
 )
 
-BINDING = frozenset({"asked_for_human", "high_stakes_unanswered"})
+BINDING = frozenset({"asked_for_human", "high_stakes"})
 """Signals that escalate on their own, without waiting for a second opinion."""
 
 
@@ -117,7 +117,7 @@ class Reading:
         return next((s for s in self.signals if s.name == name), None)
 
 
-def _matches(text: str, patterns: tuple[str, ...]) -> str:
+def _matches(text: str, patterns) -> str:
     lowered = text.lower()
     for pattern in patterns:
         if pattern in lowered:
@@ -136,24 +136,32 @@ def asked_for_human(history: list[Exchange], turn: int) -> Signal:
     return Signal("asked_for_human", bool(hit), f"said {hit!r}" if hit else "", turn)
 
 
-def high_stakes_unanswered(history: list[Exchange], turn: int) -> Signal:
-    """A high-stakes topic the system could not answer from its evidence.
+def high_stakes(history: list[Exchange], turn: int) -> Signal:
+    """A topic where being confidently wrong hurts somebody. Topic alone.
 
-    Both halves are needed. An allergen question day 10 answers with a
-    verified citation is a *good* outcome and must not escalate — routing it
-    to a human would make the guardrail work pointless. The same question with
-    a refusal attached is somebody with a severe allergy being told "I don't
-    know", and that is a person, immediately.
+    This signal was built the obvious way first — fire only when the system
+    *also* failed to answer, so that a question day 10 handles with a verified
+    citation would not waste a person. The measurement killed it. On this set
+    the two high-stakes conversations that need a human score **higher** than
+    the one that does not:
+
+        -3.04  "I was charged twice for my deposit"      needs a person
+        -3.70  "does the set menu contain sesame..."     needs a person
+        -5.97  "I have a nut allergy, what should I do"  bot can handle it
+
+    Confidence is not merely a weak signal here, it is pointing the wrong way.
+    The reason is structural rather than bad luck: day 10's gates verify that
+    an answer is *grounded in the corpus*, not that it is *responsive to the
+    question*. "Charged twice, want a refund" retrieves the cancellation
+    policy and cites it perfectly — a well-grounded answer to a question
+    nobody asked. Groundedness and answerability come apart exactly where the
+    cost of being wrong is highest.
+
+    So this consults no confidence at all. On a listed topic, a person. The
+    price is visible in the precision column rather than argued away.
     """
-    exchange = history[turn]
-    hit = _matches(exchange.user, HIGH_STAKES_PATTERNS)
-    fired = bool(hit) and not exchange.answered
-    return Signal(
-        "high_stakes_unanswered",
-        fired,
-        f"{hit!r} and the system could not answer" if fired else "",
-        turn,
-    )
+    hit = _matches(history[turn].user, HIGH_STAKES_PATTERNS)
+    return Signal("high_stakes", bool(hit), f"said {hit!r}" if hit else "", turn)
 
 
 def repeated_refusal(history: list[Exchange], turn: int, limit: int = 2) -> Signal:
@@ -200,8 +208,14 @@ def repeated_question(history: list[Exchange], turn: int) -> Signal:
     """
     from convo.projects.day08_rag_cites.index import tokenise
 
-    current = set(tokenise(history[turn].user))
-    if len(current) < 2:
+    text = history[turn].user
+    current = set(tokenise(text))
+    # Guard on the utterance, not the content set. An earlier version required
+    # two content words and so could never fire on "where can I park", which
+    # stems down to {park} — a perfectly real question that people do repeat.
+    # What the guard is actually for is "yes" and "ok", and those are short
+    # *utterances*, which is the thing to measure.
+    if len(text.split()) < 3 or not current:
         return Signal("repeated_question", False, "", turn)
     for earlier in history[:turn]:
         previous = set(tokenise(earlier.user))
@@ -232,7 +246,7 @@ def frustration(history: list[Exchange], turn: int) -> Signal:
 
 DETECTORS = (
     asked_for_human,
-    high_stakes_unanswered,
+    high_stakes,
     repeated_refusal,
     repair_loop,
     repeated_question,
@@ -243,5 +257,27 @@ ALL_SIGNALS: tuple[str, ...] = tuple(d.__name__ for d in DETECTORS)
 
 
 def read(history: list[Exchange], turn: int) -> Reading:
-    """Every signal's state as of `turn`, using only what is known by then."""
-    return Reading(turn=turn, signals=[detector(history, turn) for detector in DETECTORS])
+    """Every signal's state as of `turn`, using only what is known by then.
+
+    Signals are **sticky**: one that fired on an earlier exchange is still
+    evidence now. Evaluating each turn in isolation would mean a customer who
+    repeated themselves at turn two and swore at turn three presents one
+    signal at each, never two at once, and a policy requiring agreement would
+    watch the conversation fail one signal at a time.
+
+    Stickiness only ever adds evidence, so it can make a policy escalate
+    *earlier*, never later. Nothing here forgets, which is defensible over
+    conversations this short and would not be over a long one — a signal from
+    forty turns ago is not evidence about now.
+    """
+    readings = []
+    for detector in DETECTORS:
+        latest = detector(history, turn)
+        if not latest.fired:
+            for earlier in range(turn):
+                previous = detector(history, earlier)
+                if previous.fired:
+                    latest = previous
+                    break
+        readings.append(latest)
+    return Reading(turn=turn, signals=readings)

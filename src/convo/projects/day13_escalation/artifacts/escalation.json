@@ -1,0 +1,3215 @@
+{
+ "threshold": -6.3085,
+ "strategy": "structural",
+ "conversations": [
+  {
+   "name": "answers-cleanly",
+   "kind": "faq",
+   "note": "Two questions the corpus answers. Escalating this wastes a person.",
+   "escalate_at": null,
+   "exchanges": [
+    {
+     "user": "where can I park",
+     "reply": "I don't have anything in the help centre that answers that. The restaurant can tell you directly.",
+     "answered": false,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": -6.715,
+     "slots": {}
+    },
+    {
+     "user": "is it free on sundays",
+     "reply": "Sundays are free.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "parking",
+     "evidence_score": 4.419,
+     "slots": {}
+    }
+   ],
+   "needs": []
+  },
+  {
+   "name": "allergen-answered",
+   "kind": "faq",
+   "note": "High stakes, but day 10 answers it with a verified citation. The guardrail working is not a reason to escalate.",
+   "escalate_at": null,
+   "exchanges": [
+    {
+     "user": "I have a nut allergy, what should I do",
+     "reply": "We label dishes for the fourteen major allergens, including gluten, dairy,\neggs, fish, shellfish, peanuts, tree nuts, soy, sesame and sulphites.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "allergens",
+     "evidence_score": -5.966,
+     "slots": {}
+    }
+   ],
+   "needs": []
+  },
+  {
+   "name": "one-refusal-then-moves-on",
+   "kind": "faq",
+   "note": "One refusal is the guardrail doing its job; the customer moves on.",
+   "escalate_at": null,
+   "exchanges": [
+    {
+     "user": "do you have EV charging",
+     "reply": "I don't have anything in the help centre that answers that. The restaurant can tell you directly.",
+     "answered": false,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": -9.678,
+     "slots": {}
+    },
+    {
+     "user": "what time do you open",
+     "reply": "We open at the usual 5pm on Thanksgiving and Canada Day, but the dining room\ncloses an hour earlier than usual at 10pm.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "holiday-hours",
+     "evidence_score": 4.372,
+     "slots": {}
+    }
+   ],
+   "needs": []
+  },
+  {
+   "name": "books-without-trouble",
+   "kind": "booking",
+   "note": "The happy path. Day 4 fills every slot first time.",
+   "escalate_at": null,
+   "exchanges": [
+    {
+     "user": "I'd like a table for four",
+     "reply": "What day would you like?",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {
+      "party_size": "4 people"
+     }
+    },
+    {
+     "user": "friday at 8pm",
+     "reply": "And what name should I put it under?",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {
+      "party_size": "4 people",
+      "booking_date": "Friday 30 October",
+      "booking_time": "8pm"
+     }
+    },
+    {
+     "user": "yes",
+     "reply": "Sorry, I didn't catch that. And what name should I put it under?",
+     "answered": true,
+     "reprompts": 1,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {
+      "party_size": "4 people",
+      "booking_date": "Friday 30 October",
+      "booking_time": "8pm"
+     }
+    }
+   ],
+   "needs": []
+  },
+  {
+   "name": "digression-then-answer",
+   "kind": "faq",
+   "note": "A topic change the bot handles. Not a failure.",
+   "escalate_at": null,
+   "exchanges": [
+    {
+     "user": "is the dining room wheelchair accessible",
+     "reply": "There is an accessible washroom on the same floor as the dining room, with\ngrab rails and a 150cm turning circle.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "accessibility",
+     "evidence_score": 2.409,
+     "slots": {}
+    },
+    {
+     "user": "and is there parking",
+     "reply": "There is paid street parking on Dundas, metered until 9pm on weekdays and until\n6pm on Saturdays.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "parking",
+     "evidence_score": 1.063,
+     "slots": {}
+    }
+   ],
+   "needs": []
+  },
+  {
+   "name": "corrects-itself",
+   "kind": "booking",
+   "note": "A repair that succeeds. Repair is normal, not a crisis.",
+   "escalate_at": null,
+   "exchanges": [
+    {
+     "user": "table for six",
+     "reply": "What day would you like?",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {
+      "party_size": "6 people"
+     }
+    },
+    {
+     "user": "actually make it four",
+     "reply": "Updated the party size. What day would you like?",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {
+      "party_size": "4 people"
+     }
+    },
+    {
+     "user": "saturday 7pm",
+     "reply": "And what name should I put it under?",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {
+      "party_size": "4 people",
+      "booking_date": "Saturday 31 October",
+      "booking_time": "7pm"
+     }
+    },
+    {
+     "user": "yes",
+     "reply": "Sorry, I didn't catch that. And what name should I put it under?",
+     "answered": true,
+     "reprompts": 1,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {
+      "party_size": "4 people",
+      "booking_date": "Saturday 31 October",
+      "booking_time": "7pm"
+     }
+    }
+   ],
+   "needs": []
+  },
+  {
+   "name": "blunt-but-fine",
+   "kind": "faq",
+   "note": "Terse, not frustrated. The frustration signal must not fire here.",
+   "escalate_at": null,
+   "exchanges": [
+    {
+     "user": "dress code",
+     "reply": "There is no dress code.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "dress-code",
+     "evidence_score": 6.183,
+     "slots": {}
+    },
+    {
+     "user": "ok and what time is last orders",
+     "reply": "The kitchen takes its last\norder at 9:30pm, and the dining room closes at 11pm.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "opening-hours",
+     "evidence_score": 0.462,
+     "slots": {}
+    }
+   ],
+   "needs": []
+  },
+  {
+   "name": "asks-for-a-person",
+   "kind": "faq",
+   "note": "The one signal with no threshold. Honoured on the exchange it is said.",
+   "escalate_at": 1,
+   "exchanges": [
+    {
+     "user": "what time do you open",
+     "reply": "We open at the usual 5pm on Thanksgiving and Canada Day, but the dining room\ncloses an hour earlier than usual at 10pm.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "holiday-hours",
+     "evidence_score": 4.372,
+     "slots": {}
+    },
+    {
+     "user": "can I speak to a person",
+     "reply": "I don't have anything in the help centre that answers that. The restaurant can tell you directly.",
+     "answered": false,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": -10.561,
+     "slots": {}
+    }
+   ],
+   "needs": [
+    {
+     "key": "transcript",
+     "must_contain": "speak to a person",
+     "why": "what they asked for"
+    },
+    {
+     "key": "reason",
+     "must_contain": "asked",
+     "why": "why they were handed over"
+    }
+   ]
+  },
+  {
+   "name": "allergen-refused",
+   "kind": "faq",
+   "note": "High stakes the corpus cannot answer. Telling someone with a severe allergy 'I don't know' is the worst available outcome.",
+   "escalate_at": 0,
+   "exchanges": [
+    {
+     "user": "does the set menu contain sesame for a severe allergy",
+     "reply": "We label dishes for the fourteen major allergens, including gluten, dairy,\neggs, fish, shellfish, peanuts, tree nuts, soy, sesame and sulphites.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "allergens",
+     "evidence_score": -3.7,
+     "slots": {}
+    }
+   ],
+   "needs": [
+    {
+     "key": "topic",
+     "must_contain": "allerg",
+     "why": "what it is about"
+    },
+    {
+     "key": "reason",
+     "must_contain": "allerg",
+     "why": "why a person is needed"
+    },
+    {
+     "key": "tried",
+     "must_contain": "could not",
+     "why": "that the bot already failed"
+    }
+   ]
+  },
+  {
+   "name": "keeps-refusing",
+   "kind": "faq",
+   "note": "Three ways of asking something the corpus does not contain. The second refusal is the point of no return.",
+   "escalate_at": 1,
+   "exchanges": [
+    {
+     "user": "do you have EV charging",
+     "reply": "I don't have anything in the help centre that answers that. The restaurant can tell you directly.",
+     "answered": false,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": -9.678,
+     "slots": {}
+    },
+    {
+     "user": "is there a charging point in the garage",
+     "reply": "I don't have anything in the help centre that answers that. The restaurant can tell you directly.",
+     "answered": false,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": -9.041,
+     "slots": {}
+    },
+    {
+     "user": "anywhere nearby I could charge",
+     "reply": "I don't have anything in the help centre that answers that. The restaurant can tell you directly.",
+     "answered": false,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": -8.996,
+     "slots": {}
+    }
+   ],
+   "needs": [
+    {
+     "key": "topic",
+     "must_contain": "charg",
+     "why": "what they actually want"
+    },
+    {
+     "key": "tried",
+     "must_contain": "could not",
+     "why": "that rephrasing will not help"
+    }
+   ]
+  },
+  {
+   "name": "stuck-on-a-slot",
+   "kind": "booking",
+   "note": "A date the extractor cannot parse, asked three ways. Day 4's own handoff fires at three reprompts; by then it is already too late.",
+   "escalate_at": 2,
+   "exchanges": [
+    {
+     "user": "I want to book",
+     "reply": "Sorry, I didn't catch that. How many people will that be for?",
+     "answered": true,
+     "reprompts": 1,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {}
+    },
+    {
+     "user": "for the day after the bank holiday",
+     "reply": "Sorry, I didn't catch that. How many people will that be for?",
+     "answered": true,
+     "reprompts": 2,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {}
+    },
+    {
+     "user": "the one in may",
+     "reply": "What day would you like?",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {
+      "party_size": "1 person"
+     }
+    },
+    {
+     "user": "the monday one",
+     "reply": "What time suits you?",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {
+      "party_size": "1 person",
+      "booking_date": "Monday 26 October"
+     }
+    }
+   ],
+   "needs": [
+    {
+     "key": "tried",
+     "must_contain": "reprompt",
+     "why": "which slot failed"
+    },
+    {
+     "key": "transcript",
+     "must_contain": "bank holiday",
+     "why": "what they actually said"
+    }
+   ]
+  },
+  {
+   "name": "billing-complaint",
+   "kind": "faq",
+   "note": "Money, a complaint, and nothing in the corpus. Immediate.",
+   "escalate_at": 0,
+   "exchanges": [
+    {
+     "user": "I was charged twice for my deposit and want a refund",
+     "reply": "Cancelling with less than seven days' notice means the deposit is not refunded.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "cancellation-private-events",
+     "evidence_score": -3.043,
+     "slots": {}
+    }
+   ],
+   "needs": [
+    {
+     "key": "topic",
+     "must_contain": "charg",
+     "why": "what went wrong"
+    },
+    {
+     "key": "reason",
+     "must_contain": "charg",
+     "why": "why a person is needed"
+    }
+   ]
+  },
+  {
+   "name": "repeats-the-question",
+   "kind": "faq",
+   "note": "The customer repeats themselves, which is the clearest behavioural evidence an answer did not land. Frustration confirms it a turn later.",
+   "escalate_at": 1,
+   "exchanges": [
+    {
+     "user": "how much is the deposit for a private event",
+     "reply": "From 1 March 2026 the private event deposit is a flat 200 CAD regardless of\nparty size.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "deposit-policy-2026",
+     "evidence_score": 7.683,
+     "slots": {}
+    },
+    {
+     "user": "no I mean how much is the deposit for a private event",
+     "reply": "From 1 March 2026 the private event deposit is a flat 200 CAD regardless of\nparty size.",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "deposit-policy-2026",
+     "evidence_score": 5.645,
+     "slots": {}
+    },
+    {
+     "user": "this is useless",
+     "reply": "I don't have anything in the help centre that answers that. The restaurant can tell you directly.",
+     "answered": false,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": -10.4,
+     "slots": {}
+    }
+   ],
+   "needs": [
+    {
+     "key": "topic",
+     "must_contain": "deposit",
+     "why": "what they asked"
+    },
+    {
+     "key": "transcript",
+     "must_contain": "useless",
+     "why": "their own words"
+    }
+   ]
+  },
+  {
+   "name": "asks-for-human-mid-booking",
+   "kind": "booking",
+   "note": "Partly-filled form, then a request for a person. The slots collected so far are exactly what must not be lost.",
+   "escalate_at": 1,
+   "exchanges": [
+    {
+     "user": "table for two",
+     "reply": "What day would you like?",
+     "answered": true,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {
+      "party_size": "2 people"
+     }
+    },
+    {
+     "user": "actually just put me through to someone",
+     "reply": "Sorry, I didn't catch that. What day would you like?",
+     "answered": true,
+     "reprompts": 1,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {
+      "party_size": "2 people"
+     }
+    }
+   ],
+   "needs": [
+    {
+     "key": "slots",
+     "must_contain": "2",
+     "why": "the party size already given"
+    },
+    {
+     "key": "reason",
+     "must_contain": "asked",
+     "why": "why they were handed over"
+    }
+   ]
+  },
+  {
+   "name": "food-safety",
+   "kind": "faq",
+   "note": "Nothing in a help centre should answer this.",
+   "escalate_at": 0,
+   "exchanges": [
+    {
+     "user": "my friend was ill after eating here last night",
+     "reply": "I don't have anything in the help centre that answers that. The restaurant can tell you directly.",
+     "answered": false,
+     "reprompts": 0,
+     "doc_id": "",
+     "evidence_score": -10.844,
+     "slots": {}
+    }
+   ],
+   "needs": [
+    {
+     "key": "topic",
+     "must_contain": "ill",
+     "why": "what happened"
+    },
+    {
+     "key": "reason",
+     "must_contain": "ill",
+     "why": "why it is urgent"
+    }
+   ]
+  },
+  {
+   "name": "abandons-then-escalates",
+   "kind": "booking",
+   "note": "An abandoned form then an explicit request. The handoff must not carry the dead booking as though it were live.",
+   "escalate_at": 2,
+   "exchanges": [
+    {
+     "user": "book me a table",
+     "reply": "Sorry, I didn't catch that. How many people will that be for?",
+     "answered": true,
+     "reprompts": 1,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {}
+    },
+    {
+     "user": "never mind",
+     "reply": "No problem \u2014 I'll leave it there. Come back any time.",
+     "answered": true,
+     "reprompts": 1,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {}
+    },
+    {
+     "user": "actually I need to speak to a manager",
+     "reply": "That's all set. Start a new conversation to book again.",
+     "answered": true,
+     "reprompts": 1,
+     "doc_id": "",
+     "evidence_score": 0.0,
+     "slots": {}
+    }
+   ],
+   "needs": [
+    {
+     "key": "reason",
+     "must_contain": "asked",
+     "why": "why they were handed over"
+    }
+   ]
+  }
+ ],
+ "policies": {
+  "never": {
+   "policy": "never",
+   "recall": 0.0,
+   "precision": 0.0,
+   "caught": 0,
+   "missed": 9,
+   "false_handoffs": 0,
+   "on_time": 0,
+   "of_needed": 9,
+   "turns_late": 12,
+   "wasted_handoffs": 0
+  },
+  "always": {
+   "policy": "always",
+   "recall": 1.0,
+   "precision": 0.5625,
+   "caught": 9,
+   "missed": 0,
+   "false_handoffs": 7,
+   "on_time": 3,
+   "of_needed": 9,
+   "turns_late": 0,
+   "wasted_handoffs": 13
+  },
+  "explicit_only": {
+   "policy": "explicit_only",
+   "recall": 0.2222,
+   "precision": 1.0,
+   "caught": 2,
+   "missed": 7,
+   "false_handoffs": 0,
+   "on_time": 2,
+   "of_needed": 9,
+   "turns_late": 10,
+   "wasted_handoffs": 0
+  },
+  "signals": {
+   "policy": "signals",
+   "recall": 0.6667,
+   "precision": 0.8571,
+   "caught": 6,
+   "missed": 3,
+   "false_handoffs": 1,
+   "on_time": 5,
+   "of_needed": 9,
+   "turns_late": 6,
+   "wasted_handoffs": 1
+  },
+  "signals (any one)": {
+   "policy": "signals (any one)",
+   "recall": 0.8889,
+   "precision": 0.8889,
+   "caught": 8,
+   "missed": 1,
+   "false_handoffs": 1,
+   "on_time": 7,
+   "of_needed": 9,
+   "turns_late": 1,
+   "wasted_handoffs": 2
+  },
+  "signals (three agree)": {
+   "policy": "signals (three agree)",
+   "recall": 0.5556,
+   "precision": 0.8333,
+   "caught": 5,
+   "missed": 4,
+   "false_handoffs": 1,
+   "on_time": 5,
+   "of_needed": 9,
+   "turns_late": 7,
+   "wasted_handoffs": 1
+  }
+ },
+ "ablation": {
+  "without asked_for_human": {
+   "policy": "without asked_for_human",
+   "recall": 0.4444,
+   "precision": 0.8,
+   "caught": 4,
+   "missed": 5,
+   "false_handoffs": 1,
+   "on_time": 3,
+   "of_needed": 9,
+   "turns_late": 8,
+   "wasted_handoffs": 1
+  },
+  "without high_stakes": {
+   "policy": "without high_stakes",
+   "recall": 0.3333,
+   "precision": 1.0,
+   "caught": 3,
+   "missed": 6,
+   "false_handoffs": 0,
+   "on_time": 2,
+   "of_needed": 9,
+   "turns_late": 9,
+   "wasted_handoffs": 0
+  },
+  "without repeated_refusal": {
+   "policy": "without repeated_refusal",
+   "recall": 0.6667,
+   "precision": 0.8571,
+   "caught": 6,
+   "missed": 3,
+   "false_handoffs": 1,
+   "on_time": 5,
+   "of_needed": 9,
+   "turns_late": 6,
+   "wasted_handoffs": 1
+  },
+  "without repair_loop": {
+   "policy": "without repair_loop",
+   "recall": 0.6667,
+   "precision": 0.8571,
+   "caught": 6,
+   "missed": 3,
+   "false_handoffs": 1,
+   "on_time": 5,
+   "of_needed": 9,
+   "turns_late": 6,
+   "wasted_handoffs": 1
+  },
+  "without repeated_question": {
+   "policy": "without repeated_question",
+   "recall": 0.5556,
+   "precision": 0.8333,
+   "caught": 5,
+   "missed": 4,
+   "false_handoffs": 1,
+   "on_time": 5,
+   "of_needed": 9,
+   "turns_late": 7,
+   "wasted_handoffs": 1
+  },
+  "without frustration": {
+   "policy": "without frustration",
+   "recall": 0.5556,
+   "precision": 0.8333,
+   "caught": 5,
+   "missed": 4,
+   "false_handoffs": 1,
+   "on_time": 5,
+   "of_needed": 9,
+   "turns_late": 7,
+   "wasted_handoffs": 1
+  }
+ },
+ "counterfactual": {
+  "policy": "signals + one phrase",
+  "recall": 0.7778,
+  "precision": 0.875,
+  "caught": 7,
+  "missed": 2,
+  "false_handoffs": 1,
+  "on_time": 6,
+  "of_needed": 9,
+  "turns_late": 5,
+  "wasted_handoffs": 1
+ },
+ "packets": [
+  {
+   "style": "full",
+   "packet": {
+    "conversation": "allergen-answered",
+    "topic": "I have a nut allergy, what should I do",
+    "reason": "binding signal: high_stakes (said 'allerg')",
+    "tried": [],
+    "slots": {},
+    "transcript": [
+     "I have a nut allergy, what should I do"
+    ],
+    "evidence": [
+     "turn 1: answered from allergens"
+    ],
+    "words": 38
+   },
+   "score": {
+    "conversation": "allergen-answered",
+    "complete": 1.0,
+    "re_asks": 0,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 38,
+    "needs": []
+   }
+  },
+  {
+   "style": "ticket",
+   "packet": {
+    "conversation": "allergen-answered",
+    "topic": "customer needs assistance",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [],
+    "evidence": [],
+    "words": 9
+   },
+   "score": {
+    "conversation": "allergen-answered",
+    "complete": 1.0,
+    "re_asks": 0,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 9,
+    "needs": []
+   }
+  },
+  {
+   "style": "transcript",
+   "packet": {
+    "conversation": "allergen-answered",
+    "topic": "I have a nut allergy, what should I do",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [
+     "I have a nut allergy, what should I do"
+    ],
+    "evidence": [],
+    "words": 25
+   },
+   "score": {
+    "conversation": "allergen-answered",
+    "complete": 1.0,
+    "re_asks": 0,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 25,
+    "needs": []
+   }
+  },
+  {
+   "style": "full",
+   "packet": {
+    "conversation": "asks-for-a-person",
+    "topic": "what time do you open",
+    "reason": "binding signal: asked_for_human (said 'speak to a person')",
+    "tried": [
+     "turn 2: could not answer 'can I speak to a person'"
+    ],
+    "slots": {},
+    "transcript": [
+     "what time do you open",
+     "can I speak to a person"
+    ],
+    "evidence": [
+     "turn 1: answered from holiday-hours"
+    ],
+    "words": 53
+   },
+   "score": {
+    "conversation": "asks-for-a-person",
+    "complete": 1.0,
+    "re_asks": 0,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 53,
+    "needs": [
+     {
+      "key": "transcript",
+      "want": "speak to a person",
+      "met": true
+     },
+     {
+      "key": "reason",
+      "want": "asked",
+      "met": true
+     }
+    ]
+   }
+  },
+  {
+   "style": "ticket",
+   "packet": {
+    "conversation": "asks-for-a-person",
+    "topic": "customer needs assistance",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [],
+    "evidence": [],
+    "words": 9
+   },
+   "score": {
+    "conversation": "asks-for-a-person",
+    "complete": 0.0,
+    "re_asks": 2,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 9,
+    "needs": [
+     {
+      "key": "transcript",
+      "want": "speak to a person",
+      "met": false
+     },
+     {
+      "key": "reason",
+      "want": "asked",
+      "met": false
+     }
+    ]
+   }
+  },
+  {
+   "style": "transcript",
+   "packet": {
+    "conversation": "asks-for-a-person",
+    "topic": "what time do you open",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [
+     "what time do you open",
+     "can I speak to a person"
+    ],
+    "evidence": [],
+    "words": 24
+   },
+   "score": {
+    "conversation": "asks-for-a-person",
+    "complete": 0.5,
+    "re_asks": 1,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 24,
+    "needs": [
+     {
+      "key": "transcript",
+      "want": "speak to a person",
+      "met": true
+     },
+     {
+      "key": "reason",
+      "want": "asked",
+      "met": false
+     }
+    ]
+   }
+  },
+  {
+   "style": "full",
+   "packet": {
+    "conversation": "allergen-refused",
+    "topic": "does the set menu contain sesame for a severe allergy",
+    "reason": "binding signal: high_stakes (said 'allerg')",
+    "tried": [],
+    "slots": {},
+    "transcript": [
+     "does the set menu contain sesame for a severe allergy"
+    ],
+    "evidence": [
+     "turn 1: answered from allergens"
+    ],
+    "words": 40
+   },
+   "score": {
+    "conversation": "allergen-refused",
+    "complete": 0.6667,
+    "re_asks": 1,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 40,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "allerg",
+      "met": true
+     },
+     {
+      "key": "reason",
+      "want": "allerg",
+      "met": true
+     },
+     {
+      "key": "tried",
+      "want": "could not",
+      "met": false
+     }
+    ]
+   }
+  },
+  {
+   "style": "ticket",
+   "packet": {
+    "conversation": "allergen-refused",
+    "topic": "customer needs assistance",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [],
+    "evidence": [],
+    "words": 9
+   },
+   "score": {
+    "conversation": "allergen-refused",
+    "complete": 0.0,
+    "re_asks": 3,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 9,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "allerg",
+      "met": false
+     },
+     {
+      "key": "reason",
+      "want": "allerg",
+      "met": false
+     },
+     {
+      "key": "tried",
+      "want": "could not",
+      "met": false
+     }
+    ]
+   }
+  },
+  {
+   "style": "transcript",
+   "packet": {
+    "conversation": "allergen-refused",
+    "topic": "does the set menu contain sesame for a severe allergy",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [
+     "does the set menu contain sesame for a severe allergy"
+    ],
+    "evidence": [],
+    "words": 27
+   },
+   "score": {
+    "conversation": "allergen-refused",
+    "complete": 0.3333,
+    "re_asks": 2,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 27,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "allerg",
+      "met": true
+     },
+     {
+      "key": "reason",
+      "want": "allerg",
+      "met": false
+     },
+     {
+      "key": "tried",
+      "want": "could not",
+      "met": false
+     }
+    ]
+   }
+  },
+  {
+   "style": "full",
+   "packet": {
+    "conversation": "billing-complaint",
+    "topic": "I was charged twice for my deposit and want a refund",
+    "reason": "binding signal: high_stakes (said 'charged twice')",
+    "tried": [],
+    "slots": {},
+    "transcript": [
+     "I was charged twice for my deposit and want a refund"
+    ],
+    "evidence": [
+     "turn 1: answered from cancellation-private-events"
+    ],
+    "words": 43
+   },
+   "score": {
+    "conversation": "billing-complaint",
+    "complete": 1.0,
+    "re_asks": 0,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 43,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "charg",
+      "met": true
+     },
+     {
+      "key": "reason",
+      "want": "charg",
+      "met": true
+     }
+    ]
+   }
+  },
+  {
+   "style": "ticket",
+   "packet": {
+    "conversation": "billing-complaint",
+    "topic": "customer needs assistance",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [],
+    "evidence": [],
+    "words": 9
+   },
+   "score": {
+    "conversation": "billing-complaint",
+    "complete": 0.0,
+    "re_asks": 2,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 9,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "charg",
+      "met": false
+     },
+     {
+      "key": "reason",
+      "want": "charg",
+      "met": false
+     }
+    ]
+   }
+  },
+  {
+   "style": "transcript",
+   "packet": {
+    "conversation": "billing-complaint",
+    "topic": "I was charged twice for my deposit and want a refund",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [
+     "I was charged twice for my deposit and want a refund"
+    ],
+    "evidence": [],
+    "words": 29
+   },
+   "score": {
+    "conversation": "billing-complaint",
+    "complete": 0.5,
+    "re_asks": 1,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 29,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "charg",
+      "met": true
+     },
+     {
+      "key": "reason",
+      "want": "charg",
+      "met": false
+     }
+    ]
+   }
+  },
+  {
+   "style": "full",
+   "packet": {
+    "conversation": "repeats-the-question",
+    "topic": "how much is the deposit for a private event",
+    "reason": "2 signals agreed (already asked 'how much is the deposit for a private event'; said 'this is useless')",
+    "tried": [
+     "turn 3: could not answer 'this is useless'"
+    ],
+    "slots": {},
+    "transcript": [
+     "how much is the deposit for a private event",
+     "no I mean how much is the deposit for a private event",
+     "this is useless"
+    ],
+    "evidence": [
+     "turn 1: answered from deposit-policy-2026",
+     "turn 2: answered from deposit-policy-2026"
+    ],
+    "words": 83
+   },
+   "score": {
+    "conversation": "repeats-the-question",
+    "complete": 1.0,
+    "re_asks": 0,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 83,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "deposit",
+      "met": true
+     },
+     {
+      "key": "transcript",
+      "want": "useless",
+      "met": true
+     }
+    ]
+   }
+  },
+  {
+   "style": "ticket",
+   "packet": {
+    "conversation": "repeats-the-question",
+    "topic": "customer needs assistance",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [],
+    "evidence": [],
+    "words": 9
+   },
+   "score": {
+    "conversation": "repeats-the-question",
+    "complete": 0.0,
+    "re_asks": 2,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 9,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "deposit",
+      "met": false
+     },
+     {
+      "key": "transcript",
+      "want": "useless",
+      "met": false
+     }
+    ]
+   }
+  },
+  {
+   "style": "transcript",
+   "packet": {
+    "conversation": "repeats-the-question",
+    "topic": "how much is the deposit for a private event",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [
+     "how much is the deposit for a private event",
+     "no I mean how much is the deposit for a private event",
+     "this is useless"
+    ],
+    "evidence": [],
+    "words": 42
+   },
+   "score": {
+    "conversation": "repeats-the-question",
+    "complete": 1.0,
+    "re_asks": 0,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 42,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "deposit",
+      "met": true
+     },
+     {
+      "key": "transcript",
+      "want": "useless",
+      "met": true
+     }
+    ]
+   }
+  },
+  {
+   "style": "full",
+   "packet": {
+    "conversation": "food-safety",
+    "topic": "my friend was ill after eating here last night",
+    "reason": "binding signal: high_stakes (said 'ill after')",
+    "tried": [
+     "turn 1: could not answer 'my friend was ill after eating here last night'"
+    ],
+    "slots": {},
+    "transcript": [
+     "my friend was ill after eating here last night"
+    ],
+    "evidence": [],
+    "words": 46
+   },
+   "score": {
+    "conversation": "food-safety",
+    "complete": 1.0,
+    "re_asks": 0,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 46,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "ill",
+      "met": true
+     },
+     {
+      "key": "reason",
+      "want": "ill",
+      "met": true
+     }
+    ]
+   }
+  },
+  {
+   "style": "ticket",
+   "packet": {
+    "conversation": "food-safety",
+    "topic": "customer needs assistance",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [],
+    "evidence": [],
+    "words": 9
+   },
+   "score": {
+    "conversation": "food-safety",
+    "complete": 0.0,
+    "re_asks": 2,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 9,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "ill",
+      "met": false
+     },
+     {
+      "key": "reason",
+      "want": "ill",
+      "met": false
+     }
+    ]
+   }
+  },
+  {
+   "style": "transcript",
+   "packet": {
+    "conversation": "food-safety",
+    "topic": "my friend was ill after eating here last night",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [
+     "my friend was ill after eating here last night"
+    ],
+    "evidence": [],
+    "words": 25
+   },
+   "score": {
+    "conversation": "food-safety",
+    "complete": 0.5,
+    "re_asks": 1,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 25,
+    "needs": [
+     {
+      "key": "topic",
+      "want": "ill",
+      "met": true
+     },
+     {
+      "key": "reason",
+      "want": "ill",
+      "met": false
+     }
+    ]
+   }
+  },
+  {
+   "style": "full",
+   "packet": {
+    "conversation": "abandons-then-escalates",
+    "topic": "book me a table",
+    "reason": "binding signal: asked_for_human (said 'manager')",
+    "tried": [
+     "turn 1: 1 reprompts on the same slot",
+     "turn 2: 1 reprompts on the same slot",
+     "turn 3: 1 reprompts on the same slot"
+    ],
+    "slots": {},
+    "transcript": [
+     "book me a table",
+     "never mind",
+     "actually I need to speak to a manager"
+    ],
+    "evidence": [],
+    "words": 57
+   },
+   "score": {
+    "conversation": "abandons-then-escalates",
+    "complete": 1.0,
+    "re_asks": 0,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 57,
+    "needs": [
+     {
+      "key": "reason",
+      "want": "asked",
+      "met": true
+     }
+    ]
+   }
+  },
+  {
+   "style": "ticket",
+   "packet": {
+    "conversation": "abandons-then-escalates",
+    "topic": "customer needs assistance",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [],
+    "evidence": [],
+    "words": 9
+   },
+   "score": {
+    "conversation": "abandons-then-escalates",
+    "complete": 0.0,
+    "re_asks": 1,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 9,
+    "needs": [
+     {
+      "key": "reason",
+      "want": "asked",
+      "met": false
+     }
+    ]
+   }
+  },
+  {
+   "style": "transcript",
+   "packet": {
+    "conversation": "abandons-then-escalates",
+    "topic": "book me a table",
+    "reason": "escalated",
+    "tried": [],
+    "slots": {},
+    "transcript": [
+     "book me a table",
+     "never mind",
+     "actually I need to speak to a manager"
+    ],
+    "evidence": [],
+    "words": 27
+   },
+   "score": {
+    "conversation": "abandons-then-escalates",
+    "complete": 0.0,
+    "re_asks": 1,
+    "grounded": true,
+    "ungrounded": [],
+    "words": 27,
+    "needs": [
+     {
+      "key": "reason",
+      "want": "asked",
+      "met": false
+     }
+    ]
+   }
+  }
+ ],
+ "readings": [
+  {
+   "conversation": "answers-cleanly",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "answers-cleanly",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "allergen-answered",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": true,
+     "evidence": "said 'allerg'",
+     "turn": 0,
+     "binding": true
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "one-refusal-then-moves-on",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "one-refusal-then-moves-on",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "books-without-trouble",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "books-without-trouble",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "books-without-trouble",
+   "turn": 2,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "digression-then-answer",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "digression-then-answer",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "corrects-itself",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "corrects-itself",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "corrects-itself",
+   "turn": 2,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "corrects-itself",
+   "turn": 3,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 3,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 3,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 3,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 3,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 3,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 3,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "blunt-but-fine",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "blunt-but-fine",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "asks-for-a-person",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "asks-for-a-person",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": true,
+     "evidence": "said 'speak to a person'",
+     "turn": 1,
+     "binding": true
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "allergen-refused",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": true,
+     "evidence": "said 'allerg'",
+     "turn": 0,
+     "binding": true
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "keeps-refusing",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "keeps-refusing",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": true,
+     "evidence": "2 refusals by turn 2",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "keeps-refusing",
+   "turn": 2,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": true,
+     "evidence": "3 refusals by turn 3",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "stuck-on-a-slot",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "stuck-on-a-slot",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": true,
+     "evidence": "2 reprompts on the same slot",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "stuck-on-a-slot",
+   "turn": 2,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": true,
+     "evidence": "2 reprompts on the same slot",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "stuck-on-a-slot",
+   "turn": 3,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 3,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 3,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 3,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": true,
+     "evidence": "2 reprompts on the same slot",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 3,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 3,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "billing-complaint",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": true,
+     "evidence": "said 'charged twice'",
+     "turn": 0,
+     "binding": true
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "repeats-the-question",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "repeats-the-question",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": true,
+     "evidence": "already asked 'how much is the deposit for a private event'",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "repeats-the-question",
+   "turn": 2,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": true,
+     "evidence": "already asked 'how much is the deposit for a private event'",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": true,
+     "evidence": "said 'this is useless'",
+     "turn": 2,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "asks-for-human-mid-booking",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "asks-for-human-mid-booking",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "food-safety",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": true,
+     "evidence": "said 'ill after'",
+     "turn": 0,
+     "binding": true
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "abandons-then-escalates",
+   "turn": 0,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 0,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "abandons-then-escalates",
+   "turn": 1,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 1,
+     "binding": false
+    }
+   ]
+  },
+  {
+   "conversation": "abandons-then-escalates",
+   "turn": 2,
+   "signals": [
+    {
+     "name": "asked_for_human",
+     "fired": true,
+     "evidence": "said 'manager'",
+     "turn": 2,
+     "binding": true
+    },
+    {
+     "name": "high_stakes",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repeated_refusal",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repair_loop",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "repeated_question",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    },
+    {
+     "name": "frustration",
+     "fired": false,
+     "evidence": "",
+     "turn": 2,
+     "binding": false
+    }
+   ]
+  }
+ ]
+}

@@ -1337,6 +1337,142 @@ line. A word error rate measured over a corpus that changes per run is not a
 measurement, and the first version of this section was being written before I
 noticed.
 
+## Day 13: escalation, and the half nobody builds
+
+```bash
+uv sync --extra train
+uv run python -m convo.projects.day13_escalation.build
+```
+
+Sixteen conversations — **nine needing a person, seven not**. Each is replayed
+through the real stack: `faq` turns go through days 8-10's retrieval,
+cross-encoder and both guardrail gates; `booking` turns through day 4's
+engine. So a refusal in the record is one day 10's thresholds actually
+produced, and a reprompt count is one day 4's extractors actually reached. A
+labelled set that also hand-writes the system's behaviour is grading the
+labels against themselves.
+
+### The label is a turn index, not a flag
+
+Escalation gets scored as classification — did it escalate, should it have —
+and that is the wrong shape. Precision and recall call a handoff at turn six a
+success when the conversation was lost at turn two, and the customer who spent
+four more exchanges being misunderstood does not care that the system
+eventually agreed with them.
+
+So the headline is **turns late**: exchanges spent stuck after the point a
+person should have taken over, summed across the set. A conversation that is
+never escalated contributes everything after that point, so abandoning
+somebody is not rewarded with a missing row.
+
+| policy | recall | precision | on time | **turns late** | wasted |
+|---|---|---|---|---|---|
+| `never` | 0% | — | 0/9 | 12 | 0 |
+| `always` | 100% | 56% | 3/9 | **0** | **13** |
+| `explicit_only` — what day 4 ships | 22% | 100% | 2/9 | 10 | 0 |
+| `signals` — make weak ones agree | 67% | 86% | 5/9 | 6 | 1 |
+| **`signals (any one)`** | **89%** | **89%** | **7/9** | **1** | 2 |
+| `signals (three agree)` | 56% | 83% | 5/9 | 7 | 1 |
+
+`always` is the honest reminder of why recall alone is useless: perfect on
+every escalation metric, and it pulls a person into thirteen conversations
+that did not need one.
+
+**The intuitive design is the wrong one.** Requiring two weak signals to
+corroborate before acting — which is what I built first, and what sounds
+obviously right — is worse on every axis than letting any single signal fire:
+recall 67% against 89%, and six turns late against one. The signals here are
+individually conclusive. A second refusal already means the corpus does not
+cover this; waiting for a second *opinion* just adds turns.
+
+### Confidence is anti-correlated with needing a human
+
+The high-stakes signal was built the obvious way first: fire only when the
+system *also* failed to answer, so a question day 10 handles with a verified
+citation would not waste a person. The measurement killed it.
+
+| conversation | label | evidence score | day 10 |
+|---|---|---|---|
+| "I was charged twice for my deposit" | **needs a person** | **−3.04** | answered |
+| "does the set menu contain sesame for a severe allergy" | **needs a person** | **−3.70** | answered |
+| "I have a nut allergy, what should I do" | bot can handle it | −5.97 | answered |
+
+The two conversations that need a human score **higher** than the one that
+does not. Not noise — structural. Day 10's gates verify that an answer is
+*grounded in the corpus*, not that it is *responsive to the question*.
+"Charged twice, want a refund" retrieves the cancellation policy and cites it
+perfectly: a well-grounded answer to a question nobody asked. Groundedness and
+answerability come apart exactly where being wrong is most expensive.
+
+So the signal consults no confidence at all — on a listed topic, a person.
+That costs one false handoff, on the nut-allergy question, and the case is
+genuinely arguable: the article it retrieves says *"please call ahead rather
+than relying on the chat assistant"*, so the corpus itself is telling the
+customer to talk to someone. I left it labelled as a false handoff rather than
+relabelling it to suit the policy.
+
+### What each signal earns, including the two that earn nothing
+
+| full policy, minus one | recall | turns late |
+|---|---|---|
+| without `high_stakes` | 33% | 9 |
+| without `asked_for_human` | 44% | 8 |
+| without `repeated_question` | 56% | 7 |
+| without `frustration` | 56% | 7 |
+| without `repeated_refusal` | **67%** | **6** |
+| without `repair_loop` | **67%** | **6** |
+
+Two of six change nothing. `repeated_refusal` and `repair_loop` both fire on
+the conversations they were written for — but each fires *alone*, and under a
+policy demanding agreement a lone signal escalates nothing. They are kept and
+reported at zero rather than deleted, and the `any one` row above is what they
+are worth once a single signal is allowed to act.
+
+### A pattern list is the highest-recall signal and the most brittle
+
+`asks-for-human-mid-booking` is missed. The customer says *"actually just put
+me through to someone"*, and day 4's `HUMAN_PATTERNS` — which has `speak to
+someone`, `talk to someone`, `someone else` — has no entry for `put me
+through`. Adding that one phrase takes recall from 67% to **78%**.
+
+That counterfactual is measured and reported rather than quietly applied. The
+list is one ordinary English sentence away from correct, and it will be one
+sentence away from correct forever; the number is the argument against the
+approach, not a patch for it. Day 2's classifier is the thing that should be
+doing this job, and connecting the two is work this day did not do.
+
+### What the agent receives, which is the half nobody builds
+
+A handoff that arrives as "customer needs assistance" is not a handoff. The
+agent opens with *"can you tell me what happened?"*, the customer repeats
+everything they already typed, and the escalation has cost them more time than
+the bot did.
+
+Scored on **re-asks** — facts the customer would have to repeat — across the
+seven escalated conversations:
+
+| packet | complete | re-asks | invented facts | words |
+|---|---|---|---|---|
+| `ticket` — a flag and nothing else | 14% | **12** | 0 | 9 |
+| `transcript` — everything they typed | 55% | 6 | 0 | 28 |
+| **`full`** — topic, reason, what was tried, slots | **95%** | **1** | 0 | 51 |
+
+**Eleven of twelve re-asks removed, for forty-two extra words.** That is the
+cheapest win in this entire repo.
+
+The `transcript` row is why completeness alone is not a sufficient metric: a
+transcript dump is grounded by construction and scores respectably, while
+leaving the agent to do all the reading and all the inference.
+
+Every packet is also checked for **invented facts** — day 5's provenance guard
+pointed at a different artifact. Each slot value must appear in what the
+customer typed and each cited document must be one retrieval actually
+returned. A summary that fabricates a party size is worse than no summary,
+because the agent will act on it. Nothing here invents anything, which is
+unsurprising given the packet is assembled rather than generated — the guard
+exists for the version of this that uses a model to write the summary, which
+is the obvious next step and the obvious next hazard.
+
 ## What I would do differently
 
 **Check the deployment constraint before architecting around it.** Day 1 was
