@@ -14,6 +14,7 @@ from convo.projects import (
     day04_dialog_engine,  # noqa: F401
     day05_tool_agent,  # noqa: F401
     day06_eval_harness,  # noqa: F401
+    day07_writeup,  # noqa: F401
 )
 
 __all__ = [
@@ -23,4 +24,5 @@ __all__ = [
     "day04_dialog_engine",
     "day05_tool_agent",
     "day06_eval_harness",
+    "day07_writeup",
 ]

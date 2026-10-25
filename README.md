@@ -1,11 +1,110 @@
 # Conversational AI portfolio
 
-Twenty-one projects behind one hub: a grounded, evaluated, escalating support
-agent, built twice — once open-source, once Google-native — with the numbers
-for both.
+A booking assistant built four different ways — a fine-tuned classifier, an
+embedding router, a deterministic state machine and a tool-calling agent — then
+measured against each other on one eval suite, with a CI gate that blocks on a
+safety regression.
 
-Days 1–6 of 21 are shipped. The hub lists every remaining day and shows its
-brief, so progress is visible rather than implied.
+Days 1–7 of 21 are shipped — week 1 complete. The hub lists every remaining day with its brief,
+so progress is visible rather than implied.
+
+![Day 4's dialogue engine mid-repair: the guest says "no, make it 8pm", the bot
+changes the time and re-confirms rather than opening a menu, and the inspector
+shows the page move confirm → booked with all four slots filled.](docs/day04-repair.jpg)
+
+<sub>Day 4 — the repair case. "no, make it 8pm" at the confirmation changes the
+time and re-confirms; the panel on the right shows the current page, the form,
+and the transition that fired, in 0.54 ms with no model involved.</sub>
+
+## Three things it found
+
+Every number below came out of a run in this repo, not from a blog post.
+
+**Five examples are plenty, or useless, and you can tell which in advance.**
+Ten intents were withheld from a classifier entirely and given to an embedding
+router as five examples each. Recall ranged from **96.7% to 0.0%** — roughly
+bimodal, not centred on the 52% average. `order_checks` has distinctive
+vocabulary and routes nearly perfectly; `definition` is phrased like half the
+dataset and never routes at all. The practical rule: before promising a client
+that a new intent needs a handful of examples, check its nearest neighbours in
+the existing taxonomy. [Day 3](#day-3-when-fine-tuning-is-worth-it-and-when-it-isnt)
+
+**Schema validation checks shape, not provenance.** A small model emitted
+*one* malformed tool call in twenty — and ten complete, well-formed, entirely
+invented bookings, under names like "John Doe" and "Table 12". The validator
+passed every one, because inventing plausible data is not a schema violation.
+Adding a provenance guard took false confirmations from **10 to 0** while the
+pass rate did not move at all. [Day 5](#day-5-the-same-bot-tool-calling)
+
+**Accuracy hid a broken model.** A first training run reached 74% in-scope
+accuracy — mediocre but plausible. Its **maximum softmax confidence across
+5,500 test rows was 0.092**, so every rejection threshold above 0.1 refused
+every turn and the whole control was dead. Accuracy alone never shows that;
+there is now a check that does. [Day 2](#day-2-the-out-of-scope-door)
+
+Two bugs were found by *running* things rather than reasoning about them: a
+Dockerfile that had never once built, and an affirmation word-list that
+silently suppressed every digression phrased as a question.
+
+## How it fits together
+
+Heavy work runs on a laptop and produces small files. The serving image reads
+those files and carries no ML framework at all, which is what keeps it at
+588 MB and able to run free.
+
+```mermaid
+flowchart LR
+  subgraph lab["laptop or Kaggle — torch, transformers"]
+    T2["day 2 · fine-tune<br/>41 min"]
+    T3["day 3 · embed + train<br/>44 min"]
+    T5["day 5 · run a 0.5B agent<br/>38 min"]
+  end
+  subgraph art["committed artifacts — 9 MB"]
+    A2[("test logits<br/>3 MB")]
+    A3[("router vs classifier<br/>6 MB")]
+    A5[("agent comparison<br/>96 KB")]
+  end
+  subgraph img["serving image — 588 MB, no torch"]
+    HUB["Gradio hub<br/>21 tabs"]
+  end
+  T2 --> A2 --> HUB
+  T3 --> A3 --> HUB
+  T5 --> A5 --> HUB
+```
+
+The days are not independent demos. Each one reuses what the last built, and
+the reuse is the architecture:
+
+```mermaid
+flowchart TD
+  CORE["core/<br/>logging · tracing · costs<br/>classification · evals · registry"]
+  D2["day 2<br/>intent classifier"]
+  D3["day 3<br/>embedding router"]
+  D4["day 4<br/>dialogue engine"]
+  D5["day 5<br/>tool-calling agent"]
+  D6["day 6<br/>eval harness + CI gate"]
+
+  CORE --> D2
+  CORE --> D3
+  CORE --> D4
+  CORE --> D5
+  CORE --> D6
+  D2 -.->|"threshold maths promoted up"| CORE
+  D4 -->|"parsers become the grounding oracle"| D5
+  D4 -->|"and the scorer's oracle"| D6
+  D5 -->|"12 scenarios become the suite's core"| D6
+  D5 -->|"grounding guard reused as a scorer"| D6
+```
+
+Solid arrows are what a day imports. The dotted one is the opposite
+direction — code that started inside a day and was promoted into `core` once a
+second day needed it.
+
+Day 3 needed day 2's metrics on a different kind of score, so the maths moved
+into `core`. Day 5 needed to know whether a model had invented a booking, and
+day 4's deterministic parsers were already the authority on what the guest had
+said. Day 6 then reused *both* — day 5's scenarios as the suite's core and its
+grounding guard as a safety scorer.
 
 ## Run it
 
@@ -14,38 +113,39 @@ uv sync --extra dev
 uv run python -m convo.hub        # http://localhost:7860
 ```
 
-`PORT` overrides the port, which is how Cloud Run starts it.
+`PORT` overrides the port, which is how a container starts it.
 
 ```bash
-uv run pytest -q                  # 22 tests
+uv run pytest -q                                    # 362 tests
 uv run ruff check . && uv run ruff format --check .
+uv run python -m convo.projects.day06_eval_harness.gate   # the eval gate
 ```
 
-## Deploy it
-
-The hub is containerised and deploys to Cloud Run's always-free tier: 2M
-requests, 180k vCPU-seconds and 360k GiB-seconds a month, scaling to zero in
-between. It needs the Google Cloud CLI and a project with billing enabled.
-
-```powershell
-.\scripts\deploy.ps1
-```
+Training and benchmarks need the heavier extra:
 
 ```bash
-./scripts/deploy.sh               # SERVICE=… REGION=… to override
+uv sync --extra dev --extra train   # adds torch + transformers
 ```
 
-The script enables the Run, Cloud Build and Artifact Registry APIs, builds the
-`Dockerfile` with Cloud Build, and prints the public URL. `--min-instances 0`
-means the first request after a quiet spell takes a few seconds; the hub's
-first paint is static so that reads as slow, not broken.
+## Containers and deployment
 
-To check the image locally (Docker Desktop must be running):
+The image builds and is verified in CI on every push — it boots, serves, runs
+as a non-root user, and a dedicated job fails the build if `torch` ever leaks
+into it.
 
 ```bash
 docker build -t convo-portfolio:local .
 docker run --rm -p 8081:8080 convo-portfolio:local
 ```
+
+`scripts/deploy.ps1` and `scripts/deploy.sh` deploy it to Cloud Run, sized for
+the always-free tier: 2M requests, 180k vCPU-seconds and 360k GiB-seconds a
+month, scaling to zero in between.
+
+**There is no live URL yet.** Cloud Run requires a billing account even to use
+its free tier, and this project does not have one. The deploy scripts are
+written and the image is verified; what is missing is a card, not code. Running
+it locally is a one-liner in the meantime.
 
 ## Layout
 
@@ -93,6 +193,7 @@ src/convo/
       benchmark.py runs both, twice                     (needs `train` extra)
       ui.py        the three-way comparison
       artifacts/   the cached comparison (~200 KB)
+    day07_writeup/ the week-1 write-up tab, prose only
     day06_eval_harness/
       outcome.py   one shape both bots report into
       suite.py     32 scripted conversations, day 5's twelve plus twenty
@@ -494,6 +595,47 @@ cost figure in a portfolio is worse than no figure.
 **Eval types came first.** `EvalRun.compare()` and `EvalRun.gate()` exist on
 day 1 even though the first real suite is day 6, because the CI gate in day 18
 has to read the same shape. Nothing about the eval format gets invented twice.
+
+## What I would do differently
+
+**Check the deployment constraint before architecting around it.** Day 1 was
+built around Cloud Run — containerised, sized for the free tier, deploy scripts
+written. Cloud Run needs a billing account even for free usage, and this
+project does not have one. The work is not wasted (the container is verified
+and the image is a genuine artifact) but the headline deliverable, *a link you
+can put in an application*, still does not exist. That question should have
+been asked on day 1, not day 15.
+
+**Sanity-check a training run after one epoch, not eight.** Day 2's first run
+used 3 epochs at 3e-5 — a reasonable BERT-base recipe, wrong for a 6-layer
+encoder with a 150-way head. Forty-one minutes produced a model whose maximum
+confidence was 0.092. Printing the confidence distribution after epoch 1 would
+have caught it in five. The check exists now; it should have existed first.
+
+**Write the eval suite from the task, not from a working implementation.**
+Day 6's 32 scenarios were written after day 4 worked, and day 4 scores 100% on
+them. That is partly honest — a deterministic state machine genuinely cannot
+invent a slot — and partly circular. A suite written before the implementation,
+from what a booking bot *should* do, would have been a harder and more useful
+test. The mutation checks (deliberately breaking a bot and asserting the right
+dimension notices) are the patch for this, not a substitute.
+
+**A 0.5B model cannot settle an architectural question.** Day 5 compares a
+state machine against a tool-calling agent, and the agent scored 8.3%. That
+says a great deal about Qwen2.5-0.5B on CPU and very little about tool-calling
+agents, which is stated in the day 5 section but deserves repeating. The
+*shape* of the finding generalises — schema validation does not constrain
+semantics — but the numbers do not. Re-running it against a Gemini Flash free
+tier key would make the comparison worth far more.
+
+**Gradio was the right call for one demo and the wrong one for twenty-one.**
+The hub is now 21 tabs, and several of them build HTML as strings inside Python
+because Gradio has no component for what the page needs. The data is already
+JSON artifacts; a small static front end reading those same files would be
+cleaner to write, cheaper to host, and would sidestep the fact that free
+Gradio hosting no longer exists. The artifacts-as-the-interface split is
+right — the choice of what renders them is not load-bearing and should have
+been made later.
 
 ## Licence
 

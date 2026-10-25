@@ -33,6 +33,18 @@ class Project:
         mark = "" if self.status == "shipped" else " ·"
         return f"{self.day:02d}{mark} {self.title}"
 
+    @property
+    def tab_label(self) -> str:
+        """Short enough that all seven of a week's tabs fit on one row.
+
+        The full titles run to fifty characters, which pushed everything past
+        day three into an overflow menu that does not open reliably — hiding
+        day 4, the best thing in week 1. The slug carries the meaning; the full
+        title is the first heading inside the tab anyway.
+        """
+        mark = "" if self.status == "shipped" else "·"
+        return f"{self.day:02d}{mark} {self.slug.replace('-', ' ')}"
+
 
 _REGISTRY: dict[int, Project] = {}
 
