@@ -112,7 +112,13 @@ WEEKS: tuple[Week, ...] = (
     Week(
         2, "Grounding, voice, guardrails", "Every day here adds a measurement, not just a feature."
     ),
-    Week(3, "On Google Cloud", "Tear every endpoint down the same day you create it."),
+    Week(
+        3,
+        "Google's agent stack, free tier only",
+        "Replanned on day 15: no billing account, so ADK and a free Gemini key "
+        "instead of Vertex. Every day re-runs an existing week-1 or week-2 "
+        "measurement, so the framework is compared against something.",
+    ),
 )
 
 PLAN: tuple[Project, ...] = (
@@ -224,44 +230,44 @@ PLAN: tuple[Project, ...] = (
     Project(
         16,
         3,
-        "custom-training",
-        "A custom training job on the platform",
-        "Day 2's classifier as a container: custom training job, Model Registry, batch predict.",
+        "adk-agent",
+        "The booking bot in ADK",
+        "Day 4/5's bot a third time, on day 5's tools and day 6's suite. Framework vs hand-rolled.",
     ),
     Project(
         17,
         3,
-        "serve-monitor",
-        "Serve it, monitor it, tear it down",
-        "An endpoint, online prediction, skew and drift monitoring, undeployed the same day.",
+        "adk-memory",
+        "ADK sessions and memory vs day 11",
+        "Day 11's rewriter and buffer against ADK's own session and memory services.",
     ),
     Project(
         18,
         3,
-        "pipeline",
-        "Pipeline it, with an eval gate",
-        "KFP: ingest, train, evaluate, a conditional gate on pass rate, then deploy.",
+        "adk-evals",
+        "ADK's evaluator against day 6's harness",
+        "Score the same suite both ways, then run whichever disagrees less as a CI gate.",
     ),
     Project(
         19,
         3,
-        "conversational-agents",
-        "Build day 4 again, managed",
-        "The same bot in Conversational Agents, with a Cloud Run webhook. Then compare.",
+        "adk-multi-agent",
+        "Multi-agent against one state machine",
+        "ADK's sequential and parallel agents on day 4's flow. Does splitting it buy anything?",
     ),
     Project(
         20,
         3,
-        "managed-rag",
-        "Managed RAG, measured against yours",
-        "Day 9's eval set, unchanged, against Agent Search. Publish the comparison.",
+        "a2a-handoff",
+        "A2A carrying day 13's handoff packet",
+        "Day 13's escalation across an agent boundary over A2A, with the provenance guard intact.",
     ),
     Project(
         21,
         3,
         "capstone",
         "Close it as one product",
-        "One narrative, one architecture diagram, one cost table, three headline repos.",
+        "One narrative, one architecture diagram, one cost table — which this time reads $0.",
     ),
 )
 

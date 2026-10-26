@@ -547,6 +547,87 @@ def _day15() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
     )
 
 
+def _day16() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
+    from convo.projects.day16_adk_agent.results import Scope, load
+
+    found = load()
+    if found is None:
+        return "", (), (), ""
+
+    def rate(value: float | None) -> str:
+        return "not measured" if value is None else _pct(value)
+
+    def count(value: int | None) -> str:
+        return "not measured" if value is None else str(value)
+
+    full = Scope.FULL
+    bots = found.ordered(full)
+    scores = tuple(
+        (
+            bot.label,
+            rate(bot.pass_rate(full)),
+            rate(bot.dimension(full, "task")),
+            rate(bot.dimension(full, "safety")),
+            count(bot.false_confirmations(full)),
+            count(bot.model_calls(full)),
+        )
+        for bot in bots
+    )
+    failures = tuple(
+        (
+            case.case_id,
+            "; ".join(f"{a.name} ({a.dimension})" for a in case.assertions if not a.passed),
+        )
+        for case in found.adk.failures(full)
+    )
+    scope = (
+        f"all {found.of_suite} scenarios"
+        if not found.partial
+        else f"the {found.scenarios} of {found.of_suite} scenarios the free tier allowed"
+    )
+    return (
+        "Day 4's booking bot for the third time, in Google's Agent Development "
+        f"Kit on {found.model}, scored by day 6's unchanged harness over {scope}.",
+        (
+            Stat(rate(found.adk.pass_rate(full)), "ADK + Gemini", "good"),
+            Stat(rate(found.engine.pass_rate(full)), "state machine, day 4", "good"),
+            Stat(
+                count(found.adk.false_confirmations(full)),
+                "tables confirmed but never booked",
+                "bad",
+            ),
+        ),
+        (
+            Table(
+                "ADK against a state machine, same suite, same scorers",
+                ("bot", "pass rate", "task", "safety", "false confirmations", "model calls"),
+                scores,
+                "Day 5's tools are imported rather than reimplemented, so a "
+                "difference in these columns cannot be a difference in the "
+                "business rules. Day 5's own agent is absent here: it ran a "
+                "smaller suite whose assertions carry no dimension, so it "
+                "belongs in a pass-rate comparison and nowhere near this table.",
+            ),
+            Table(
+                "Every scenario ADK got wrong",
+                ("scenario", "what broke"),
+                failures,
+                "All of one kind: it booked a table when the right answer was "
+                "to book nothing. Not a malformed call, not a bad parameter, "
+                "not a runaway loop — the failures day 5 wrote most of its code "
+                "to prevent are the ones the framework does prevent. The "
+                "escalation case invented a guest name to fill a required "
+                "argument, which is exactly what day 5's provenance guard was "
+                "built to catch and exactly what ADK has no equivalent of.",
+            ),
+        ),
+        "A framework removes the code you would have written anyway, not the "
+        "code you had to invent. ADK replaced day 5's schema validation, call "
+        "parsing, retry loop and session state; it replaced nothing of the "
+        "provenance guard, and that is where the remaining failures are.",
+    )
+
+
 BUILDERS = {
     2: _day02,
     3: _day03,
@@ -558,6 +639,7 @@ BUILDERS = {
     12: _day12,
     13: _day13,
     15: _day15,
+    16: _day16,
 }
 
 NO_ARTIFACT = {

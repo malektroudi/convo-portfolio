@@ -34,6 +34,25 @@ voice = [
 analytics = [
     "duckdb>=1.1,<3",
 ]
+# Day 16 needs `google-adk`, and it is deliberately NOT an extra here, because
+# declaring it makes the project unresolvable:
+#
+#     google-adk 2.13  requires  pydantic>=2.12   starlette>=1.3.1,<2
+#     gradio   5.x     requires  pydantic<2.12    starlette<1.0
+#
+# There is no version pair that satisfies both, so `uv sync --extra agents`
+# would fail for everyone rather than just for the one day that needs it. Day
+# 16 is installed on top of a synced environment instead:
+#
+#     uv pip install --no-deps google-adk
+#     uv pip install --upgrade pydantic   # 2.12, which ADK needs
+#
+# That leaves an environment neither package's metadata endorses, and it works
+# because the violated paths are not exercised: the hub never imports ADK (CI
+# blocks it inside the image), and day 16 uses ADK's in-process runner, never
+# its FastAPI server — which is the part that wants the newer starlette. The
+# README says so, and this comment exists so the next person does not "fix"
+# the missing extra.
 
 [project.scripts]
 convo-hub = "convo.hub.__main__:main"
