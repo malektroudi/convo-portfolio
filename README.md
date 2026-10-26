@@ -1,6 +1,6 @@
 # Conversational AI portfolio
 
-**[malektroudi.github.io/convo-portfolio](https://malektroudi.github.io/convo-portfolio/)** &mdash; 14 projects, every figure read from the artifact that produced it.
+**[malektroudi.github.io/convo-portfolio](https://malektroudi.github.io/convo-portfolio/)** &mdash; 15 projects, every figure read from the artifact that produced it.
 
 A booking assistant built four different ways — a fine-tuned classifier, an
 embedding router, a deterministic state machine and a tool-calling agent — then
@@ -1232,26 +1232,54 @@ Median turn, 11 utterances, 8 fluent and 3 with a hesitation spliced in:
 
 | path | median | p90 | inside 800 ms |
 |---|---|---|---|
-| `cited` — days 8-11, no model | **958 ms** | 1113 ms | 27% |
-| `generated` — 0.5B streamed on CPU | **3033 ms** | 4709 ms | **0%** |
+| `cited` — days 8-11, no model | **964 ms** | 1113 ms | **0%** |
+| `generated` — 0.5B streamed on CPU | **3124 ms** | 4709 ms | **0%** |
 
-The retrieval path misses the budget by 158 ms. The generated path misses it by
-a factor of four and lands past the two-second mark where a caller assumes the
-line has dropped — on *every single turn*.
+Eight turns each: the three the endpointer cut off mid-sentence are excluded,
+for the reason in *A number that was quietly impossible* below.
+
+The retrieval path misses the budget by 164 ms, on every turn. The generated
+path misses it by a factor of four and lands past the two-second mark where a
+caller assumes the line has dropped.
 
 Stage by stage, for the median `cited` turn:
 
 ```
 Endpointing                300 ms   1.00x
-STT finalise               494 ms   2.47x  <- worst
-First speakable sentence     7 ms   0.04x
-TTS first audio            157 ms   1.05x
+STT finalise               542 ms   2.71x  <- worst
+First speakable sentence     8 ms   0.06x
+TTS first audio            119 ms   0.80x
 ```
 
 Two things fall out. The 0.5B model is not viable for voice on a CPU, which is
 unsurprising. What *is* surprising is that with the model removed entirely, a
 38M-parameter recogniser and a small TTS still miss an 800 ms budget — the
 thinking was never the only problem.
+
+### A number that was quietly impossible
+
+This section first reported that the cited path met the budget on **27%** of
+turns. It never met it at all, and the error is worth keeping on the page
+because of how it was found.
+
+The endpointing stage is measured as the gap between where the endpointer
+fired and where the caller actually stopped speaking. When the endpointer
+fires *early* — which it does on every hesitant utterance at the budgeted
+300 ms — that gap is **negative**. It was being added to the total as though
+an interruption were a latency saving, and three turns came out at −546, −532
+and −719 ms. Those three were the only ones in the set that fitted inside
+800 ms.
+
+Nothing in day 12 caught it. The median and p90 are robust to three outliers
+at the bottom, so both were right; only the pass rate was wrong, and a pass
+rate is exactly the number that gets quoted. **Day 15 found it**, by loading
+these turns into a warehouse and reporting a mean latency *below* the median —
+arithmetically impossible without negative values.
+
+A truncated turn now has no end-to-end latency at all, which is the honest
+record: the deadline runs from the moment the caller stops speaking, and the
+system answered before that moment arrived. Those turns are counted where
+they belong, in the endpointing table below.
 
 ### Time-to-first-token is the wrong metric, and it flatters you
 
@@ -1271,8 +1299,8 @@ and it is the wrong unit for a medium where the output has to be *utterable*
 before it is worth anything.
 
 Speaking the first sentence rather than waiting for the whole reply is worth
-**134 ms** on the generated path and **−14 ms** on the cited path — noise
-either way, because a verified span is usually a single sentence, so the first
+**222 ms** on the generated path and **0.6 ms** on the cited path — nothing at
+all there, because a verified span is usually a single sentence, so the first
 sentence and the whole reply are the same string and there is nothing to
 overlap. The optimisation everyone reaches for first is worth nothing until the
 replies are long enough to have a second sentence.
@@ -1496,7 +1524,7 @@ was only ever **one way of rendering them**.
 
 | | container | static site |
 |---|---|---|
-| size | 588 MB | **102 KB** |
+| size | 588 MB | **109 KB** |
 | needs a billing account | yes | no |
 | cold start | seconds | none |
 | external requests at load | — | **zero** |
@@ -1574,7 +1602,7 @@ only reports its wins is a sales page.
 
 **<https://malektroudi.github.io/convo-portfolio/>**
 
-Fifteen pages, generated from the committed artifacts on every push to `main`
+Sixteen pages, generated from the committed artifacts on every push to `main`
 and served by GitHub Pages for nothing. The repository went public to get
 there, which for a portfolio is the point rather than the price: the thing a
 reader most wants after the numbers is the code that produced them.
@@ -1582,6 +1610,143 @@ reader most wants after the numbers is the code that produced them.
 Day 14 has a page of its own on the site and a tab in the hub, and neither
 claims a figure, because this day has no artifact — it is generated from every
 other day's, which is the whole argument for building it this way.
+
+## Day 15: analytics, and the metric everybody reports
+
+```bash
+uv run python -m convo.projects.day15_analytics.build
+```
+
+**155 turn events from 119 conversations**, projected out of days 10 to 13's
+measured runs. These are not synthetic logs: every row is a turn a pipeline in
+this repository actually processed — day 10's gates against their own
+thresholds, day 11's rewriter, day 12's audio through whisper and Piper, day
+13's policies over replayed exchanges.
+
+### Containment is 92%. Containment is 55%.
+
+Both numbers come from the same rows, computed by the same query. The
+difference is one clause.
+
+| | |
+|---|---|
+| Conversations | 119 |
+| Ended without a human | 110 — **92%** |
+| Ended without a human **and the last turn answered** | 65 — **55%** |
+| Ended on *"I don't know"*, with nobody to escalate to | **45** |
+
+The naive definition — "the conversation ended without a human" — is the one
+that gets reported, because it is easy and it flatters. It counts a customer
+who was told *"I don't have anything in the help centre that answers that"*
+and gave up as a **success**, on the grounds that nobody was escalated to. In
+a set where day 10's guardrail is deliberately strict, that is forty-five
+conversations.
+
+Nothing about this is clever. It is a `JOIN` to the last turn and a `COUNTIF`.
+The reason it is the day's headline is that the gap is 38 points wide, it is
+invisible in the metric every vendor leads with, and it only exists as a
+question you can *ask* because the system logged `answered` as a boolean
+rather than logging the refusal copy as text.
+
+Split by channel, where the schema earns the column:
+
+| surface | conversations | as reported | honestly |
+|---|---|---|---|
+| chat | 111 | 92% | **52%** |
+| voice | 8 | 100% | **88%** |
+
+Voice looks better and the reason is sampling, not quality: those eight turns
+are day 12's, which were chosen to be answerable so that the latency
+measurement had something to measure. A real deployment would not get to
+choose. Reporting the split without that sentence would be the same mistake
+the headline is about.
+
+### The schema is the deliverable; the SQL is trivial
+
+Two rules account for most of what makes any of this possible, and both are
+decided months before anyone asks for a dashboard.
+
+**Log the decision, not the prose.** A row storing the assistant's reply as
+text can answer nothing: *"how often do we refuse"* becomes a substring search
+for whatever the refusal copy said that quarter, and the number changes when a
+copywriter edits it. `answered=false, refusal_reason='no_span_verified'`
+answers it exactly, and keeps answering after the wording changes.
+
+**Log what you will want to segment by, even when it is obvious now.**
+`surface` is the clearest case: every metric above splits differently for
+voice and chat, and a schema without it cannot be fixed retrospectively,
+because the rows are already written.
+
+What the schema deliberately does *not* carry is the customer's words. Day 10
+built a PII redactor and it would be strange to pipe raw utterances into a
+warehouse in the next breath. Length is kept; the text is not.
+
+### The warehouse found a bug in day 12
+
+The best argument for building this was not a metric. It was that loading day
+12's latencies into a table and asking for a mean and a median produced a
+**mean of 573 ms and a median of 958 ms** — arithmetically impossible for a
+set of durations.
+
+Three turns had *negative* total latency. Day 12 measures its endpointing
+stage as the gap between where the endpointer fired and where the caller
+stopped speaking, and when it fires early — which it does on every hesitant
+utterance at the budgeted 300 ms — that gap is negative. It was being summed
+into the total as though interrupting someone were a latency saving.
+
+Those three turns were **the only ones in the set that fitted inside the
+800 ms budget**. Day 12's reported pass rate of 27% should have been 0%, and
+day 12 could not have caught it: its median and p90 are robust to three
+outliers at the bottom, so both were right. Only the pass rate was wrong, and
+a pass rate is exactly the number that gets quoted.
+
+Day 12 is corrected, its section says so, and the check that found it —
+*a mean below the median is impossible* — is now a test there and a test here.
+
+### What this cannot do, and why there is no chart
+
+**There are no timestamps.** Nothing in this repository ever recorded a
+wall-clock time per turn, so the schema has none, rather than one invented to
+make a chart possible. That rules out every trend, cohort and seasonality
+question, which is a large part of what *analytics* usually means. A line
+going up and to the right would have been more impressive and would have been
+fiction.
+
+**119 conversations is not a sample.** Every rate here has a confidence
+interval wide enough to drive through, and the day is a demonstration of a
+schema and a set of queries, not a finding about an assistant's real
+performance.
+
+**Day 11's rows mean something slightly different.** That day ran no guardrail
+gate, so `answered` there means retrieval put a relevant chunk first — the
+closest equivalent decision that day actually made. It is labelled rather than
+pooled silently with day 10's gated answers.
+
+### BigQuery, honestly
+
+The committed figures come from **DuckDB**, locally, because the numbers in
+this file have to come from something the repository can run on its own. The
+same SQL runs on BigQuery unchanged — the queries live in `sql/` as files for
+exactly that reason, and the entire incompatibility is `SAFE_DIVIDE`, which
+DuckDB gets as a two-line macro.
+
+The sandbox needs no billing account, which is why this day survived the
+constraint that killed Cloud Run. It does still need a Google sign-in, so that
+path is a documented command rather than something the build performs:
+
+```bash
+bq --location=US mk --dataset convo_analytics
+bq load --source_format=NEWLINE_DELIMITED_JSON --replace \
+  convo_analytics.turns src/convo/projects/day15_analytics/artifacts/turns.ndjson \
+  "$(python -c 'from convo.projects.day15_analytics.warehouse import bq_schema_arg; print(bq_schema_arg())')"
+
+uv run python -m convo.projects.day15_analytics.build --bigquery convo_analytics
+```
+
+That last command runs **both** engines and records every cell where they
+disagree. Until someone runs it, the portability claim above is a claim; the
+machinery to falsify it is written and the test that checks the comparison
+skips rather than passes.
 
 ## What I would do differently
 

@@ -28,6 +28,12 @@ voice = [
     "piper-tts>=1.8,<2",
     "soundfile>=0.12,<1",
 ]
+# Day 15 only, build-time only for the same reason again: the hub reads the
+# stored query results, so no SQL engine reaches the serving image. The
+# BigQuery path needs the Cloud SDK, which is not a Python dependency at all.
+analytics = [
+    "duckdb>=1.1,<3",
+]
 
 [project.scripts]
 convo-hub = "convo.hub.__main__:main"

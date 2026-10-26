@@ -234,6 +234,17 @@ def build() -> None:
             info="speak the first sentence as soon as it exists, or wait for the whole reply",
         )
 
+    cut = results.truncated_count("cited", "stream")
+    total = len(results.select("cited", "stream"))
+    if cut:
+        gr.Markdown(
+            f"*{cut} of {total} turns were cut off mid-sentence by the "
+            f"endpointer at this setting and have no end-to-end latency: the "
+            f"deadline runs from the moment the caller stops speaking, and "
+            f"the system answered before that. They are excluded from every "
+            f"latency figure here and counted in the endpointing table below.*"
+        )
+
     waterfall = gr.HTML(_waterfall(results, "cited", "stream"))
     table = gr.HTML(_budget_table(results, "cited", "stream"))
 

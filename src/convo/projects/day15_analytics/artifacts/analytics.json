@@ -1,0 +1,128 @@
+{
+ "schema_version": 1,
+ "events": 155,
+ "conversations": 119,
+ "sources": [
+  10,
+  11,
+  12,
+  13
+ ],
+ "engine": "duckdb",
+ "bigquery_available": false,
+ "descriptions": {
+  "01_containment": "Containment, the metric every vendor leads with -- and the same metric computed honestly. The naive definition is \"the conversation ended without a human\", and it is the one that gets reported, because it is easy and it flatters. It counts a conversation where the assistant said \"I don't know\" and the customer gave up as a success: nobody was escalated to, so nobody was escalated to. The honest definition adds one condition -- the last thing the system did was answer -- and that single clause is the whole finding of this day.",
+  "02_containment_by_surface": "The same two numbers, split by surface. `surface` is in the schema for this query. It is the field most likely to be left out when the table is designed, because at design time there is only one channel -- and it cannot be added later, since the rows are already written.",
+  "03_content_gaps": "What the help centre is missing, ranked. The most directly actionable thing a conversation warehouse produces, and it needs no model: every refusal where the retriever found nothing worth citing is a question the corpus cannot answer. Group them and the output is a writing backlog ordered by demand. Red-team rows are excluded. A refusal there is the guardrail working, and counting attacks as content gaps would send somebody off to write an article about prompt injection.",
+  "04_latency": "Response latency, as percentiles rather than a mean. A mean latency is the number that hides the problem: it is dragged by the tail it is meant to expose, and no request ever took it. The percentile a product owner should be shown is p90, because that is roughly the experience of the unluckiest caller in every ten. Rows with no measured latency are excluded rather than zero-filled. Day 10 and day 11 never timed their turns, and a null is the honest record of that; a zero would quietly improve every figure here.",
+  "05_follow_ups": "Whether a turn that depended on the one before it was answered as often. The question a multi-turn assistant has to be able to answer about itself, and the reason `is_follow_up` is a column rather than something inferred later from turn_index: a follow-up is a property of the utterance, not of its position, and the two come apart as soon as a conversation restarts.",
+  "06_escalation": "Escalation rate, and how deep into a conversation it happens. The depth matters more than the rate. A handoff on turn one is a routing decision; a handoff on turn four means the customer spent three turns failing first, and only the second kind is a problem worth money."
+ },
+ "results": [
+  {
+   "name": "01_containment",
+   "engine": "duckdb",
+   "rows": [
+    {
+     "conversations": 119,
+     "no_human": 110,
+     "no_human_and_answered": 65,
+     "containment_naive": 0.9244,
+     "containment_honest": 0.5462,
+     "abandoned_on_a_refusal": 45
+    }
+   ]
+  },
+  {
+   "name": "02_containment_by_surface",
+   "engine": "duckdb",
+   "rows": [
+    {
+     "surface": "chat",
+     "conversations": 111,
+     "containment_naive": 0.9189,
+     "containment_honest": 0.5225
+    },
+    {
+     "surface": "voice",
+     "conversations": 8,
+     "containment_naive": 1.0,
+     "containment_honest": 0.875
+    }
+   ]
+  },
+  {
+   "name": "03_content_gaps",
+   "engine": "duckdb",
+   "rows": [
+    {
+     "refusal_reason": "evidence_below_threshold",
+     "refusals": 33,
+     "mean_evidence": -9.59,
+     "closest_near_miss": -6.42,
+     "were_follow_ups": 2
+    },
+    {
+     "refusal_reason": "nothing_retrieved",
+     "refusals": 10,
+     "mean_evidence": null,
+     "closest_near_miss": null,
+     "were_follow_ups": 7
+    }
+   ]
+  },
+  {
+   "name": "04_latency",
+   "engine": "duckdb",
+   "rows": [
+    {
+     "surface": "voice",
+     "timed_turns": 8,
+     "mean_ms": 1013.0,
+     "p50_ms": 964.0,
+     "p90_ms": 1185.0,
+     "worst_ms": 1215.0
+    }
+   ]
+  },
+  {
+   "name": "05_follow_ups",
+   "engine": "duckdb",
+   "rows": [
+    {
+     "is_follow_up": false,
+     "turns": 28,
+     "answered": 21,
+     "answer_rate": 0.75,
+     "rewritten_first": 0
+    },
+    {
+     "is_follow_up": true,
+     "turns": 36,
+     "answered": 27,
+     "answer_rate": 0.75,
+     "rewritten_first": 10
+    }
+   ]
+  },
+  {
+   "name": "06_escalation",
+   "engine": "duckdb",
+   "rows": [
+    {
+     "conversations": 16,
+     "escalated": 9,
+     "escalation_rate": 0.5625,
+     "mean_turn_when_escalated": 0.67,
+     "deepest_escalation": 2
+    }
+   ]
+  }
+ ],
+ "bigquery_results": [],
+ "disagreements": [],
+ "load_commands": [
+  "bq --location=US mk --dataset convo_analytics",
+  "bq load --source_format=NEWLINE_DELIMITED_JSON --replace convo_analytics.turns C:\\Users\\FK Info\\OneDrive\\Documents\\hunterjob\\convo-portfolio\\src\\convo\\projects\\day15_analytics\\artifacts\\turns.ndjson conversation_id:STRING,turn_index:INT64,surface:STRING,source_day:INT64,question_chars:INT64,is_follow_up:BOOL,answered:BOOL,refusal_reason:STRING,cited_doc_id:STRING,evidence_score:FLOAT64,escalated:BOOL,escalation_reason:STRING,rewritten:BOOL,rewrite_rule:STRING,latency_ms:FLOAT64,tags:STRING"
+ ]
+}

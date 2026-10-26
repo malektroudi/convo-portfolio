@@ -74,9 +74,10 @@ jobs:
       - name: The image must not carry an ML or audio stack
         run: |
           # The whole point of caching artifacts is that the runtime stays small.
-          # Day 12 added onnxruntime and piper behind a `voice` extra; this is
-          # what stops a stray dependency quietly promoting them to runtime.
-          for module in torch transformers onnxruntime piper; do
+          # Day 12 added onnxruntime and piper behind a `voice` extra and day 15
+          # added duckdb behind an `analytics` one; this is what stops a
+          # stray dependency quietly promoting any of them to runtime.
+          for module in torch transformers onnxruntime piper duckdb; do
             if docker run --rm convo-portfolio:ci python -c "import $module" 2>/dev/null; then
               echo "$module leaked into the runtime image" >&2
               exit 1

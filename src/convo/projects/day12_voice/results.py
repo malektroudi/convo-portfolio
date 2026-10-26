@@ -57,6 +57,24 @@ class Turn:
         return 0.0
 
     @property
+    def truncated(self) -> bool:
+        """Whether the endpointer cut this caller off mid-sentence.
+
+        Derived from the sign of the endpointing stage rather than stored:
+        `wait_ms` is the gap between the endpoint and the last speech frame,
+        so it goes negative exactly when the rule fired early.
+
+        Such a turn has **no valid end-to-end latency**. The deadline runs
+        from the moment the caller stops speaking, and here the system
+        answered before that moment arrived — the total is not a fast
+        response, it is an interruption with a minus sign in front of it.
+
+        Day 15's warehouse is what found these, by reporting a mean latency
+        below the median, which is impossible without negative values.
+        """
+        return self.stage_ms("endpoint") < 0
+
+    @property
     def stays_ahead(self) -> bool:
         """Whether the first clip plays for longer than the rest takes to make.
 
@@ -94,8 +112,19 @@ class Day12Results:
     def select(self, path: str, strategy: str) -> tuple[Turn, ...]:
         return tuple(t for t in self.turns if t.path == path and t.strategy == strategy)
 
+    def timed(self, path: str, strategy: str) -> tuple[Turn, ...]:
+        """Turns with a meaningful end-to-end latency: the ones not cut off.
+
+        Every latency aggregate uses this. A truncated turn is not a fast
+        turn, and leaving them in let three interruptions carry the only
+        budget-meeting totals in the set."""
+        return tuple(t for t in self.select(path, strategy) if not t.truncated)
+
+    def truncated_count(self, path: str, strategy: str) -> int:
+        return sum(1 for t in self.select(path, strategy) if t.truncated)
+
     def median_total(self, path: str, strategy: str) -> float:
-        rows = self.select(path, strategy)
+        rows = self.timed(path, strategy)
         return round(statistics.median([t.total_ms for t in rows]), 1) if rows else 0.0
 
     def median_stage(self, key: str, path: str = "cited", strategy: str = "stream") -> float:
@@ -103,14 +132,14 @@ class Day12Results:
         return round(statistics.median([t.stage_ms(key) for t in rows]), 1) if rows else 0.0
 
     def p90_total(self, path: str, strategy: str) -> float:
-        values = sorted(t.total_ms for t in self.select(path, strategy))
+        values = sorted(t.total_ms for t in self.timed(path, strategy))
         if not values:
             return 0.0
         index = min(len(values) - 1, int(round(0.9 * (len(values) - 1))))
         return round(values[index], 1)
 
     def met_rate(self, path: str, strategy: str) -> float:
-        rows = self.select(path, strategy)
+        rows = self.timed(path, strategy)
         return round(sum(t.met for t in rows) / len(rows), 4) if rows else 0.0
 
     def median_turn(self, path: str, strategy: str) -> Turn | None:
@@ -121,7 +150,7 @@ class Day12Results:
         A waterfall is a trace, so it should be a trace of something that
         happened.
         """
-        rows = sorted(self.select(path, strategy), key=lambda t: t.total_ms)
+        rows = sorted(self.timed(path, strategy), key=lambda t: t.total_ms)
         return rows[len(rows) // 2] if rows else None
 
     def stage_table(self, path: str = "cited", strategy: str = "stream") -> list[dict]:

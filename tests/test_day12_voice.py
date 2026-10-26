@@ -250,6 +250,56 @@ class TestResults:
         waits = [row["wait_ms"] for row in results.sweep_table()]
         assert waits == sorted(waits)
 
+    def test_a_truncated_turn_has_no_end_to_end_latency(self):
+        """An interruption is not a fast response.
+
+        The endpointing stage is the gap between where the endpointer fired
+        and where the caller stopped; firing early makes it negative. Summed
+        into a total, three interruptions became the only turns in the set
+        that fitted inside the budget, and the pass rate read 27% instead of
+        0%. Day 15 found it by reporting a mean latency below the median.
+        """
+        from convo.projects.day12_voice.results import load
+
+        results = load()
+        if results is None:
+            pytest.skip("latency artifact not built")
+        for turn in results.turns:
+            if turn.truncated:
+                assert turn.stage_ms("endpoint") < 0
+
+    def test_latency_aggregates_exclude_truncated_turns(self):
+        from convo.projects.day12_voice.results import load
+
+        results = load()
+        if results is None:
+            pytest.skip("latency artifact not built")
+        for path in ("cited", "generated"):
+            timed = results.timed(path, "stream")
+            assert timed, path
+            assert all(t.total_ms > 0 for t in timed), path
+            assert len(timed) + results.truncated_count(path, "stream") == len(
+                results.select(path, "stream")
+            )
+
+    def test_the_mean_latency_is_not_below_the_median(self):
+        """The check that would have caught it, now permanent.
+
+        A mean below the median is impossible for a set of genuinely positive
+        durations, so this is a cheap assertion that no negative duration has
+        crept back into the totals.
+        """
+        import statistics
+
+        from convo.projects.day12_voice.results import load
+
+        results = load()
+        if results is None:
+            pytest.skip("latency artifact not built")
+        for path in ("cited", "generated"):
+            totals = [t.total_ms for t in results.timed(path, "stream")]
+            assert statistics.mean(totals) >= statistics.median(totals) * 0.9, path
+
     def test_the_deadline_is_the_one_the_budget_declares(self):
         from convo.projects.day12_voice.results import load
 

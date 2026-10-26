@@ -493,6 +493,60 @@ def _day13() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
     )
 
 
+def _day15() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
+    from convo.projects.day15_analytics.results import load
+
+    found = load()
+    if found is None:
+        return "", (), (), ""
+    row = found.containment
+    gaps = tuple(
+        (r["refusal_reason"], str(r["refusals"]), str(r["were_follow_ups"]))
+        for r in found.rows("03_content_gaps")
+    )
+    surfaces = tuple(
+        (
+            r["surface"],
+            str(r["conversations"]),
+            _pct(r["containment_naive"]),
+            _pct(r["containment_honest"]),
+        )
+        for r in found.rows("02_containment_by_surface")
+    )
+    return (
+        "Turn events from every measured run in this repository, queried with "
+        "SQL that runs on DuckDB and BigQuery unchanged.",
+        (
+            Stat(_pct(row["containment_naive"]), "containment, as reported", "good"),
+            Stat(_pct(row["containment_honest"]), "containment, honestly", "bad"),
+            Stat(str(row["abandoned_on_a_refusal"]), "customers who gave up", "bad"),
+        ),
+        (
+            Table(
+                "The same conversations, two definitions",
+                ("surface", "conversations", "as reported", "honestly"),
+                surfaces,
+                "The naive metric counts a customer who gave up as a success, "
+                "because nobody was escalated to. Adding one clause — the last "
+                "thing the system did was answer — is the whole difference.",
+            ),
+            Table(
+                "What the help centre is missing",
+                ("refusal reason", "refusals", "were follow-ups"),
+                gaps,
+                "Every refusal where nothing was worth citing is a question "
+                "the corpus cannot answer. Grouped, it is a writing backlog "
+                "ordered by demand. Red-team prompts are excluded: a refused "
+                "attack is the guardrail working.",
+            ),
+        ),
+        "There are no timestamps anywhere in this repository, so there is no "
+        "trend, cohort or seasonality analysis here — a line going up and to "
+        "the right would have been more impressive and would have been "
+        "fiction.",
+    )
+
+
 BUILDERS = {
     2: _day02,
     3: _day03,
@@ -503,6 +557,7 @@ BUILDERS = {
     11: _day11,
     12: _day12,
     13: _day13,
+    15: _day15,
 }
 
 NO_ARTIFACT = {
