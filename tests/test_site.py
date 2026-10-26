@@ -252,6 +252,26 @@ class TestTheBrowserSliderAgreesWithPython:
             metrics.false_refusal,
         )
 
+    def test_the_slider_opens_exactly_on_the_measured_threshold(self):
+        """A browser snaps `value` to the nearest `min + n*step`.
+
+        Without aligning the floor, the slider opened 0.15 away from day 10's
+        balanced-best threshold while the page said it opened on it. The
+        metrics shown were identical either way, which is precisely why the
+        drift would never have been noticed.
+        """
+        from convo.projects.day10_guardrails.results import load
+        from convo.site.build import _threshold_range
+
+        found = load()
+        if found is None:
+            pytest.skip("day 10 artifact not built")
+        bounds = _threshold_range()
+        assert bounds["default"] == round(found.best().threshold, 2)
+        stops = (bounds["default"] - bounds["low"]) / bounds["step"]
+        assert abs(stops - round(stops)) < 1e-9, f"default sits at stop {stops}"
+        assert bounds["low"] <= bounds["default"] <= bounds["high"]
+
     def test_the_payload_carries_no_more_than_it_needs(self, payload):
         """Three fields per question. Shipping the transcript would be easier
         and would put the corpus on a public page by accident."""

@@ -22,6 +22,7 @@ the browser from the stored scores. Everything else is a reading, not a demo.
 from __future__ import annotations
 
 import argparse
+import math
 import shutil
 from pathlib import Path
 
@@ -108,14 +109,19 @@ def _threshold_range() -> dict:
     found = load()
     scores = [e.score for e, _ in found.answerable] + [e.score for e in found.unanswerable]
     low, high = round(min(scores) - 1, 1), round(max(scores) + 1, 1)
-    return {
-        "default": round(found.best().threshold, 2),
-        "low": low,
-        "high": high,
-        # Roughly seventy stops across whatever range the scores occupy, so
-        # the slider has the same feel regardless of the model behind it.
-        "step": round((high - low) / 72, 2) or 0.25,
-    }
+    default = round(found.best().threshold, 2)
+    # Roughly seventy stops across whatever range the scores occupy, so the
+    # slider has the same feel regardless of the model behind it.
+    step = round((high - low) / 72, 2) or 0.25
+
+    # Shift the floor so the default sits exactly on a stop. A browser snaps
+    # `value` to the nearest `min + n*step`, which silently moved the opening
+    # position off the measured threshold — the page would have said it opens
+    # on day 10's balanced best and opened 0.15 away from it. The metrics were
+    # identical either way, which is exactly why it would not have been
+    # noticed.
+    low = round(default - step * math.ceil((default - low) / step), 2)
+    return {"default": default, "low": low, "high": high, "step": step}
 
 
 def generate(out: Path) -> dict:
