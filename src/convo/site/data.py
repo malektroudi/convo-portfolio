@@ -513,6 +513,9 @@ NO_ARTIFACT = {
     6: "The eval harness the rest of the repo is gated by. Its results are "
     "every other day's numbers.",
     7: "The write-up, and the defects that looking at the hub revealed.",
+    14: "This site. It has no artifact of its own because it is generated "
+    "from every other day's — which is the whole argument for building it "
+    "this way.",
 }
 
 

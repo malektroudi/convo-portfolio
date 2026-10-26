@@ -21,6 +21,7 @@ from convo.projects import (
     day11_multiturn_rag,  # noqa: F401
     day12_voice,  # noqa: F401
     day13_escalation,  # noqa: F401
+    day14_deploy_demo,  # noqa: F401
 )
 
 __all__ = [
@@ -30,6 +31,7 @@ __all__ = [
     "day11_multiturn_rag",
     "day12_voice",
     "day13_escalation",
+    "day14_deploy_demo",
     "day01_hub",
     "day02_intent_nlu",
     "day03_embed_router",

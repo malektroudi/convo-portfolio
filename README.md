@@ -1,5 +1,7 @@
 # Conversational AI portfolio
 
+**[malektroudi.github.io/convo-portfolio](https://malektroudi.github.io/convo-portfolio/)** &mdash; 14 projects, every figure read from the artifact that produced it.
+
 A booking assistant built four different ways — a fine-tuned classifier, an
 embedding router, a deterministic state machine and a tool-calling agent — then
 measured against each other on one eval suite, with a CI gate that blocks on a
@@ -1494,7 +1496,7 @@ was only ever **one way of rendering them**.
 
 | | container | static site |
 |---|---|---|
-| size | 588 MB | **96 KB** |
+| size | 588 MB | **102 KB** |
 | needs a billing account | yes | no |
 | cold start | seconds | none |
 | external requests at load | — | **zero** |
@@ -1568,11 +1570,18 @@ Days with no artifact say so rather than inventing a card. Every page with
 figures carries a **what this does not show** note, because a portfolio that
 only reports its wins is a sales page.
 
-### Still not done
+### It is live
 
-The site builds and the deploy workflow is written, but **GitHub Pages needs
-the repository public**, and it is private. That is a decision rather than a
-task, which is why this section ends here rather than with a URL.
+**<https://malektroudi.github.io/convo-portfolio/>**
+
+Fifteen pages, generated from the committed artifacts on every push to `main`
+and served by GitHub Pages for nothing. The repository went public to get
+there, which for a portfolio is the point rather than the price: the thing a
+reader most wants after the numbers is the code that produced them.
+
+Day 14 has a page of its own on the site and a tab in the hub, and neither
+claims a figure, because this day has no artifact — it is generated from every
+other day's, which is the whole argument for building it this way.
 
 ## What I would do differently
 

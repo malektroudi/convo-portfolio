@@ -195,7 +195,7 @@ PLAN: tuple[Project, ...] = (
         2,
         "deploy-demo",
         "Deploy and demo",
-        "Everything live on Cloud Run, cold start handled, a three-minute walkthrough recorded.",
+        "A static site generated from the committed artifacts, live on GitHub Pages for nothing.",
     ),
     Project(
         15,
