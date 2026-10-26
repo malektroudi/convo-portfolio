@@ -938,9 +938,10 @@ A likely explanation, offered as a hypothesis rather than a result:
 `ms-marco-MiniLM-L-6-v2` is trained on web search passages, my corpus is
 conversational help-centre prose that resembles them, and SciFact is
 scientific claims against paper abstracts that does not. A cross-encoder is a
-small supervised model and it is entitled to be domain-specific. Confirming
-that would need a second reranker on both corpora, which is a day's work I
-have not done.
+small supervised model and it is entitled to be domain-specific.
+
+**That hypothesis was then tested, and it is wrong.** See
+[the hypothesis, tested](#the-hypothesis-tested) below.
 
 ### What this costs the rest of the repository
 
@@ -957,6 +958,106 @@ written next to the claim rather than left for a reader to work out.
 
 Running this was the cheapest useful thing in the whole project: a loader, a
 runner, and about twenty minutes of CPU.
+
+### The hypothesis, tested
+
+Domain mismatch was a comfortable story: the reranker is trained on web
+search, SciFact is science, of course it struggles. Comfortable stories are
+the ones worth checking, so three rerankers were run over **identical fusion
+shortlists** on both corpora — same candidates, same depth, only the model
+varying.
+
+```bash
+uv run python -m convo.benchmark.rerankers
+```
+
+| model | params | trained on | restaurant | SciFact |
+|---|---|---|---|---|
+| `ms-marco-MiniLM-L-6-v2` | 23M | MS MARCO | **+0.086** | −0.013 |
+| `ms-marco-MiniLM-L-12-v2` | 33M | MS MARCO | **+0.112** | +0.001 |
+| `bge-reranker-base` | 278M | broad, incl. scientific | **+0.066** | **−0.015** |
+
+*Change in MRR against the unreranked fusion baseline.*
+
+**The domain hypothesis is refuted.** `bge-reranker-base` is twelve times
+larger than the original and trained on a broad corpus that includes
+scientific text — precisely the model that should have rescued SciFact if the
+training data were the problem. It is the **worst** of the three there.
+
+**Capacity is not the answer either.** The L-12 model is 1.4× larger with
+identical training data and lands at +0.001, which on 300 queries is about a
+quarter of one query moving up a rank. Meanwhile on *my* corpus that same
+model is the best of the three at +0.112 — so more capacity clearly can help,
+just not there.
+
+### Reranking had room and did not use it
+
+A flat result is ambiguous between *this model is useless here* and *there was
+nothing left to win*, so it is worth separating the two. The ceiling for any
+reranker is hit@5: if every shortlist containing a relevant document had it at
+rank one, MRR would equal the share of shortlists that contain one.
+
+| | fusion MRR | ceiling | headroom | best model captured |
+|---|---|---|---|---|
+| restaurant | 0.704 | 0.881 | **+0.178** | **63%** |
+| SciFact | 0.675 | 0.787 | **+0.112** | **0.7%** |
+
+The headroom is real in both cases. On fourteen articles I wrote, the
+rerankers take between 37% and 63% of it. On 5,183 real ones, all three take
+essentially none, and two go backwards.
+
+So whatever makes reranking work on the restaurant corpus is **not the
+reranker's training data and not its size**. Both of the explanations I would
+have reached for are eliminated, and what remains is a question about the
+corpus rather than the model.
+
+### What I think is actually going on, clearly labelled as untested
+
+The best remaining explanation is about **the difficulty of the distractors**,
+not the model. A shortlist of ten drawn from forty-nine chunks is mostly
+documents that are obviously wrong; a shortlist of ten drawn from 5,183 is ten
+documents that BM25 and an embedding model *both* thought were plausible —
+every one a hard negative. A cross-encoder earns its cost by separating
+close calls, and a corpus of fourteen articles cannot manufacture close calls
+because there is not enough material to be confused by.
+
+If that is right, then day 9's reranker lift is not a fact about rerankers at
+all. It is a fact about a corpus small enough that the second-best candidate
+is usually rubbish, and it would shrink on any realistic corpus regardless of
+subject matter. That is a sharper and less flattering claim than the domain
+story, and it is the one the evidence actually points at.
+
+It is untested. Testing it would mean holding the corpus fixed and varying
+only the difficulty of the negatives — subsampling SciFact to 50 documents
+and checking whether the lift reappears. That is an afternoon and it is the
+obvious next thing.
+
+### The analysis code had the same bug the analysis was looking for
+
+Worth recording because it nearly produced a confident wrong answer. The
+function that reads this table and states a conclusion originally treated any
+improvement above zero as a rescue. The first run returned **+0.0008** for the
+capacity control, and that rule reported it as *"more capacity on the same
+training data was enough, so the problem was model size"* — a published
+conclusion resting on a quarter of one query out of three hundred.
+
+It now requires a stated materiality band of 0.01 MRR, roughly three queries
+of 300 moving from rank two to rank one, written as a named constant with the
+reasoning attached rather than a bare number inside an `if`. Fixing it exposed
+a second fault: where both explanations moved materially, branch order quietly
+picked one instead of reporting the result as mixed.
+
+Five tests cover that function, including one that feeds it four fabricated
+outcomes and asserts it returns four different conclusions — which is what
+would catch a hard-coded answer surviving any result.
+
+### A limit of this experiment, stated before the result was known
+
+`bge-reranker-base` is both differently trained **and** twelve times larger,
+while the capacity control only reaches 1.4×. Had bge won, capacity would not
+have been cleanly ruled out — only *small* increases in it would have been.
+That caveat was written down before the run finished, and as it happens bge
+lost, so it does not end up mattering. It would have.
 
 ## Day 10: groundedness and guardrails
 
