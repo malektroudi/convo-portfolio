@@ -1115,6 +1115,9 @@ decisive are a larger query sample and a way of varying distractor difficulty
 without also varying task difficulty. The verdict function now checks for all
 three failures before offering any conclusion, and prints them.
 
+**And the premise was false anyway** — see
+[what it actually was](#what-it-actually-was) below.
+
 The one thing that holds across every experiment on this page: on the full
 corpus, this reranker does not help.
 
@@ -1130,6 +1133,92 @@ The check that caught it is arithmetic anyone can do and nobody does: **what
 is one unit of this metric, in units of the thing being measured?** At 300
 queries, 0.01 MRR is six queries and means something. At 42 it is less than
 one and means nothing. The same number, the same metric, opposite conclusions.
+
+### What it actually was
+
+Before rebuilding the corpus-size experiment with more queries, one number
+was worth checking: how hard is each corpus *for fusion*, which is what a
+reranker is handed?
+
+| | documents | fusion hit@1 | fusion MRR |
+|---|---|---|---|
+| restaurant | 49 | 0.571 | 0.704 |
+| SciFact | 5,183 | 0.580 | 0.675 |
+
+**Almost identical, across a hundredfold difference in size.** Corpus size was
+never what separated them, so no sweep over it could have explained anything.
+That is why the previous run came out incoherent — not bad luck, a false
+premise.
+
+What does differ is the documents, measured in the cross-encoder's own tokens:
+
+| | median | p90 | over 256 tokens |
+|---|---|---|---|
+| restaurant | 31 | 43 | **0.0%** |
+| SciFact | 314 | 500 | **70.4%** |
+
+Day 9 reranks with `max_length=256`. Ample for chunks with a median of 31
+tokens; a silent truncation of **seven in ten** SciFact documents. For most
+candidates the model was scoring a fragment, and the sentence that makes an
+abstract relevant can easily sit past the cut.
+
+That is not the model, the corpus or the domain. It is a parameter I chose on
+day 9 for a corpus where it could not matter, and carried unchanged onto one
+where it does — the same mistake as reusing a 300-query materiality band at 42
+queries, two sections earlier.
+
+```bash
+uv run python -m convo.benchmark.truncation
+```
+
+| corpus | window | MRR | delta vs fusion | ms/query |
+|---|---|---|---|---|
+| restaurant | 256 | 0.7897 | +0.0862 | 69 |
+| restaurant | 512 | 0.7897 | +0.0862 | 79 |
+| SciFact | 256 | 0.6617 | **−0.0131** | 435 |
+| SciFact | 512 | 0.6739 | **−0.0009** | 935 |
+
+**Truncation was 93% of the harm.** Widening the window turns an actively
+damaging reranker into one that does nothing, recovering 0.0122 MRR of the
+0.0131 it was losing — a material move at 300 queries, where the band is 0.01.
+
+The restaurant rows are the control and they are **identical to four decimal
+places**, as they must be when nothing is clipped. Had they moved, the window
+would have been changing something other than how much text the model sees and
+the whole reading would be unsafe. A test asserts it.
+
+### What is still unexplained
+
+Fixing the truncation removes the damage. It does not produce a benefit:
+**−0.0009 MRR is inside the band — indistinguishable from not reranking at
+all** — while the same model on the restaurant corpus is worth **+0.0862**.
+Day 9's claim still does not replicate on independent labels, and three
+explanations have now been tested and eliminated:
+
+- **domain** — a reranker trained on broad scientific text did worst of three
+- **capacity** — 1.4× and 12× larger models did not rescue it
+- **corpus size** — the two corpora are equally hard for fusion
+- **truncation** — removes the harm, produces no gain
+
+What remains is the explanation I find least comfortable, and it is untested:
+**I wrote the restaurant questions while looking at the passages that answer
+them.** Forty-two questions about fourteen articles, including ten
+"paraphrases" that are my paraphrases of text I had in front of me. A
+cross-encoder is trained to score exactly that relation — a query against the
+passage it was derived from — and question-passage pairs generated that way
+may be unusually easy for it in a way no public benchmark would reproduce.
+
+Testing it needs questions written about this corpus by somebody who is not
+me, which is the one thing this project cannot manufacture. So it stays
+labelled as the leading hypothesis rather than a result, and the practical
+conclusion is unchanged: **anywhere this repository says the reranker helps,
+read it as "on fourteen articles I wrote, with questions I wrote about
+them".**
+
+The fix that *did* come out of this is real and is now in day 9: the
+reranker's input window is a named, documented parameter rather than a literal
+buried in a tokenizer call, with the measurement attached explaining what it
+costs on longer documents.
 
 ## Day 10: groundedness and guardrails
 
@@ -2044,6 +2133,14 @@ got worse. What I would add is a test at the level of the shared function
 asserting the property its callers depend on — that inflections of a word match
 — rather than testing only the behaviour each caller happens to show. That test
 exists now, and it is the one I would have written first.
+
+**A default chosen for one corpus is a trap on the next one.** Day 9's
+`max_length=256` was ample for chunks with a median of 31 tokens and silently
+truncated 70% of SciFact's documents, which accounted for 93% of the
+reranker's apparent failure there. It raised no error and no warning; it just
+deleted the sentence that made each document relevant. The same shape as
+reusing a materiality band across experiments with different sample sizes —
+both are parameters that were correct exactly once and were never re-derived.
 
 **Work out what one unit of a metric is worth before trusting a difference
 in it.** The corpus-size sweep produced a clean-looking decay and a function

@@ -45,8 +45,30 @@ def load_reranker(model_id: str = CROSS_ENCODER):
     return model, tokenizer
 
 
+MAX_LENGTH = 256
+"""How much of a candidate the cross-encoder is allowed to read.
+
+Ample here: this corpus chunks to a median of 31 tokens, so nothing is
+clipped and the figures on this page are unaffected by the value.
+
+It is a **trap for anything longer**, and it caught me. Carried unchanged onto
+SciFact, whose documents run to a median of 314 tokens, it silently truncated
+70% of candidates — and 93% of the reranker's apparent failure there was the
+model scoring a fragment rather than a document. Raising it to 512 moved that
+corpus from -0.0131 MRR to -0.0009, at roughly twice the latency.
+
+So: size this to the corpus, not to the default. Clipping does not raise an
+error, it just quietly deletes the sentence that made the document relevant.
+"""
+
+
 def rerank(
-    model, tokenizer, query: str, candidate_ids: list[str], texts: dict[str, str]
+    model,
+    tokenizer,
+    query: str,
+    candidate_ids: list[str],
+    texts: dict[str, str],
+    max_length: int = MAX_LENGTH,
 ) -> tuple[list[str], float]:
     """Reorder candidates by cross-encoder relevance. Returns (order, ms)."""
     import torch
@@ -59,7 +81,7 @@ def rerank(
         [texts[c] for c in candidate_ids],
         padding=True,
         truncation=True,
-        max_length=256,
+        max_length=max_length,
         return_tensors="pt",
     )
     with torch.no_grad():

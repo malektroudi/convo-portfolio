@@ -93,8 +93,14 @@ def _load_model(model_id: str):
     return model, tokenizer
 
 
-def rerank_all(shortlists: Shortlists, reranker: Reranker) -> dict:
-    """Reorder every shortlist with one model and score the result."""
+def rerank_all(shortlists: Shortlists, reranker: Reranker, max_length: int = 256) -> dict:
+    """Reorder every shortlist with one model and score the result.
+
+    `max_length` is the cross-encoder's input window, and it is a parameter
+    rather than a constant because it turned out to matter: 70% of SciFact
+    documents are longer than the 256 tokens day 9 chose for a corpus whose
+    chunks have a median length of 31.
+    """
     import torch
 
     model, tokenizer = _load_model(reranker.model_id)
@@ -112,7 +118,7 @@ def rerank_all(shortlists: Shortlists, reranker: Reranker) -> dict:
             [shortlists.texts[c] for c in candidates],
             padding=True,
             truncation=True,
-            max_length=256,
+            max_length=max_length,
             return_tensors="pt",
         )
         with torch.no_grad():
@@ -125,6 +131,7 @@ def rerank_all(shortlists: Shortlists, reranker: Reranker) -> dict:
     return {
         "model": reranker.model_id,
         "label": reranker.label,
+        "max_length": max_length,
         "trained_on": reranker.trained_on,
         "params_m": reranker.params_m,
         "scores": scores,
