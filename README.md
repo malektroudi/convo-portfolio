@@ -2060,6 +2060,14 @@ interval wide enough to drive through, and the day is a demonstration of a
 schema and a set of queries, not a finding about an assistant's real
 performance.
 
+**The plan called for a BQML escalation model, and it was dropped.** Not for
+want of a warehouse — the sandbox supports it — but because the event set
+contains **nine escalations**. A classifier fitted to nine positive examples
+would be a worse predictor than the hand-written rules day 13 already
+measured, and reporting its accuracy would be the kind of number this
+repository exists to argue against. The day's brief said otherwise until the
+audit below.
+
 **Day 11's rows mean something slightly different.** That day ran no guardrail
 gate, so `answered` there means retrieval put a relevant chunk first — the
 closest equivalent decision that day actually made. It is labelled rather than
@@ -2133,6 +2141,22 @@ got worse. What I would add is a test at the level of the shared function
 asserting the property its callers depend on — that inflections of a word match
 — rather than testing only the behaviour each caller happens to show. That test
 exists now, and it is the one I would have written first.
+
+**A plan left in place becomes a claim.** The day index in `registry.py`
+was written on day one as a list of intentions and never revisited, so by day
+15 **eight of fifteen shipped days still advertised the plan rather than the
+code**: a Cloud Run deployment that needs billing, a judge rubric that needs a
+model, a demo GIF nobody recorded, a "real" corpus that is synthetic by
+design, a summarising buffer that only bounds, suggested replies, a BQML model
+fitted to nine positives, and a day 3 brief that announced its own result in
+advance.
+
+Every one of those days reports itself honestly further down this file. The
+index above them did not, and the index is what a reader skims first — so the
+one place the overstatement mattered most was the one place nobody checked.
+The rule is now written next to the dataclass: a planned brief is an
+intention, a shipped brief is a claim about code that exists, and landing
+differently from the plan means amending it.
 
 **A default chosen for one corpus is a trap on the next one.** Day 9's
 `max_length=256` was ample for chunks with a median of 31 tokens and silently
