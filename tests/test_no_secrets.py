@@ -31,7 +31,12 @@ REPO = Path(__file__).resolve().parents[1]
 # the right length. A looser pattern finds more and is switched off within a
 # week, which protects nothing.
 PATTERNS: tuple[tuple[str, str], ...] = (
+    # Two formats. `AIza…` is the long-standing one. `AQ.…` is what AI Studio
+    # issues now, and the scan missed it until a real key turned up starting
+    # that way — a reminder that a pattern list is only as current as the last
+    # time somebody checked it against a live credential.
     ("Google API key", r"AIza[0-9A-Za-z_\-]{35}"),
+    ("Google API key (AQ format)", "AQ" + chr(92) + ".[A-Za-z0-9_" + chr(92) + "-]{40,}"),
     ("OpenAI key", r"sk-(?:proj-)?[A-Za-z0-9_\-]{32,}"),
     ("Anthropic key", r"sk-ant-[A-Za-z0-9_\-]{40,}"),
     ("GitHub token", r"gh[pousr]_[A-Za-z0-9]{36}"),
@@ -141,6 +146,7 @@ class TestTheScannerActuallyWorks:
         ("label", "value"),
         [
             ("Google API key", "AIza" + "a1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r"),
+            ("Google API key (AQ format)", "AQ." + "Ab3" + "x" * 47),
             ("OpenAI key", "sk-" + "A" * 40),
             ("Anthropic key", "sk-ant-" + "B" * 50),
             ("GitHub token", "ghp_" + "c" * 36),
@@ -151,6 +157,13 @@ class TestTheScannerActuallyWorks:
     )
     def test_it_finds_a_real_key_shape(self, label, value):
         assert label in findings_in(f"SOME_KEY = {value!r}\n")
+
+    def test_it_finds_the_current_ai_studio_key_format(self):
+        """The format this project's own key uses, which the first version of
+        this scan did not know about."""
+        assert "Google API key (AQ format)" in findings_in(
+            "GOOGLE_API_KEY=" + "AQ." + "A" + "b" * 50
+        )
 
     def test_it_finds_a_key_pasted_into_prose(self):
         text = "set it to " + "AIza" + "z" * 35 + " and you are done"
