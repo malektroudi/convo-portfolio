@@ -25,6 +25,13 @@ jobs:
           uv run ruff check .
           uv run ruff format --check .
 
+      # Its own step, before the suite, so a leaked credential is the first
+      # thing that fails rather than one red line among several hundred. The
+      # repository is public and a key on the build machine is one paste away
+      # from being committed.
+      - name: No committed credentials
+        run: uv run pytest tests/test_no_secrets.py -q
+
       - name: Test
         run: uv run pytest -q
 
