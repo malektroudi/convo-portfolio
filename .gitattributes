@@ -16,3 +16,8 @@ uv.lock linguist-generated=true
 # Day 8's chunk offsets are character indexes into these files. A CRLF
 # checkout would shift every one of them, so pin the corpus to LF.
 src/convo/projects/day08_rag_cites/corpus/*.md text eol=lf
+
+# Newline-delimited JSON is newline-delimited. `bq load` reads it line by
+# line, and a Windows checkout handing it CRLF is a loader problem nobody
+# would look for in a data file.
+*.ndjson text eol=lf
