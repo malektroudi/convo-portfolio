@@ -44,6 +44,14 @@ jobs:
       - name: Conversational evals
         run: uv run python -m convo.projects.day06_eval_harness.gate
 
+      # Day 18's gate, threshold half only. `google-adk` cannot be installed
+      # in this job — it requires pydantic>=2.12 and gradio caps it below
+      # that — so this checks the stored comparison's thresholds and its
+      # agreement baseline, and says out loud that it skipped the second
+      # evaluator. The `evaluators` job below runs that half.
+      - name: Evaluator comparison, thresholds
+        run: uv run python -m convo.projects.day18_eval_gate.gate
+
       # The deploy workflow generates the site from the artifacts. Building it
       # here too means a broken generator fails on the pull request rather
       # than on the push that was supposed to publish it.
@@ -51,6 +59,52 @@ jobs:
         run: |
           uv run python -m convo.site.build --out /tmp/site
           test -f /tmp/site/index.html
+
+  # ADK's evaluator, re-scoring day 18's committed trajectories.
+  #
+  # Its own job because `google-adk` and `gradio` cannot coexist: ADK needs
+  # pydantic>=2.12 and starlette>=1.3.1, gradio 5.x caps pydantic below 2.12.
+  # So this job installs ADK with `--no-deps` into an environment that never
+  # imports gradio, which is possible only because day 18's evaluator modules
+  # pull in day 4 and day 6 and nothing else.
+  #
+  # It calls no model and needs no API key. A trajectory metric needs a
+  # recorded trajectory and an expected one, both of which are committed —
+  # and if ADK's own evaluator stops producing the scores that were
+  # published, that is what this catches. The version is installed outside
+  # the lockfile, so pinning it is not enough.
+  evaluators:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install, then add ADK on top
+        run: |
+          uv sync --extra dev
+          uv pip install --no-deps google-adk==2.13.0
+          uv pip install --upgrade "pydantic>=2.12"
+
+      # Guards the comment above: if gradio ever becomes importable here, the
+      # two dependency sets have been reconciled and this job's whole premise
+      # needs revisiting rather than silently drifting.
+      - name: This environment must not carry gradio
+        run: |
+          if uv run --no-sync python -c "import gradio" 2>/dev/null; then
+            echo "gradio is importable here; day 18's job premise has changed" >&2
+            exit 1
+          fi
+          uv run --no-sync python -c "import google.adk; print('adk', google.adk.__name__)"
+
+      - name: ADK must reproduce its committed scores
+        run: uv run --no-sync python -m convo.projects.day18_eval_gate.gate --require-adk
+
+      - name: Day 18's own tests, with the framework present
+        run: uv run --no-sync pytest tests/test_day18_eval_gate.py -q
 
   # The container is what Cloud Run actually runs, so build it on every PR.
   # Day 6 extends this job with the eval suite, and day 18 turns the eval

@@ -219,6 +219,16 @@ class Comparison:
     quota_note: str
     bots: dict[str, Bot]
     scope_ids: dict[Scope, tuple[str, ...]]
+    rescorable: bool = False
+    """Whether the artifact stored the raw outcomes, not just the verdicts.
+
+    False for any run made before day 18. Those artifacts cannot have a
+    scorer fix applied to them, so their figures are frozen at whatever the
+    scorers said on the day — which matters, because day 18 found a real bug
+    in `score_safety` afterwards. The tab keys its correction note off this,
+    so re-running the build makes the note disappear on its own rather than
+    leaving a stale caveat to be deleted by hand.
+    """
 
     @property
     def adk(self) -> Bot:
@@ -310,4 +320,5 @@ def load() -> Comparison | None:
             Scope.FULL: tuple(sorted(full_ids)),
             Scope.DAY5: tuple(sorted(day5_ids)),
         },
+        rescorable=bool(payload.get("outcomes")),
     )

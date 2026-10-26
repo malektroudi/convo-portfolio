@@ -628,6 +628,83 @@ def _day16() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
     )
 
 
+def _day18() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
+    from convo.projects.day18_eval_gate.results import load
+
+    found = load()
+    if found is None:
+        return "", (), (), ""
+
+    rates = (
+        ("day 6's harness — did it end up right", _pct(found.harness.pass_rate)),
+        ("ADK trajectory — right tools, right turns", _pct(found.trajectory_pass_rate)),
+        ("ADK trajectory — right tools, any turn", _pct(found.flat_pass_rate)),
+        ("the two evaluators agree", _pct(found.agreement_rate)),
+    )
+    disagreements = tuple(
+        (
+            row.scenario_id,
+            "pass" if row.harness_ok else "FAIL",
+            "pass" if row.adk_ok else "FAIL",
+            row.adjudication.value,
+            row.adk_detail or row.harness_detail,
+        )
+        for row in found.disagreements
+    )
+    scope = (
+        f"all {found.of_suite} scenarios"
+        if not found.partial
+        else f"{found.scenarios} of {found.of_suite} scenarios before the free tier stopped it"
+    )
+    timing = (
+        f" Of the trajectory failures, {found.only_timing} are one behaviour: the "
+        f"agent calls the right tools one turn early, because it books without "
+        f"waiting for the guest to confirm."
+        if found.only_timing
+        else ""
+    )
+    return (
+        "Day 6's harness asks whether the conversation ended right. ADK's "
+        "evaluator asks whether it went the right way. The same "
+        f"{len(found.rows)} conversations, scored both ways, over {scope}.",
+        (
+            Stat(_pct(found.harness.pass_rate), "day 6's harness", "good"),
+            Stat(_pct(found.trajectory_pass_rate), "ADK, turn-aligned", "bad"),
+            Stat(_pct(found.agreement_rate), "the two agree", "bad"),
+        ),
+        (
+            Table(
+                "One run, two evaluators",
+                ("what it measures", "pass rate"),
+                rates,
+                "The expected trajectory is derived from day 4's state machine, "
+                "not hand-written — the same oracle day 5's provenance guard "
+                "used, because it has no model in it and cannot be talked "
+                "round. Collapsing turn boundaries is what separates calling "
+                "the wrong tools from calling the right ones at the wrong "
+                "time." + timing,
+            ),
+            Table(
+                "Where they disagree",
+                ("scenario", "day 6", "ADK", "who the spec backs", "why"),
+                disagreements,
+                "The spec verdict comes from each scenario's own declared "
+                "expectations, written before any bot existed. Day 6's scorers "
+                "read them; ADK's trajectory metric never sees them. Where the "
+                "disagreement is about the route rather than the outcome the "
+                "spec has nothing to say, and the case is reported as "
+                "undecided rather than scored against either evaluator.",
+            ),
+        ),
+        "Both gates run in CI and neither calls a model: a trajectory metric "
+        "needs a recorded trajectory and an expected one, and both are "
+        "committed. The gate also fails if ADK's own evaluator stops "
+        "reproducing the scores published here — this is the only day where a "
+        "dependency derives a figure, and it is installed outside the "
+        "lockfile.",
+    )
+
+
 BUILDERS = {
     2: _day02,
     3: _day03,
@@ -640,6 +717,7 @@ BUILDERS = {
     13: _day13,
     15: _day15,
     16: _day16,
+    18: _day18,
 }
 
 NO_ARTIFACT = {

@@ -44,3 +44,42 @@ class Outcome:
     def said(self) -> str:
         """Everything the bot said, lowercased — what safety checks read."""
         return " ".join(self.assistant_replies).lower()
+
+    def as_dict(self) -> dict[str, Any]:
+        """Serialise the raw outcome, so a scorer change can be re-applied.
+
+        Added on day 18, after a bug in `score_safety` could not be corrected
+        in the committed artifacts. Those artifacts stored scored
+        `CaseResult`s — the verdicts — and nothing to re-score, so fixing the
+        scorer meant another run of a rate-limited hosted model to refresh
+        figures the fix had already invalidated.
+
+        The repository's rule is that every published number is re-derivable
+        from a committed artifact. Storing verdicts honours that only while
+        the scorer never changes, which is not a property anyone can promise.
+        """
+        return {
+            "scenario_id": self.scenario_id,
+            "booked": self.booked,
+            "captured": self.captured,
+            "transcript": self.transcript,
+            "escalated": self.escalated,
+            "user_turns": self.user_turns,
+            "model_calls": self.model_calls,
+            "failed_steps": self.failed_steps,
+            "latency_ms": self.latency_ms,
+        }
+
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any]) -> Outcome:
+        return cls(
+            scenario_id=raw["scenario_id"],
+            booked=raw["booked"],
+            captured=raw.get("captured", {}),
+            transcript=raw.get("transcript", []),
+            escalated=raw.get("escalated", False),
+            user_turns=raw.get("user_turns", 0),
+            model_calls=raw.get("model_calls", 0),
+            failed_steps=raw.get("failed_steps", 0),
+            latency_ms=raw.get("latency_ms", 0.0),
+        )

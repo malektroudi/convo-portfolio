@@ -44,7 +44,26 @@ class QuotaExhausted(RuntimeError):
     """
 
 
-RETRIES = 3
+PER_DAY_MARKERS = ("perday", "per day", "requests per day")
+"""Substrings that identify a 429 as the *daily* quota rather than per-minute.
+
+Google returns `429 RESOURCE_EXHAUSTED` for both, and the difference decides
+whether waiting helps. Day 18 found this the expensive way: a per-minute limit
+was read as daily exhaustion, the run stopped after two scenarios, and the
+model answered again thirty seconds later. The quota id in the error body is
+the only thing that distinguishes them, so it is what gets matched.
+"""
+
+BACKOFF_S = (10, 20, 30, 45, 60, 90)
+"""Waits between attempts on a 429 that is not identifiably the daily quota.
+
+Four minutes in total, which is long enough that a per-minute window has
+certainly rolled over. The previous policy gave up after 8 and 16 seconds and
+called it a day's quota — cheap to retry, expensive to get wrong, so this errs
+the other way.
+"""
+
+RETRIES = len(BACKOFF_S) + 1
 PAUSE_S = 1.5
 """Breathing room between scenarios. Cheaper than discovering the rate limit
 one scenario at a time."""
@@ -55,6 +74,12 @@ log = get_logger("day16.build")
 def _is_rate_limit(exc: Exception) -> bool:
     text = str(exc).lower()
     return "429" in text or "resource_exhausted" in text or "rate" in text and "limit" in text
+
+
+def _is_daily_quota(exc: Exception) -> bool:
+    """Whether this 429 is the daily allowance, which waiting will not fix."""
+    text = str(exc).lower().replace("_", "")
+    return any(marker.replace(" ", "") in text.replace(" ", "") for marker in PER_DAY_MARKERS)
 
 
 def adk_runner(model: str) -> callable:
@@ -68,8 +93,10 @@ def adk_runner(model: str) -> callable:
                 break
             except Exception as exc:  # noqa: BLE001 - message may carry the key
                 last = exc
+                if _is_rate_limit(exc) and _is_daily_quota(exc):
+                    raise QuotaExhausted(redact(exc)[:300]) from exc
                 if _is_rate_limit(exc) and attempt == RETRIES - 1:
-                    raise QuotaExhausted(redact(exc)[:200]) from exc
+                    raise QuotaExhausted(redact(exc)[:300]) from exc
                 if not _is_rate_limit(exc):
                     log.info(
                         "scenario failed",
@@ -84,8 +111,11 @@ def adk_runner(model: str) -> callable:
                         user_turns=len(scenario.utterances),
                         failed_steps=1,
                     )
-                wait = 8 * (attempt + 1)
-                log.info("rate limited, backing off", extra={"seconds": wait})
+                wait = BACKOFF_S[min(attempt, len(BACKOFF_S) - 1)]
+                log.info(
+                    "rate limited, backing off",
+                    extra={"seconds": wait, "attempt": attempt + 1, "of": RETRIES},
+                )
                 time.sleep(wait)
         else:  # pragma: no cover - the loop always breaks or returns
             raise last  # type: ignore[misc]
@@ -244,6 +274,11 @@ def main(argv: list[str] | None = None) -> int:
         "partial": len(attempted) < len(SUITE),
         "quota_note": quota_note,
         "adk": run.as_dict(),
+        # The raw outcomes, so a scorer change can be re-applied without
+        # paying for another run. Added on day 18, which found a bug in day
+        # 6's `score_safety` and then could not correct the figures here
+        # because only the verdicts had been kept.
+        "outcomes": [cache[scenario.id].as_dict() for scenario in attempted],
         "engine": _engine(tuple(attempted)),
         "schema_only": _day5("schema"),
         "grounded": _day5("grounded"),

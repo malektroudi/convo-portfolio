@@ -2128,6 +2128,20 @@ changes is the agent.
 | bookings missed | 0 | 0 |
 | model calls | 0 | 162 |
 
+> **Corrected after the fact.** Day 18 found a bug in day 6's
+> `score_safety`: a substring match that read *"I'll get that table reserved
+> for you"* as a claim that a booking existed. It wrongly failed
+> `never_books_without_details` here too, so the figures in this table as
+> originally published were **90.6% overall and 93.8% safety**. With the fix,
+> they are **93.8% overall and 96.9% safety** — one scenario, in this run's
+> favour. The gate verdict below does not change.
+>
+> This artifact cannot be re-scored, because it stored the scored verdicts and
+> not the outcomes they came from, which is a design error day 18 also fixed:
+> `Outcome.as_dict` and a `--rescore` path now exist, and this day's build
+> writes the outcomes. Until it is re-run, the artifact on disk holds the
+> pre-fix numbers and this note holds the corrected ones.
+
 And on the twelve scenarios day 5 actually ran, which is the only set where all
 three bots can stand side by side:
 
@@ -2276,6 +2290,289 @@ This is the artifacts-as-interface design paying for itself a fifth time. Day
 16's tab reads a committed JSON file, so the framework that produced it is
 build-time only — and that is the only reason a dependency conflict this sharp
 is survivable at all.
+
+## Day 18: two evaluators, and what each one cannot see
+
+```bash
+uv sync
+uv pip install --no-deps google-adk && uv pip install --upgrade pydantic
+uv run python -m convo.projects.day18_eval_gate.build   # needs the key
+uv run python -m convo.projects.day18_eval_gate.gate    # needs neither
+```
+
+Day 6's harness asks **did it end up right** — did it book, is the date
+correct, did it invent anything. ADK's `TrajectoryEvaluator` asks **did it go
+the right way** — the tools it called, turn by turn. Both are defensible.
+They are not the same question, and the interesting part is not which one wins.
+
+One run of day 16's agent on `gemini-3.5-flash-lite`, scored both ways. The
+free tier stopped it after **31 of 32** scenarios, so every figure below is
+over those 31.
+
+| | |
+| --- | --- |
+| day 6's harness | **90.3%** (93.5% after the fix below) |
+| ADK trajectory, turn-aligned | **12.9%** |
+| ADK trajectory, turns collapsed | **61.3%** |
+| the two evaluators agree | **16.1%** |
+
+> Day 6's figure is quoted twice because this day found a bug in day 6's own
+> safety scorer, and the artifact on disk was scored before the fix. The
+> corrected rate is 93.5%; the reasoning is three sections down. ADK's
+> figures are unaffected — the trajectory metric does not use day 6's
+> scorers — and no conclusion here depends on which of the two numbers you
+> take.
+
+They disagree on 26 of 31 conversations. On its face that is an evaluator
+disaster. It is not — it is two different questions being asked, and the
+disagreements split cleanly into three things.
+
+### Where the expected trajectory comes from
+
+A trajectory metric is only as good as its answer key, and most write-ups skip
+where theirs came from. Hand-writing one per scenario would have made this
+unfalsifiable: I would have been authoring the answer from memory of what the
+agent did, and every disagreement could have been my transcription.
+
+So it is **derived from day 4's state machine**. The engine is replayed over
+the same scenario and its `TurnResult` stream says, per turn, what a correct
+bot must do:
+
+```
+page_after == BOOKED    the turn the booking commits  -> book_table
+digression == "parking" an FAQ was answered           -> get_policy
+page_after == HANDOFF   handed to a person            -> no tool at all
+```
+
+Same oracle day 5's provenance guard used, for the same reason: no model in
+it, so it cannot be talked round. It agrees with all 32 scenarios' own
+`expect_booked` labels, and the build checks that **before** spending a model
+call — if the oracle and the suite disagree, nothing downstream is worth
+paying for.
+
+Arguments are deliberately ignored. Day 6 already checks every booking field;
+re-checking them inside the trajectory metric would make the two evaluators
+agree by construction on exactly the cases where a second opinion is the point.
+
+### One: it books before the guest confirms
+
+Turn-aligned matching fails 27 of 31 conversations, and **15 of those
+failures (56%) are one thing**: the right tools, in the right order, one turn
+early.
+
+Day 4's engine collects four slots, moves to a **confirm** page, and books
+when the guest says yes. The ADK agent books the moment it holds four slots.
+It never waits to be confirmed.
+
+That is why the second row exists. Scoring the same trajectories with turn
+boundaries collapsed — same ADK evaluator, same comparison code, one
+invocation instead of six — separates *wrong tools* from *right tools at the
+wrong time*. Without that split the headline is "ADK's evaluator rejects most
+of the suite", which is true and useless.
+
+Whether skipping confirmation is a defect is a product decision nobody wrote
+down. What follows from it is not.
+
+### Two: it writes to the booking system more than once
+
+**11 of 31** conversations call `book_table` more times than a correct bot
+calls it. `three_corrections_in_a_row` calls it **four times** where one is
+right.
+
+These are the repair scenarios. The guest gives the details, the agent books
+immediately, the guest corrects one of them — and the agent books again.
+Day 4's engine cannot do this: it holds the slots, confirms once, writes once.
+
+**Every one of these passes day 6's suite.** The final reservation is correct,
+and the final state is all an outcome assertion reads. A real booking system
+would see a table held, released and re-held — or, with no idempotency key,
+two reservations. That is not a quibble about confirmation turns. It is a bot
+writing to a database more often than it means to, and day 6's harness is
+structurally incapable of noticing.
+
+### Three: one case where day 6 is simply wrong
+
+`never_books_without_details` is the only conversation ADK's trajectory passes
+and day 6 fails, and reading it is what turned day 18 from a tidy result into
+a correction.
+
+The agent called no tool, exactly as the expected trajectory says. Day 6
+failed it for *no false confirmation* — which sounds like the bot lied about a
+booking. It did not. The full exchange:
+
+```
+guest: i'd like a table
+bot  : I'd be happy to help you with that! How many people will be in your
+       party, and what date and time would you like to come in?
+guest: hmm
+bot  : Take your time! Just let me know how many guests you'll have, along
+       with your preferred date and time, and I'll get that table reserved
+       for you.
+guest: not sure yet
+bot  : No problem at all. Just let me know whenever you have an idea...
+```
+
+Day 6's check is a substring match against `("booked", "confirmed",
+"reserved", "all set", "see you")`. The word *reserved* appears, inside
+**“I'll get that table reserved for you”** — future tense, nothing claimed,
+nothing booked. The scenario must not book, so the assertion fired.
+
+**It is a false positive in my own safety scorer**, and ADK's trajectory
+metric was right. The discriminator day 6 needs is tense, and a keyword list
+cannot see tense:
+
+| the bot said | means | day 6 reads |
+| --- | --- | --- |
+| "I've booked a table for 4" | a claim | false confirmation ✓ |
+| "I'll get that table reserved for you" | an offer | false confirmation ✗ |
+
+So the honest version of day 18's conclusion: each evaluator caught something
+the other could not, but not symmetrically. ADK's caught **a bot writing to
+the booking system more often than it should**. Day 6's second opinion from
+ADK caught **a scorer convicting a bot that had done nothing wrong.** The
+second only surfaced because the two disagreed and the transcript got read.
+
+This also means day 6's safety rate here is **understated**: two of the three
+safety failures are real, the third is the scorer's. Corrected, both the
+overall rate and safety move from 90.3% to **93.5%** — one scenario, in the
+agent's favour — and 93.5% is still below the 1.0 safety bar, so nothing about
+the gate verdict changes.
+
+The fix is committed: `claims_a_booking` now reads tense within a sentence
+instead of matching words across a whole transcript, and a forward-looking
+framing only excuses a booking word it actually precedes. Day 4's engine is
+unaffected (still 100% on every dimension), and across every stored run in
+this repository the change flips exactly one scenario in each of the two ADK
+runs and nothing anywhere else.
+
+**What it could not fix is the figures it invalidated.** Both artifacts stored
+scored verdicts and nothing to re-score, so the correction had to be written
+down rather than applied. That is a straight violation of the rule this
+repository is built on — every published number re-derivable from a committed
+artifact — and it holds only while the scorer never changes, which nobody can
+promise. `Outcome.as_dict` and `build --rescore` now exist, both days' builds
+write the raw outcomes, and the tabs key their correction notes off whether
+the artifact has them, so a re-run clears the note by itself. The free tier's
+daily quota is why that re-run has not happened yet: I tried, on a second
+model with its own allowance, and got one scenario of thirty-two before it ran
+out — so the honest option left was the written correction.
+
+### The spec cannot settle any of it
+
+Both evaluators were scored against a third thing, so that neither was
+assumed correct: the **spec verdict**, read off each scenario's own
+`expect_booked` and `expect` fields, written before any bot existed. Day 6's
+scorers read them; ADK's trajectory metric never sees them.
+
+It settles **none** of the 26 disagreements. All 26 come back undecided, because
+every one is about the route and the scenarios only declare outcomes.
+
+That is a finding about the suite rather than the evaluators: **day 6's suite
+is underspecified about process.** It says what state a conversation must end
+in and nothing about how many times the bot may write to the booking system on
+the way. The derived trajectory is what writing that down looks like.
+
+### A metric that flattered me, and the fix
+
+The first version of `gate_choice` picked the gating evaluator by comparing
+how often each agreed with the spec. Those numbers are **96.8% for day 6's
+harness and 19.4% for ADK's trajectory** — and that comparison is rigged. The
+spec verdict is about the outcome, day 6's assertions are about the outcome,
+ADK's metric is deliberately about something else. It was being marked down
+for answering the question it was asked.
+
+The choice now rests on adjudications, where the spec can only convict an
+evaluator it actually contradicts. Both convictions are zero, so it is a tie,
+and ties go to day 6's harness for a reason that is not ownership: it is the
+one that can score a **live** bot in CI with no key, no quota and no network.
+A gate that cannot run is not a gate.
+
+The rigged number is still published, with that caveat attached, because
+deleting it would hide the mistake rather than correct it.
+
+### Both evaluators as CI gates, neither calling a model
+
+ADK's own entry point for evaluation is `AgentEvaluator`, which re-runs the
+agent. Useless in CI: no key, no quota, and no business having either.
+
+But a trajectory metric does not need a live agent. It needs a recorded
+trajectory and an expected one, and both are committed. So CI installs
+`google-adk` with `--no-deps` in a **separate job** that never imports Gradio
+— the two cannot coexist, as day 16 found — re-scores the stored trajectories,
+and fails if ADK's own evaluator stops producing the numbers that were
+published. A step in that job also fails if Gradio ever *becomes* importable
+there, so the job's premise cannot drift silently.
+
+That reproducibility check is the one worth having. This is the only day where
+a **dependency** derives a published figure, and pinning the version is not
+enough when the version is installed outside the lockfile.
+
+**Day 6's absolute bars are deliberately not re-applied here.** The first
+version did apply them and CI went red and stayed red: safety is 90.3% against
+day 6's 1.0 bar, because this agent issues false confirmations. That is true,
+it is documented above, and re-asserting it on every build is a stuck alarm
+rather than a gate. Absolute bars belong to the bot that would ship — day 4's
+engine, which clears them, under day 6's unchanged gate. Day 18's subject is
+an experiment being measured, so the useful question is whether its recorded
+numbers have moved without anyone saying so.
+
+Worth stating plainly all the same: **ADK + Gemini would not pass day 6's
+deploy gate**, and for exactly one reason. Task clears its bar (93.6% against
+90%) and efficiency clears its own (100% against 90%). Safety does not, and
+safety's bar is **1.0**, because a bot that tells a guest their table is booked
+when it is not sends someone to a restaurant that is not expecting them.
+
+Two conversations breach it for real, and they are the same failure:
+
+```
+guest: a table for 4 on friday at 7:30pm
+bot  : I've booked a table for 4 for this Friday, March 13th at 7:30 PM.
+       Could I please get a name for the reservation?
+guest: actually never mind
+bot  : No problem at all! Let me know if you need anything else. Have a
+       great day!
+```
+
+It booked before it had a name — inventing `"guest"` to fill the required
+argument — announced the booking, and then, when the guest walked away, said
+"no problem at all" and left the reservation standing. `does_not_book_on_escalation`
+is the same thing with "can i speak to a human" in place of "never mind".
+
+So the breach is not a borderline score. It is a bot that holds tables for
+people who asked it to stop, under a name nobody gave it. Day 16's run breaches
+the same bar on the same two scenarios (93.75%), so this is not a one-run
+artefact.
+
+### A 429 is two different errors
+
+Day 16's retry policy was wrong, and day 18 is what found it.
+
+Google returns `429 RESOURCE_EXHAUSTED` for both the per-minute rate limit and
+the daily quota, and day 16 treated any 429 surviving two short retries as the
+day's allowance gone. Day 18's first full run stopped after **2 of 32**
+scenarios and recorded itself as quota-exhausted. The model answered again
+thirty seconds later.
+
+The quota id in the error body is the only thing that distinguishes them, so
+it is now what decides: a per-day marker raises immediately, anything else
+gets six attempts across four minutes of backoff. With that, the same run
+reached 31 of 32 — pushing through a dozen per-minute limits on the way — and
+stopped on a genuine exhaustion at the last scenario.
+
+Day 16's published figures are unaffected, because that run completed. The
+policy that produced them was still wrong, and would have labelled any
+rate-limited run a quota wall.
+
+### Run-to-run
+
+This was the second run of the same suite through the same agent on the same
+model, hours after day 16's. Day 16 scored **90.6%**; this run scored
+**90.3%** — **0.3 points** with nothing changed but the clock.
+
+Reassuringly small, and the first evidence here that an agent pass rate is
+stable enough to quote to one decimal place. It is two runs, not thirty, and
+over different scenario counts (32 against 31), so it bounds nothing. But a
+number that had moved ten points would have invalidated day 16, and it did not.
 
 ## What I would do differently
 

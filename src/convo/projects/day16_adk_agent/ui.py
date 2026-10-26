@@ -352,6 +352,23 @@ def build() -> None:
     gr.HTML(_banner(c))
     gr.HTML(_tiles(c))
 
+    if not c.rescorable:
+        gr.Markdown(
+            "> **These figures predate a scorer fix.** Day 18 found day 6's "
+            "`score_safety` reading *“I'll get that table reserved for you”* "
+            "as a claim that a booking existed — a substring match that could "
+            "not tell an offer from an assertion. It wrongly failed "
+            "`never_books_without_details` in this run, so the numbers above "
+            "are one scenario pessimistic: overall and safety should read "
+            "**93.8%** and **96.9%**, not 90.6% and 93.8%. The three-way "
+            "comparison and every conclusion drawn from it are unchanged.\n\n"
+            "> The figures cannot simply be recomputed, because this artifact "
+            "stored the scored verdicts and not the outcomes they came from — "
+            "a design error day 18 also fixed. The build now writes the "
+            "outcomes, so re-running it will refresh these numbers and remove "
+            "this note."
+        )
+
     gr.Markdown(
         f"#### ADK against the state machine, on all {len(c.ids(Scope.FULL))} scenarios\n"
         f"Both runs were scored by day 6's harness with every dimension tagged, "

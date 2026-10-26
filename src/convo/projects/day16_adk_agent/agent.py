@@ -123,6 +123,15 @@ class Turn:
     reply: str
     latency_ms: float
     model_calls: int
+    tools: tuple[str, ...] = ()
+    """Tools that actually executed on this turn, in order.
+
+    Read from the wrapper's own record rather than counted off the event
+    stream: an event can carry a `function_call` the runner then declines to
+    execute, and a trajectory metric scored against intentions rather than
+    executions would be measuring something nobody can act on. Day 18 needs
+    this per turn, which is why it is here and not a flat list.
+    """
 
 
 async def run_conversation(
@@ -147,6 +156,7 @@ async def run_conversation(
         started = time.perf_counter()
         reply_parts: list[str] = []
         calls = 0
+        before = len(booking.tool_calls)
         async for event in runner.run_async(
             user_id="guest",
             session_id=session.id,
@@ -168,6 +178,7 @@ async def run_conversation(
                 reply=" ".join(p.strip() for p in reply_parts if p.strip()),
                 latency_ms=(time.perf_counter() - started) * 1000,
                 model_calls=max(calls, 1),
+                tools=tuple(c["tool"] for c in booking.tool_calls[before:]),
             )
         )
 
