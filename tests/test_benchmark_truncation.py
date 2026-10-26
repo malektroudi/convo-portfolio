@@ -35,6 +35,7 @@ class TestThePremise:
     def test_day_nines_default_is_safe_for_its_own_corpus(self):
         """The default is only a trap for corpora longer than the one it was
         chosen for, which is exactly how it survived unnoticed."""
+        pytest.importorskip("transformers", reason="needs the train extra")
         from convo.projects.day08_rag_cites.chunking import chunk_corpus, load_corpus
         from convo.projects.day09_retrieval_evals.build import MAX_LENGTH
 
@@ -42,6 +43,8 @@ class TestThePremise:
         assert lengths[f"over_{MAX_LENGTH}"] == 0.0
 
     def test_the_wide_window_is_within_the_model(self):
+        # Needs the tokenizer, which the serving environment does not carry.
+        pytest.importorskip("transformers", reason="needs the train extra")
         from transformers import AutoConfig
 
         config = AutoConfig.from_pretrained(tr.CROSS_ENCODER)
