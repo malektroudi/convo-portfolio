@@ -194,6 +194,22 @@ def scifact_shortlists(limit_docs: int | None = None) -> Shortlists:
 
 
 MATERIAL = 0.01
+"""Floor for the band below. Kept so the 300-query reranker comparison uses
+the more conservative of the two and its published conclusion does not move."""
+
+
+def material(queries: int, ranks: int = 3) -> float:
+    """The smallest MRR change worth calling an effect, for a given query count.
+
+    MRR moves by `0.5 / queries` when one query goes from rank two to rank
+    one, so what counts as noise depends entirely on how many queries there
+    are. A band fixed at 0.01 is about six queries at n=300 and **less than
+    one** at n=42 — and the corpus-size sweep ran at n=42, where a fixed band
+    duly reported a one-query difference as a result.
+    """
+    return max(MATERIAL, ranks * 0.5 / max(queries, 1))
+
+
 """How large an MRR difference has to be before it counts as an effect.
 
 An earlier version of `verdict` treated any delta above zero as a rescue, and

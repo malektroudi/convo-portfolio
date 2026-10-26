@@ -1029,8 +1029,10 @@ story, and it is the one the evidence actually points at.
 
 It is untested. Testing it would mean holding the corpus fixed and varying
 only the difficulty of the negatives — subsampling SciFact to 50 documents
-and checking whether the lift reappears. That is an afternoon and it is the
-obvious next thing.
+and checking whether the lift reappears.
+
+**That was then attempted, and the experiment does not work.** See
+[the experiment that failed](#the-experiment-that-failed) below.
 
 ### The analysis code had the same bug the analysis was looking for
 
@@ -1058,6 +1060,76 @@ while the capacity control only reaches 1.4×. Had bge won, capacity would not
 have been cleanly ruled out — only *small* increases in it would have been.
 That caveat was written down before the run finished, and as it happens bge
 lost, so it does not end up mattering. It would have.
+
+### The experiment that failed
+
+The distractor hypothesis has an obvious test: hold the queries, the labels
+and the model fixed, and vary only how many documents compete for the
+shortlist. SciFact's 42-query sample needs 47 judged documents, so the
+smallest condition is 49 — within two of day 9's 49 chunks for 42 questions.
+A near-exact rebuild of the restaurant corpus at SciFact's difficulty.
+
+```bash
+uv run python -m convo.benchmark.distractors
+```
+
+*Deltas at four decimals, which is the precision the artifact stores — at
+three, two of these rows round ambiguously, and this is a table about not
+over-reading small numbers.*
+
+| documents | fusion MRR | reranked | delta | in queries moved |
+|---|---|---|---|---|
+| 49 | 0.9563 | 0.9683 | +0.0120 | **+1.0** |
+| 100 | 0.9563 | 0.9643 | +0.0080 | +0.7 |
+| 250 | 0.8667 | 0.9276 | **+0.0609** | +5.1 |
+| 500 | 0.8143 | 0.8393 | +0.0250 | +2.1 |
+| 1000 | 0.8020 | 0.8175 | +0.0155 | +1.3 |
+| 2500 | 0.7409 | 0.7853 | **+0.0444** | +3.7 |
+| 5183 | 0.7041 | 0.6907 | −0.0134 | −1.1 |
+
+The first version of this reported **"supports the distractor hypothesis"**.
+It is wrong on three counts, and all three were in the data the whole time.
+
+**It is underpowered.** With 42 queries, MRR moves by 0.0119 when a single
+query goes from rank two to rank one. The lift at day 9's corpus size is
+`+0.0120` — *one query*. The materiality band had been borrowed from the
+reranker comparison, where it was calibrated on 300 queries, and at 42 it is
+less than one query wide. The band is now a function of the query count, and
+at n=42 it is 0.036 — three queries — which none of the small conditions
+clear.
+
+**The smallest corpus is not comparable.** Fusion alone scores **0.956 MRR**
+on 49 SciFact documents, leaving 0.020 of headroom. Day 9's restaurant corpus
+at the same size left **0.178**. Shrinking SciFact did not produce a harder
+corpus at day 9's scale — it produced a corpus that is nearly solved before
+the reranker is asked anything. The variable I meant to hold constant moved
+in the opposite direction.
+
+**The curve is not a decay.** The lift peaks at 250 documents and again at
+2,500, with weaker conditions on either side. A decay hypothesis requires a
+decay.
+
+So the honest result is **inconclusive**: this run neither supports nor
+refutes the distractor hypothesis, and the two things that would make it
+decisive are a larger query sample and a way of varying distractor difficulty
+without also varying task difficulty. The verdict function now checks for all
+three failures before offering any conclusion, and prints them.
+
+The one thing that holds across every experiment on this page: on the full
+corpus, this reranker does not help.
+
+### Why this is in the README at all
+
+A failed experiment is worth the space because of how nearly it was a
+successful-looking one. It produced a tidy table, a plausible decay from 60%
+of headroom captured down to −39%, and a function that confidently printed
+the conclusion I was hoping for. Nothing errored. Had I not checked what a
+single query is worth at n=42, it would have gone in as a finding.
+
+The check that caught it is arithmetic anyone can do and nobody does: **what
+is one unit of this metric, in units of the thing being measured?** At 300
+queries, 0.01 MRR is six queries and means something. At 42 it is less than
+one and means nothing. The same number, the same metric, opposite conclusions.
 
 ## Day 10: groundedness and guardrails
 
@@ -1972,6 +2044,15 @@ got worse. What I would add is a test at the level of the shared function
 asserting the property its callers depend on — that inflections of a word match
 — rather than testing only the behaviour each caller happens to show. That test
 exists now, and it is the one I would have written first.
+
+**Work out what one unit of a metric is worth before trusting a difference
+in it.** The corpus-size sweep produced a clean-looking decay and a function
+that confidently announced the conclusion I wanted, and the entire effect at
+the headline condition was one query out of 42 moving up one rank. The
+materiality band had been carried over from an experiment with seven times
+the sample. Nothing failed, nothing errored, and the table looked like a
+result. The habit worth keeping is dividing the metric by the sample size and
+asking how many individual items the difference represents.
 
 **A benchmark you wrote is a demonstration, not a measurement.** Every
 evaluation set here is mine, and I said so in each section — but a caveat is
