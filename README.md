@@ -805,6 +805,11 @@ Structural chunking, 49 chunks, 42 questions:
 cross-encoder reading the question and passage together rather than comparing
 two vectors computed apart, and it pays for itself here.
 
+*It does not pay for itself on a public benchmark.* Run against SciFact's
+expert labels the same cross-encoder **costs** 0.013 MRR rather than adding
+0.086 — see [the same retrievers on labels I did not write](#the-same-retrievers-on-labels-i-did-not-write)
+below, which is the most important paragraph on this page.
+
 **Hybrid fusion on its own is not reliable.** On structural chunking it is
 worth +2 over dense, on fixed-overlap +2, and on plain fixed it is −2.
 Reporting only the configuration where fusion looked good would have been easy
@@ -876,6 +881,82 @@ chunks against 49. Retrieving one of 27 is a strictly easier problem. The
 finer chunking is harder to retrieve from *and* produces the better citation,
 which day 8 measured. Comparing their hit@1 as though it were a quality
 ranking would be wrong, and the tab says so next to the table.
+
+### The same retrievers on labels I did not write
+
+Every number above comes from 42 questions I wrote about 14 articles I wrote.
+That is enough to demonstrate a mechanism and not enough to claim the stack is
+any good — I set the exam and sat it.
+
+So the identical code — same `BM25`, same `DenseIndex`, same reciprocal rank
+fusion, same cross-encoder, imported from days 8 and 9 rather than
+reimplemented — was run against **SciFact**: 5,183 documents, 300 queries, 339
+relevance judgements made by domain experts who have never heard of this
+project.
+
+```bash
+uv run python -m convo.benchmark.run
+```
+
+| retriever | my 14 articles | | SciFact, top 10 | | SciFact, top 100 | |
+|---|---|---|---|---|---|---|
+| | hit@1 | MRR | hit@1 | MRR | hit@1 | MRR |
+| bm25 | 57% | 0.641 | 56% | 0.646 | 56% | 0.650 |
+| dense | 55% | **0.707** | 50% | 0.605 | 50% | 0.611 |
+| hybrid | 57% | 0.704 | **58%** | **0.675** | **57%** | **0.673** |
+| hybrid + rerank | **69%** | **0.790** | 57% | 0.662 | 56% | 0.655 |
+
+**Three of this page's conclusions reverse.**
+
+**The reranker stops working.** On my corpus it is worth **+0.086 MRR** and is
+the headline of this day. On expert labels it **costs 0.013**. That is not a
+small difference in magnitude, it is a difference in sign.
+
+**Hybrid fusion becomes the best retriever**, where above it is described as
+"not reliable… it earns its place as a feeder for the reranker, not as a win
+by itself." On SciFact it beats the reranked stack at both shortlist depths.
+
+**Dense and BM25 swap places.** Dense wins on my data (0.707 against 0.641)
+and loses on SciFact (0.605 against 0.646). The restaurant corpus has ten
+deliberate paraphrases in it, which is exactly the case lexical retrieval
+handles worst and I wrote them.
+
+### The caveat I had to close before believing any of that
+
+Day 9 reranks the **top 10**. That is sensible over 49 chunks and very shallow
+over 5,183 documents — a cross-encoder can only reorder what fusion already
+surfaced, so "the reranker hurt" might have been a parameter rather than a
+finding. Publishing it without checking would have been blaming the model for
+my own default.
+
+Widening the shortlist to the top 100 makes it **slightly worse** (−0.018 MRR
+against −0.013) and costs **4,652 ms a query instead of 481**. Ten times the
+compute for a marginally worse answer, at both depths tested. The result is
+not a depth artifact.
+
+A likely explanation, offered as a hypothesis rather than a result:
+`ms-marco-MiniLM-L-6-v2` is trained on web search passages, my corpus is
+conversational help-centre prose that resembles them, and SciFact is
+scientific claims against paper abstracts that does not. A cross-encoder is a
+small supervised model and it is entitled to be domain-specific. Confirming
+that would need a second reranker on both corpora, which is a day's work I
+have not done.
+
+### What this costs the rest of the repository
+
+The honest reading is that **day 9's lift number is about my corpus, not about
+reranking**. Days 10 to 13 all sit on top of the reranked stack — day 10's
+evidence gate thresholds a cross-encoder score, day 13's escalation signals
+read it — so the same question applies to them and has not been asked.
+
+It does not invalidate those days. Their findings are about thresholds,
+gates, timing and handoffs, and each was measured on its own terms. It does
+mean that anywhere this repository says "the reranker helps", the correct
+reading is "the reranker helped on fourteen articles I wrote", and that is now
+written next to the claim rather than left for a reader to work out.
+
+Running this was the cheapest useful thing in the whole project: a loader, a
+runner, and about twenty minutes of CPU.
 
 ## Day 10: groundedness and guardrails
 
@@ -1790,6 +1871,13 @@ got worse. What I would add is a test at the level of the shared function
 asserting the property its callers depend on — that inflections of a word match
 — rather than testing only the behaviour each caller happens to show. That test
 exists now, and it is the one I would have written first.
+
+**A benchmark you wrote is a demonstration, not a measurement.** Every
+evaluation set here is mine, and I said so in each section — but a caveat is
+much weaker than a public benchmark, and the public benchmark took an
+afternoon. It reversed three of day 9's conclusions, including its headline.
+The right time to run it was day 9, not day 15, and the reason it did not
+happen is that day 9's numbers looked good and nothing forced the question.
 
 **Check that the measurement reproduces before reading anything into it.**
 Day 12 nearly shipped a word error rate that moved from 9% to 22% between two

@@ -200,6 +200,92 @@ def _refresh(strategy: str, question: str):
     )
 
 
+def _benchmark_block() -> str:
+    """The same four retrievers on a corpus nobody here wrote.
+
+    Day 9's numbers come from 42 questions I wrote about 14 articles I wrote.
+    That is enough to show a mechanism and not enough to claim the stack is
+    good. This runs the identical code over SciFact — 5,183 documents with
+    relevance judgements made by domain experts — so the two can be read side
+    by side.
+    """
+    from convo.benchmark.results import RETRIEVERS as B_RETRIEVERS
+    from convo.benchmark.results import load as load_benchmark
+
+    found = load_benchmark()
+    if found is None:
+        return (
+            "<p style='font-size:0.88rem;opacity:0.7'>Not run yet:<br>"
+            "<code>uv run python -m convo.benchmark.run</code></p>"
+        )
+
+    rows = ""
+    for retriever in B_RETRIEVERS:
+        mine = found.restaurant.get(retriever, {})
+        cells = ""
+        for depth in found.depths:
+            score = found.scores(depth, retriever)
+            cells += (
+                f"<td style='padding:5px 12px;text-align:right'>{score['hit_at_1']:.0%}</td>"
+                f"<td style='padding:5px 12px;text-align:right'>{score['mrr']:.3f}</td>"
+            )
+        own = (
+            f"<td style='padding:5px 12px;text-align:right;opacity:0.65'>"
+            f"{mine.get('hit_at_1', 0):.0%}</td>"
+            f"<td style='padding:5px 12px;text-align:right;opacity:0.65'>"
+            f"{mine.get('mrr', 0):.3f}</td>"
+        )
+        rows += (
+            f"<tr><td style='padding:5px 12px 5px 0'><code>{retriever}</code></td>{own}{cells}</tr>"
+        )
+
+    depth_headers = "".join(
+        f"<th colspan='2' style='text-align:center;padding:4px 12px'>SciFact, top {d}</th>"
+        for d in found.depths
+    )
+    sub = "".join(
+        "<th style='text-align:right;padding:2px 12px;font-weight:400'>hit@1</th>"
+        "<th style='text-align:right;padding:2px 12px;font-weight:400'>MRR</th>"
+        for _ in range(len(found.depths) + 1)
+    )
+
+    notes = []
+    for depth in found.depths:
+        delta = found.rerank_delta(depth)
+        word = "adds" if delta > 0 else "costs"
+        colour = GOOD if delta > 0 else CRITICAL
+        notes.append(
+            f"At top {depth} the cross-encoder <span style='color:{colour}'>{word} "
+            f"{abs(delta):.3f} MRR</span> over fusion."
+        )
+    mine_delta = found.restaurant_rerank_delta()
+    notes.append(f"On my own corpus it added {mine_delta:+.3f}." if mine_delta else "")
+
+    return f"""
+<p style="font-size:0.88rem;max-width:72ch">
+<strong>{found.documents:,} documents, {found.queries} queries, {found.judgements}
+judgements</strong> made by domain experts. Same <code>BM25</code>, same
+<code>DenseIndex</code>, same fusion, same reranker &mdash; imported from days 8
+and 9 rather than reimplemented, because the point is to test that code.
+</p>
+<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:0.88rem">
+<thead>
+<tr style="border-bottom:1px solid rgba(128,128,128,0.2)">
+  <th style="padding:4px 12px 4px 0"></th>
+  <th colspan="2" style="text-align:center;padding:4px 12px;opacity:0.65">
+    my 14 articles</th>
+  {depth_headers}
+</tr>
+<tr style="border-bottom:1px solid rgba(128,128,128,0.35)">
+  <th style="text-align:left;padding:2px 12px 2px 0">retriever</th>{sub}
+</tr>
+</thead><tbody>{rows}</tbody></table></div>
+<p style="font-size:0.86rem;opacity:0.78;max-width:72ch;margin-top:10px">
+{" ".join(n for n in notes if n)}
+</p>
+"""
+
+
 def build() -> None:
     results = load()
     if results is None:
@@ -228,6 +314,12 @@ def build() -> None:
 
     gr.Markdown("#### The lift")
     lift = gr.HTML(_lift_table(results, default_strategy))
+
+    with gr.Accordion(
+        "The same retrievers on a public benchmark, with labels I did not write",
+        open=False,
+    ):
+        gr.HTML(_benchmark_block())
 
     gr.Markdown(
         "#### Where it stops working\n"
