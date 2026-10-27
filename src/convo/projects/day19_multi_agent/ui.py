@@ -57,8 +57,7 @@ DESKS = (
 )
 
 
-def _topology_table() -> pd.DataFrame:
-    graph = scope.topology()
+def _topology_table(graph: scope.Topology) -> pd.DataFrame:
     rows = []
     for name, advertised, note in DESKS:
         reachable = sorted(graph.tools_reachable_from(name))
@@ -107,10 +106,7 @@ def _handoff_table(results: Results | None) -> pd.DataFrame:
 
 
 def _proof() -> None:
-    graph = scope.topology()
-    complaints = scope.audit(graph)
-    stranded = sorted(graph.tools_reachable_from(HANDOFF))
-    from_router = sorted(graph.tools_reachable_from(ROUTER))
+    graph = scope.load()
 
     gr.Markdown("### The guarantee, as a graph")
     gr.Markdown(
@@ -121,20 +117,35 @@ def _proof() -> None:
         "edges: a router reaches its desks, a desk reaches the router and its peers "
         "unless that is disallowed. The question is then what is reachable."
     )
-    gr.Dataframe(_topology_table(), interactive=False, wrap=True)
 
-    colour = GOOD if not complaints and not stranded else CRITICAL
-    verdict = "holds" if not complaints and not stranded else "FAILS: " + "; ".join(complaints)
-    gr.Markdown(
-        f"<p style='color:{colour}'><b>Reachable from <code>{HANDOFF}</code>:</b> "
-        f"{', '.join(sorted(graph.reachable_from(HANDOFF)))} — tools: "
-        f"{', '.join(stranded) or '<b>none</b>'}. The guarantee {verdict}.</p>"
-        + GAP
-        + f"And from `{ROUTER}`, so the bot can still do its job: "
-        f"{', '.join(from_router)}. A topology where nothing reaches `{BOOK_TOOL}` "
-        "would pass the check above and be a broken bot, so the audit asserts both "
-        "directions."
-    )
+    if graph is None:
+        gr.Markdown(
+            f"<p style='color:{WARN}'>The committed topology is missing. It is derived "
+            "from the real agent objects, which needs `google-adk`, and then committed "
+            "so this tab and the static site can read it without the framework — run "
+            "`build --write-topology` to regenerate it.</p>"
+        )
+    else:
+        complaints = scope.audit(graph)
+        stranded = sorted(graph.tools_reachable_from(HANDOFF))
+        from_router = sorted(graph.tools_reachable_from(ROUTER))
+        gr.Dataframe(_topology_table(graph), interactive=False, wrap=True)
+
+        colour = GOOD if not complaints and not stranded else CRITICAL
+        verdict = "holds" if not complaints and not stranded else "FAILS: " + "; ".join(complaints)
+        gr.Markdown(
+            f"<p style='color:{colour}'><b>Reachable from <code>{HANDOFF}</code>:</b> "
+            f"{', '.join(sorted(graph.reachable_from(HANDOFF)))} — tools: "
+            f"{', '.join(stranded) or '<b>none</b>'}. The guarantee {verdict}.</p>"
+            + GAP
+            + f"And from `{ROUTER}`, so the bot can still do its job: "
+            f"{', '.join(from_router)}. A topology where nothing reaches `{BOOK_TOOL}` "
+            "would pass the check above and be a broken bot, so the audit asserts both "
+            "directions." + GAP + "This table is read from a committed artifact, not "
+            "built here: deriving it imports the framework, and the first version of "
+            "this day did that in the static site build, which runs where the framework "
+            "is deliberately absent. CI re-derives it and fails if the two have drifted."
+        )
 
     gr.Markdown("### What the proof does not cover")
     gr.Markdown(

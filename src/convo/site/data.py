@@ -708,31 +708,39 @@ def _day18() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
 def _day19() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
     """Day 19 publishes a proof before it publishes a measurement.
 
-    The topology is committed code, so the reachability table below is
-    re-derivable by anyone who clones this repository — no run, no key, no
-    quota. The pass rate is not, because the run has not happened, so it is
-    absent rather than estimated.
+    The reachability table is read from day 19's committed topology artifact,
+    never derived here: deriving it builds the real agent objects and so
+    imports `google-adk`, which this job deliberately does not install. The
+    first version of this function called the deriving function and took the
+    Pages build down, which is the clearest possible demonstration of why the
+    artifact exists.
+
+    The pass rate is not published, because the run has not happened.
     """
     from convo.projects.day19_multi_agent import scope
     from convo.projects.day19_multi_agent.build import day16_corrected
     from convo.projects.day19_multi_agent.results import PENDING_TARGETS, handoff_scenarios, load
 
-    graph = scope.topology()
+    graph = scope.load()
     found = load()
 
-    reach = tuple(
-        (
-            desk,
-            ", ".join(graph.tools.get(desk, ())) or "none",
-            ", ".join(sorted(graph.tools_reachable_from(desk))) or "none",
+    reach = (
+        tuple(
+            (
+                desk,
+                ", ".join(graph.tools.get(desk, ())) or "none",
+                ", ".join(sorted(graph.tools_reachable_from(desk))) or "none",
+            )
+            for desk in (
+                "booking_router",
+                "slot_collector",
+                "booking_desk",
+                "policy_desk",
+                "handoff_desk",
+            )
         )
-        for desk in (
-            "booking_router",
-            "slot_collector",
-            "booking_desk",
-            "policy_desk",
-            "handoff_desk",
-        )
+        if graph is not None
+        else ()
     )
     corrected = day16_corrected()
     targets = tuple(

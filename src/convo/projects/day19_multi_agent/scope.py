@@ -15,6 +15,14 @@ so it is checked as one. Edges are the transfers ADK permits:
 
 `reachable_from("handoff_desk")` is then `{"handoff_desk"}`, and the tools
 reachable from it are the union of the tools held by that set, which is empty.
+
+The graph is **derived** from the real agent objects, which needs the
+framework, and then **committed** so that everything downstream — the site
+build, the container, the tab — reads an artifact instead of importing ADK.
+That split is not tidiness: the first version of this module skipped it, the
+site called `derive()`, and the Pages build went red on a job that
+deliberately does not install the framework. `reproduces()` re-derives in the
+one job that has it and fails if the committed graph has drifted.
 The conclusion follows from the topology rather than from my reading of two
 constructor flags — which matters, because reading a flag and asserting what
 it implies is exactly the mistake that cost day 18 three red builds.
@@ -27,7 +35,9 @@ holds because the feature is missing is not a guarantee.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from convo.projects.day06_eval_harness.suite import REF
@@ -105,8 +115,12 @@ class Topology:
         }
 
 
-def topology(model: str = "none") -> Topology:
+def derive(model: str = "none") -> Topology:
     """Read the graph off a constructed agent tree, with no key and no call.
+
+    Needs `google-adk`, because it builds the real agent objects rather than
+    describing them — which is the point, and also why it cannot be what the
+    site and the tab call. Use `committed()` there.
 
     `model` is a string ADK stores and never resolves until a run, so the
     default is deliberately not a real model id: nothing here may depend on
@@ -130,14 +144,78 @@ def topology(model: str = "none") -> Topology:
     return Topology(tools=tools, edges=edges)
 
 
+ARTIFACT_FILE = Path(__file__).parent / "artifacts" / "topology.json"
+
+
+def save(graph: Topology | None = None) -> Topology:
+    """Commit the derived graph, so the proof can be read without the framework."""
+    graph = graph or derive()
+    ARTIFACT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    ARTIFACT_FILE.write_text(json.dumps(graph.as_dict(), indent=1), encoding="utf-8")
+    return graph
+
+
+def load() -> Topology | None:
+    """The committed graph, or None. Needs no framework and no key.
+
+    This exists because the first version of day 19 did not have it, and the
+    Pages build went red: the site called `derive()`, which imports ADK, and
+    the site is built in a job that deliberately does not install it. Day 18's
+    CI even has a leak guard naming `google.adk` for exactly this reason, and
+    I walked into it anyway.
+
+    The fix is this repository's own rule, applied to a proof rather than a
+    measurement: derive it once where the framework exists, commit the result,
+    and let every reader read the artifact. `reproduces()` is what stops the
+    artifact drifting from the code.
+    """
+    if not ARTIFACT_FILE.exists():
+        return None
+    payload = json.loads(ARTIFACT_FILE.read_text(encoding="utf-8"))
+    return Topology(
+        tools={a: tuple(t) for a, t in payload["tools"].items()},
+        edges={a: tuple(e) for a, e in payload["edges"].items()},
+    )
+
+
+def committed() -> Topology:
+    """The committed graph, or a clear error. For the site, the tab and tests."""
+    found = load()
+    if found is None:
+        raise SystemExit(
+            f"no committed topology at {ARTIFACT_FILE}; run "
+            "`python -m convo.projects.day19_multi_agent.build --write-topology`"
+        )
+    return found
+
+
+def reproduces() -> list[str]:
+    """Whether the committed graph still matches the one the code builds.
+
+    Day 18's reproducibility gate, applied to a topology instead of a score.
+    A committed proof that nothing re-derives is just a file, and the two
+    could drift the first time a constructor flag changed.
+    """
+    stored = load()
+    if stored is None:
+        return [f"no committed topology at {ARTIFACT_FILE}"]
+    fresh = derive()
+    complaints: list[str] = []
+    if stored.tools != fresh.tools:
+        complaints.append(f"tools differ: committed {stored.tools}, derived {fresh.tools}")
+    if stored.edges != fresh.edges:
+        complaints.append(f"edges differ: committed {stored.edges}, derived {fresh.edges}")
+    return complaints
+
+
 def audit(graph: Topology | None = None) -> list[str]:
     """Complaints about the topology. Empty means the claim holds.
 
-    Returned rather than asserted so the gate, the tests and the tab can each
-    decide what to do with them, and so a failure names the property that
-    broke instead of a line number.
+    Defaults to the *committed* graph, so the audit runs anywhere — the site
+    build, the container, a laptop without the framework. Pass `derive()` to
+    audit what the code builds right now.
     """
-    graph = graph or topology()
+    graph = graph if graph is not None else committed()
     complaints: list[str] = []
 
     missing = [name for name in EVERY_AGENT if name not in graph.tools]

@@ -2691,9 +2691,44 @@ graph — let the handoff desk transfer out, give the collector the booking
 tool, take the booking tool away entirely, arm the handoff desk — and require
 the audit to complain about each.
 
-It runs in CI, in the job that has ADK installed. It needs no key, no quota
-and no model, which I verified rather than assumed: building the agent tree
-with `GOOGLE_API_KEY` unset is a test.
+It needs no key, no quota and no model, which I verified rather than assumed:
+building the agent tree with `GOOGLE_API_KEY` unset is a test.
+
+### Then I made the proof need the framework, and Pages went red
+
+Deriving the graph builds the real agent objects, so it imports `google-adk`.
+I called it from the static site generator. The site is built in a job that
+deliberately does not install the framework — this repository's whole
+architecture is artifacts in, no ML or agent framework at serving time, and
+day 18's CI has a leak guard naming `google.adk` for exactly this. I walked
+straight into it:
+
+```
+File "src/convo/site/data.py", line 720, in _day19
+    graph = scope.topology()
+File "src/convo/projects/day19_multi_agent/agents.py", line 201, in build_agent
+    from google.adk.agents import Agent
+ModuleNotFoundError: No module named 'google'
+```
+
+The fix is the repository's own rule applied to a proof instead of a
+measurement. `derive()` builds the graph where the framework exists;
+`save()` commits it as `artifacts/topology.json`; `load()` reads it with no
+framework at all, and the site, the tab and the container all read that.
+`reproduces()` re-derives it in the one job that can and fails if the
+committed artifact has drifted from the code — day 18's reproducibility gate,
+pointed at a topology instead of a score.
+
+So the proof is now checked twice, in two jobs, for two different reasons:
+the one without the framework asserts that the published graph still makes
+booking unreachable, and the one with it asserts that the graph is still what
+the code builds. A committed proof nothing re-derives is just a file.
+
+Six tests block the regression, including the exact call that failed, run
+with `google.adk` made unimportable. Writing them turned up a second thing
+worth knowing: a meta-path hook is never consulted for an already-imported
+module, so the first version of that fixture blocked nothing and every test
+under it passed for the wrong reason.
 
 ### What the guarantee does not cover, said before the numbers
 

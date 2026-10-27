@@ -81,7 +81,12 @@ def preflight(verbose: bool = True) -> list[str]:
     """Everything checkable with no model, no key and no quota."""
     problems: list[str] = []
 
-    problems.extend(f"topology: {c}" for c in scope.audit())
+    # Audit what the code builds now, then require the committed artifact to
+    # match it. Either alone is weaker: auditing only the artifact would pass
+    # a stale file, and auditing only the live tree would leave the published
+    # proof unchecked.
+    problems.extend(f"topology: {c}" for c in scope.audit(scope.derive()))
+    problems.extend(f"committed topology: {c}" for c in scope.reproduces())
 
     for scenario in SUITE:
         route = route_for(scenario)
@@ -96,7 +101,7 @@ def preflight(verbose: bool = True) -> list[str]:
             )
 
     if verbose:
-        graph = scope.topology()
+        graph = scope.derive()
         log.info(
             "topology holds",
             extra={
@@ -261,7 +266,7 @@ def _payload(
         "partial": len(attempted) < len(SUITE),
         "quota_note": quota_note,
         "unavailable": unavailable,
-        "topology": scope.topology().as_dict(),
+        "topology": scope.committed().as_dict(),
         "routing": summary.as_dict(),
         "transfers": transfers,
         "run": run.as_dict(),
@@ -297,7 +302,7 @@ def _rescore_stored() -> int:
         meta=payload.get("run", {}).get("meta", {}),
     )
     payload["run"] = run.as_dict()
-    payload["topology"] = scope.topology().as_dict()
+    payload["topology"] = scope.committed().as_dict()
     payload["engine"] = run_suite("day19-engine", engine_runner, scenarios=attempted).as_dict()
     payload["day16_handoff_verdicts"] = day16_baseline()
     payload["day16_handoff_corrected"] = day16_corrected()
@@ -323,7 +328,23 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="rebuild every verdict from the stored outcomes, calling no model",
     )
+    parser.add_argument(
+        "--write-topology",
+        action="store_true",
+        help="re-derive and commit the agent graph; needs google-adk, no key",
+    )
     args = parser.parse_args(argv)
+
+    if args.write_topology:
+        graph = scope.save()
+        log.info(
+            "topology committed",
+            extra={
+                "path": str(scope.ARTIFACT_FILE),
+                "tools_from_handoff": sorted(graph.tools_reachable_from(scope.HANDOFF)),
+            },
+        )
+        return 0
 
     if args.preflight:
         problems = preflight()

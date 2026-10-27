@@ -44,13 +44,33 @@ jobs:
       - name: Conversational evals
         run: uv run python -m convo.projects.day06_eval_harness.gate
 
-      # Day 18's gate, threshold half only. `google-adk` cannot be installed
-      # in this job — it requires pydantic>=2.12 and gradio caps it below
-      # that — so this checks the stored comparison's thresholds and its
-      # agreement baseline, and says out loud that it skipped the second
-      # evaluator. The `evaluators` job below runs that half.
+      # Day 18's gate, threshold half only. `google-adk` is not *resolvable*
+      # alongside gradio — it needs pydantic>=2.12 and gradio caps it below
+      # that, so `uv sync` cannot have both — which is why it is absent here.
+      # Installed anyway they coexist at runtime, as the `evaluators` job
+      # below demonstrates; the earlier wording claimed they could not, and
+      # that was wrong. So this checks the stored comparison's thresholds and
+      # its agreement baseline and says out loud that it skipped the second
+      # evaluator.
       - name: Evaluator comparison, thresholds
         run: uv run python -m convo.projects.day18_eval_gate.gate
+
+      # Day 19's proof, read from its committed artifact. This job has no
+      # framework, which is the point: the reachability claim has to be
+      # checkable where the bot cannot run, or it is not a gate. The
+      # `evaluators` job re-derives it and fails if the artifact has drifted.
+      - name: Day 19's committed topology must still hold
+        run: |
+          uv run python - <<'PY'
+          from convo.projects.day19_multi_agent import scope
+
+          graph = scope.committed()
+          complaints = scope.audit(graph)
+          if complaints:
+              raise SystemExit("; ".join(complaints))
+          print("reachable from handoff_desk:", sorted(graph.reachable_from(scope.HANDOFF)))
+          print("tools reachable from it   :", sorted(graph.tools_reachable_from(scope.HANDOFF)) or "none")
+          PY
 
       # The deploy workflow generates the site from the artifacts. Building it
       # here too means a broken generator fails on the pull request rather

@@ -13,7 +13,10 @@ mutate the graph and require the audit to complain.
 
 from __future__ import annotations
 
+import importlib
 import json
+import sys
+from importlib.abc import MetaPathFinder
 
 import pytest
 
@@ -55,7 +58,7 @@ class TestTheTopologyIsAProof:
     def test_the_audit_is_silent_on_the_real_topology(self):
         from convo.projects.day19_multi_agent import scope
 
-        assert scope.audit() == []
+        assert scope.audit(scope.derive()) == []
 
     def test_it_needs_no_api_key(self, monkeypatch):
         """CI has no key, and the audit is the half of day 19 that runs there.
@@ -66,34 +69,34 @@ class TestTheTopologyIsAProof:
         monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
         from convo.projects.day19_multi_agent import scope
 
-        assert scope.topology().agents
+        assert scope.derive().agents
 
     def test_the_booking_tool_has_exactly_one_holder(self):
         from convo.projects.day19_multi_agent import scope
 
-        assert scope.topology().holders_of(BOOK_TOOL) == (BOOKER,)
+        assert scope.derive().holders_of(BOOK_TOOL) == (BOOKER,)
 
     def test_the_handoff_desk_holds_nothing(self):
         from convo.projects.day19_multi_agent import scope
 
-        assert scope.topology().tools[HANDOFF] == ()
+        assert scope.derive().tools[HANDOFF] == ()
 
     def test_control_cannot_leave_the_handoff_desk(self):
         from convo.projects.day19_multi_agent import scope
 
-        assert scope.topology().reachable_from(HANDOFF) == frozenset({HANDOFF})
+        assert scope.derive().reachable_from(HANDOFF) == frozenset({HANDOFF})
 
     def test_no_tool_is_reachable_once_handed_off(self):
         """The claim the whole day rests on."""
         from convo.projects.day19_multi_agent import scope
 
-        assert scope.topology().tools_reachable_from(HANDOFF) == frozenset()
+        assert scope.derive().tools_reachable_from(HANDOFF) == frozenset()
 
     def test_both_tools_are_still_reachable_from_the_router(self):
         """Otherwise the guarantee holds because the feature is missing."""
         from convo.projects.day19_multi_agent import scope
 
-        reachable = scope.topology().tools_reachable_from(ROUTER)
+        reachable = scope.derive().tools_reachable_from(ROUTER)
         assert BOOK_TOOL in reachable
         assert POLICY_TOOL in reachable
 
@@ -101,7 +104,7 @@ class TestTheTopologyIsAProof:
         """The model is offered `book_a_table`; `book_table` is what runs."""
         from convo.projects.day19_multi_agent import scope
 
-        graph = scope.topology()
+        graph = scope.derive()
         assert WRAPPER_FOR[BOOK_TOOL] == "book_a_table"
         assert BOOK_TOOL in graph.tools[BOOKER]
         assert "book_a_table" not in graph.tools[BOOKER]
@@ -114,7 +117,7 @@ class TestTheAuditCanFail:
     def test_it_catches_a_handoff_desk_that_can_transfer_out(self):
         from convo.projects.day19_multi_agent import scope
 
-        graph = scope.topology()
+        graph = scope.derive()
         leaky = scope.Topology(
             tools=graph.tools,
             edges={**graph.edges, HANDOFF: (ROUTER,)},
@@ -126,7 +129,7 @@ class TestTheAuditCanFail:
     def test_it_catches_a_second_holder_of_the_booking_tool(self):
         from convo.projects.day19_multi_agent import scope
 
-        graph = scope.topology()
+        graph = scope.derive()
         shared = scope.Topology(
             tools={**graph.tools, COLLECTOR: (BOOK_TOOL,)},
             edges=graph.edges,
@@ -136,7 +139,7 @@ class TestTheAuditCanFail:
     def test_it_catches_a_bot_that_can_never_book(self):
         from convo.projects.day19_multi_agent import scope
 
-        graph = scope.topology()
+        graph = scope.derive()
         toothless = scope.Topology(
             tools={**graph.tools, BOOKER: ()},
             edges=graph.edges,
@@ -146,7 +149,7 @@ class TestTheAuditCanFail:
     def test_it_catches_tools_left_on_the_handoff_desk(self):
         from convo.projects.day19_multi_agent import scope
 
-        graph = scope.topology()
+        graph = scope.derive()
         armed = scope.Topology(
             tools={**graph.tools, HANDOFF: (BOOK_TOOL,)},
             edges=graph.edges,
@@ -496,6 +499,101 @@ class TestTheRetryTaxonomyIsShared:
         assert d19.QuotaExhausted is d16.QuotaExhausted
         assert d19.ScenarioUnavailable is d16.ScenarioUnavailable
         assert d19.BACKOFF_S is d16.BACKOFF_S
+
+
+class TestTheProofIsReadableWithoutTheFramework:
+    """The failure that cost a red Pages build, turned into tests.
+
+    The reachability claim is derived from the real agent objects, which
+    imports `google-adk`. The static site and the container are built in jobs
+    that deliberately do not install it — day 18's CI even has a leak guard
+    naming `google.adk`. So the graph is committed, and everything downstream
+    reads the artifact.
+    """
+
+    @pytest.fixture
+    def blocked(self):
+        class Block(MetaPathFinder):
+            def find_spec(self, name, path=None, target=None):
+                if name == "google.adk" or name.startswith("google.adk."):
+                    raise ImportError(f"blocked for this test: {name}")
+                return None
+
+        blocker = Block()
+        sys.meta_path.insert(0, blocker)
+        # A meta-path hook is never consulted for a module already imported, and
+        # earlier tests in this file import ADK. So the cached entries come out
+        # too, and go back afterwards — without this the blocker silently does
+        # nothing and every test under it passes for the wrong reason.
+        cached = {
+            n: m for n, m in sys.modules.items() if n == "google.adk" or n.startswith("google.adk.")
+        }
+        for name in cached:
+            del sys.modules[name]
+        for name in [n for n in sys.modules if n.startswith("convo.projects.day19")]:
+            del sys.modules[name]
+        try:
+            yield
+        finally:
+            sys.meta_path.remove(blocker)
+            sys.modules.update(cached)
+
+    def test_every_day19_module_imports(self, blocked):
+        for module in ("agents", "scope", "oracle", "score", "results", "build", "ui", ""):
+            importlib.import_module(
+                f"convo.projects.day19_multi_agent{'.' + module if module else ''}"
+            )
+
+    def test_the_committed_graph_loads(self, blocked):
+        scope = importlib.import_module("convo.projects.day19_multi_agent.scope")
+        assert scope.load() is not None
+
+    def test_the_audit_passes_on_the_committed_graph(self, blocked):
+        """The proof has to be checkable where the framework is absent, or it
+        is not a gate — it is a thing that happens to run on my laptop."""
+        scope = importlib.import_module("convo.projects.day19_multi_agent.scope")
+        assert scope.audit(scope.load()) == []
+
+    def test_deriving_it_is_what_needs_the_framework(self, blocked):
+        scope = importlib.import_module("convo.projects.day19_multi_agent.scope")
+        with pytest.raises(ImportError):
+            scope.derive()
+
+    def test_the_site_page_builds(self, blocked):
+        """The exact call that took Pages down."""
+        data = importlib.import_module("convo.site.data")
+        summary, stats, tables, caveat = data._day19()
+        assert summary and tables and caveat
+
+    def test_the_tab_builds(self, blocked):
+        import gradio as gr
+
+        ui = importlib.import_module("convo.projects.day19_multi_agent.ui")
+        with gr.Blocks():
+            ui.build()
+
+
+@needs_adk
+class TestTheCommittedGraphCannotDrift:
+    def test_the_code_still_derives_what_was_committed(self):
+        """A committed proof nothing re-derives is just a file. Day 18's
+        reproducibility gate, applied to a topology instead of a score."""
+        from convo.projects.day19_multi_agent import scope
+
+        assert scope.reproduces() == []
+
+    def test_drift_is_reported(self, monkeypatch):
+        from convo.projects.day19_multi_agent import scope
+
+        real = scope.derive()
+        monkeypatch.setattr(
+            scope,
+            "derive",
+            lambda *a, **k: scope.Topology(
+                tools={**real.tools, HANDOFF: (BOOK_TOOL,)}, edges=real.edges
+            ),
+        )
+        assert any("tools differ" in c for c in scope.reproduces())
 
 
 class TestTheTabRenders:
