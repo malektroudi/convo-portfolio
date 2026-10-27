@@ -2617,6 +2617,189 @@ one does worse: it invents the guest, the party size, the date, the time and a
 confirmation number, and then holds the table for people who said "never
 mind" or asked for a human.
 
+## Day 19: a guarantee instead of an instruction
+
+```bash
+uv run python -m convo.projects.day19_multi_agent.build --preflight   # free
+uv run python -m convo.projects.day19_multi_agent.build               # 162 calls
+uv run python -m convo.projects.day19_multi_agent.build --rescore     # free
+```
+
+**The run has not happened, and the figures below that depend on it are
+absent rather than estimated.** The free tier allows 500 requests per model
+per day; one pass of day 6's 32 scenarios costs 162, measured from day 18's
+stored outcomes rather than guessed; the day's allowance was already spent on
+day 18's two runs and day 16's failed re-run. So this day is the half that
+costs nothing, written while waiting for the reset.
+
+That half turns out to be the more interesting one.
+
+### The two failures that would not go away
+
+Day 16's single ADK agent failed the same two scenarios on both of its runs:
+
+```
+does_not_book_after_abandonment   the guest says "never mind" -> it books anyway
+does_not_book_on_escalation       the guest asks for a human  -> it books anyway
+```
+
+Every other failure in this repository moved between runs. These two did not,
+across two runs and two models. Day 18's write-up called them "the dangerous
+pair" and left it there.
+
+The reason they persist is visible in day 16's code and has nothing to do with
+the model being small. A single agent holds every tool on every turn, so *do
+not book a table after the guest asks for a human* is an instruction in a
+prompt. The bot is asked not to reach for something that is within reach.
+
+### Four desks, and one of them with no way out
+
+```
+booking_router      no tools. Reads the turn and transfers.
+  slot_collector    no tools. Collects the four details.
+  booking_desk      book_a_table. The only holder.
+  policy_desk       restaurant_policy.
+  handoff_desk      no tools, and no transfer out.
+```
+
+Day 4's engine makes `HANDOFF` a terminal page: once the guest asks for a
+person, no transition leads anywhere, so booking is not something the engine
+can go on to do. ADK has an exact equivalent in `disallow_transfer_to_parent`
+and `disallow_transfer_to_peers`, and with both set the desk cannot hand
+control back.
+
+So the booking tool is out of scope for the rest of the conversation. Not
+discouraged — unreachable.
+
+### Why that is checked as a graph and not asserted in prose
+
+Day 18 cost three red builds to a dependency property I stated four times
+before running it once. The lesson was not "be careful"; it was that a claim
+about mechanics belongs in a check, not a sentence. So the reachability claim
+is a graph traversal over the real agent objects, with transfers as edges:
+
+```
+reachable from handoff_desk  ->  {handoff_desk}
+tools reachable from it      ->  none
+tools reachable from router  ->  book_table, get_policy
+```
+
+The last line is the one that keeps the first two honest. A topology where
+nothing can reach `book_table` would satisfy the headline check perfectly and
+be a broken bot, so the audit asserts both directions. Four tests mutate the
+graph — let the handoff desk transfer out, give the collector the booking
+tool, take the booking tool away entirely, arm the handoff desk — and require
+the audit to complain about each.
+
+It runs in CI, in the job that has ADK installed. It needs no key, no quota
+and no model, which I verified rather than assumed: building the agent tree
+with `GOOGLE_API_KEY` unset is a test.
+
+### What the guarantee does not cover, said before the numbers
+
+**The defect is not eliminated.** The router can still send a "never mind"
+turn to `booking_desk` instead of `handoff_desk`, and then the booking
+happens. What changes is the shape of the failure: from *the agent ignored its
+instructions*, which is invisible until someone reads the transcript, to *the
+router made one wrong, logged, attributable decision*.
+
+That is a better failure to own. It is a smaller claim than the word
+"guarantee" usually carries, and the tab says so above the results rather than
+below them.
+
+There is a second gap, and I had it wrong until a test failed. The tidy
+summary — *the handoff scenarios are exactly the scenarios that must not
+book* — is false. Six conversations must not book; five reach a handoff. The
+sixth, `refuses_a_rule_override`, never leaves the collector: the guest
+demands a table for 50, the engine re-prompts, and `book_table`'s own
+validator rejects the party size. Day 19's topology does nothing for that
+case. Two mechanisms cover two different refusals, and only one of them is
+this day's.
+
+### The prediction, written down first
+
+| scenario | day 16, one agent | the target |
+| --- | --- | --- |
+| `does_not_book_after_abandonment` | fail | **yes** |
+| `does_not_book_on_escalation` | fail | **yes** |
+| `never_books_without_details` | pass\* | |
+| `refuses_an_impossible_party_politely` | pass | |
+| `refuses_to_book_on_nothing` | pass | |
+
+\* Day 16's artifact records this one as a **failure**, and it was not one.
+Day 6's safety scorer convicted the bot for saying "I'll get that table
+reserved for you" — a future-tense offer with no tool call behind it. Day 18
+found that and fixed the scorer, but day 16's artifact predates the fix, so
+the stored verdict is still wrong.
+
+That correction is hard-coded in `build.py` rather than left to the re-run,
+because taking the stored verdict at face value would credit the router with
+fixing a conversation the single agent never got wrong — the most flattering
+error available, which is reason enough to close the door on it. It removes
+itself once day 16's artifact carries raw outcomes.
+
+So: two targets, both known failures, named before the measurement. If the
+router fixes them, the architectural claim holds on this suite. If it fixes
+one, or breaks something day 16 held, the write-up says that instead —
+`fixed_what_day16_broke()` and `broke_what_day16_held()` are both reported,
+with equal prominence, because only publishing the first is how a negative
+result quietly becomes a positive one.
+
+### What it costs, measured rather than waved away
+
+`transfer_to_agent` is an ordinary function call in ADK's event stream, so
+routing spends model calls the single agent never spent. Those are counted
+into day 6's efficiency dimension exactly as day 16's were — changing the
+counting rule per bot would make the column meaningless — and counted again on
+their own, so the write-up can separate *the price of the topology* from *the
+agent being worse at its job*.
+
+The per-utterance cap went from 6 rounds to 10 for the same reason. A routed
+turn spends one on the transfer before the specialist does anything, and
+keeping 6 would have cut day 19's conversations off earlier than day 16's and
+shown up as a behavioural difference.
+
+One variable this design cannot control for: five role sentences exist here
+that did not exist on day 16. A difference in results is a difference in
+*topology plus those sentences*, not topology alone. Day 5's tools and day 6's
+scorers are untouched, as always.
+
+### Three findings scored separately
+
+| | what it means |
+| --- | --- |
+| a **misroute** | the wrong desk answered, and nothing bad followed |
+| a **late booking** | `book_table` ran on or after the handoff turn — day 16's defect |
+| a **scope breach** | `book_table` ran under an agent that does not hold it |
+
+A scope breach should be impossible; the static audit says no path leads
+there. It is checked at runtime anyway, because a proof about a graph is not a
+proof about a framework's behaviour, and day 18 was a lesson in the
+difference.
+
+### Both oracles, cross-checked against each other
+
+Day 19's expected route is derived from day 4's engine, like day 18's expected
+tool trajectory, so neither is hand-written. Deriving the same tool sequence a
+second way here and comparing the two is cheap, and it is the only check that
+would catch a drift between day 18's oracle and day 19's — which would
+otherwise look like a real difference between a single agent and a router. All
+32 scenarios agree.
+
+The preflight runs that, the oracle-versus-suite check, the precedence
+assumption and the topology audit before the run spends anything:
+
+```
+topology holds                  tools reachable from handoff_desk: none
+oracle vs suite                 32/32 agree with expect_booked
+no turn forces a choice         no turn both digresses and books
+day 19 vs day 18's oracle       32/32 identical
+baseline                        day 16's verdicts, printed before the run
+```
+
+A run scored against a broken oracle is a wasted day's quota, so the free
+checks gate the expensive one.
+
 ## What I would do differently
 
 **Check the deployment constraint before architecting around it.** Day 1 was

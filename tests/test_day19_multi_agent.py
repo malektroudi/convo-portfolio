@@ -1,0 +1,508 @@
+"""Day 19: that the guarantee is real, the oracle is derived, and the scoring
+separates a misroute from a booking written after a handoff.
+
+Nothing here calls a model and nothing here needs a key. The tests that build
+the agent tree need `google-adk` installed and skip without it — the same
+property day 18's suite relies on, and the reason the topology audit can run
+in a CI job that cannot run the bot.
+
+The falsifiability tests matter more than the passing ones. An audit that only
+ever sees a correct topology is not evidence of anything, so several tests
+mutate the graph and require the audit to complain.
+"""
+
+from __future__ import annotations
+
+import json
+
+import pytest
+
+from convo.core.evals import Assertion, CaseResult, EvalRun
+from convo.projects.day06_eval_harness.suite import SUITE
+from convo.projects.day18_eval_gate.trajectory import expected_for
+from convo.projects.day19_multi_agent import oracle as orc
+from convo.projects.day19_multi_agent import score as sc
+from convo.projects.day19_multi_agent.agents import (
+    BOOK_TOOL,
+    BOOKER,
+    COLLECTOR,
+    HANDOFF,
+    POLICY,
+    POLICY_TOOL,
+    ROUTER,
+    WRAPPER_FOR,
+)
+
+
+def _has_adk() -> bool:
+    try:
+        import google.adk  # noqa: F401
+    except Exception:
+        return False
+    return True
+
+
+needs_adk = pytest.mark.skipif(not _has_adk(), reason="google-adk is not installed")
+
+
+# ----------------------------------------------------------------------------
+# The guarantee, as a graph.
+# ----------------------------------------------------------------------------
+
+
+@needs_adk
+class TestTheTopologyIsAProof:
+    def test_the_audit_is_silent_on_the_real_topology(self):
+        from convo.projects.day19_multi_agent import scope
+
+        assert scope.audit() == []
+
+    def test_it_needs_no_api_key(self, monkeypatch):
+        """CI has no key, and the audit is the half of day 19 that runs there.
+
+        Asserted rather than assumed: day 18 cost three red builds to a
+        dependency property I stated four times before running it once.
+        """
+        monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+        from convo.projects.day19_multi_agent import scope
+
+        assert scope.topology().agents
+
+    def test_the_booking_tool_has_exactly_one_holder(self):
+        from convo.projects.day19_multi_agent import scope
+
+        assert scope.topology().holders_of(BOOK_TOOL) == (BOOKER,)
+
+    def test_the_handoff_desk_holds_nothing(self):
+        from convo.projects.day19_multi_agent import scope
+
+        assert scope.topology().tools[HANDOFF] == ()
+
+    def test_control_cannot_leave_the_handoff_desk(self):
+        from convo.projects.day19_multi_agent import scope
+
+        assert scope.topology().reachable_from(HANDOFF) == frozenset({HANDOFF})
+
+    def test_no_tool_is_reachable_once_handed_off(self):
+        """The claim the whole day rests on."""
+        from convo.projects.day19_multi_agent import scope
+
+        assert scope.topology().tools_reachable_from(HANDOFF) == frozenset()
+
+    def test_both_tools_are_still_reachable_from_the_router(self):
+        """Otherwise the guarantee holds because the feature is missing."""
+        from convo.projects.day19_multi_agent import scope
+
+        reachable = scope.topology().tools_reachable_from(ROUTER)
+        assert BOOK_TOOL in reachable
+        assert POLICY_TOOL in reachable
+
+    def test_the_wrapper_name_is_mapped_back_to_the_executed_tool(self):
+        """The model is offered `book_a_table`; `book_table` is what runs."""
+        from convo.projects.day19_multi_agent import scope
+
+        graph = scope.topology()
+        assert WRAPPER_FOR[BOOK_TOOL] == "book_a_table"
+        assert BOOK_TOOL in graph.tools[BOOKER]
+        assert "book_a_table" not in graph.tools[BOOKER]
+
+
+@needs_adk
+class TestTheAuditCanFail:
+    """A check that cannot fail is decoration. These make it fail."""
+
+    def test_it_catches_a_handoff_desk_that_can_transfer_out(self):
+        from convo.projects.day19_multi_agent import scope
+
+        graph = scope.topology()
+        leaky = scope.Topology(
+            tools=graph.tools,
+            edges={**graph.edges, HANDOFF: (ROUTER,)},
+        )
+        complaints = scope.audit(leaky)
+        assert any("control can leave" in c for c in complaints)
+        assert any(BOOK_TOOL in c for c in complaints)
+
+    def test_it_catches_a_second_holder_of_the_booking_tool(self):
+        from convo.projects.day19_multi_agent import scope
+
+        graph = scope.topology()
+        shared = scope.Topology(
+            tools={**graph.tools, COLLECTOR: (BOOK_TOOL,)},
+            edges=graph.edges,
+        )
+        assert any(BOOK_TOOL in c and BOOKER in c for c in scope.audit(shared))
+
+    def test_it_catches_a_bot_that_can_never_book(self):
+        from convo.projects.day19_multi_agent import scope
+
+        graph = scope.topology()
+        toothless = scope.Topology(
+            tools={**graph.tools, BOOKER: ()},
+            edges=graph.edges,
+        )
+        assert any("not reachable from" in c for c in scope.audit(toothless))
+
+    def test_it_catches_tools_left_on_the_handoff_desk(self):
+        from convo.projects.day19_multi_agent import scope
+
+        graph = scope.topology()
+        armed = scope.Topology(
+            tools={**graph.tools, HANDOFF: (BOOK_TOOL,)},
+            edges=graph.edges,
+        )
+        assert any(HANDOFF in c for c in scope.audit(armed))
+
+
+# ----------------------------------------------------------------------------
+# The oracle.
+# ----------------------------------------------------------------------------
+
+
+class TestTheRouteIsDerived:
+    def test_it_agrees_with_every_scenario_label(self):
+        for scenario in SUITE:
+            route = orc.route_for(scenario)
+            assert orc.disagrees_with_suite(scenario, route) == "", scenario.id
+
+    def test_no_turn_forces_a_choice_between_two_desks(self):
+        """The precedence in `oracle` is only honest while this holds."""
+        for scenario in SUITE:
+            assert orc.arbitration_needed(scenario) == "", scenario.id
+
+    def test_it_matches_day_18s_independently_derived_tools(self):
+        """Two oracles off the same engine. A drift would look like a finding."""
+        for scenario in SUITE:
+            route = orc.route_for(scenario)
+            assert orc.expected_tools(route) == expected_for(scenario).per_turn, scenario.id
+
+    def test_the_handoff_desk_is_sticky(self):
+        """Day 4 makes HANDOFF terminal, so no later turn may leave it."""
+        for scenario in SUITE:
+            desks = orc.route_for(scenario).per_turn
+            if HANDOFF in desks:
+                first = desks.index(HANDOFF)
+                assert set(desks[first:]) == {HANDOFF}, scenario.id
+
+    def test_handoff_turn_is_the_first_one(self):
+        for scenario in SUITE:
+            route = orc.route_for(scenario)
+            if HANDOFF in route.per_turn:
+                assert route.handoff_turn == route.per_turn.index(HANDOFF)
+            else:
+                assert route.handoff_turn is None
+
+    def test_the_guarantee_covers_all_but_one_must_not_book_scenario(self):
+        """Not *all* of them, which is what I assumed before running it.
+
+        Six scenarios must not book. Five reach a handoff and are what the
+        topology protects. `refuses_a_rule_override` is refused inside the
+        booking tool instead — the engine stays in `collect` and the slot
+        validator rejects a party of 50 — so day 19's guarantee does nothing
+        for it, and the write-up has to say which mechanism covers what.
+        """
+        handoff = {s.id for s in SUITE if orc.route_for(s).handoff_turn is not None}
+        must_not = {s.id for s in SUITE if not s.expect_booked}
+        assert handoff < must_not
+        assert must_not - handoff == {"refuses_a_rule_override"}
+
+    def test_the_uncovered_scenario_never_leaves_the_collector(self):
+        route = orc.route_for(next(s for s in SUITE if s.id == "refuses_a_rule_override"))
+        assert set(route.per_turn) == {COLLECTOR}
+        assert not route.books
+
+    def test_a_booking_scenario_reaches_the_booking_desk_exactly_once(self):
+        for scenario in SUITE:
+            route = orc.route_for(scenario)
+            if route.books:
+                assert route.per_turn.count(BOOKER) == 1, scenario.id
+                assert route.per_turn[route.booked_on] == BOOKER
+
+    def test_a_digression_routes_to_the_policy_desk(self):
+        found = False
+        for scenario in SUITE:
+            route = orc.route_for(scenario)
+            for index, digressed in enumerate(route.digressed):
+                if digressed and route.per_turn[index] != HANDOFF:
+                    assert route.per_turn[index] == POLICY, scenario.id
+                    found = True
+        assert found, "no scenario digresses, so this test proves nothing"
+
+
+# ----------------------------------------------------------------------------
+# Scoring.
+# ----------------------------------------------------------------------------
+
+
+def _turn(authors, tools=(), by_agent=None):
+    return sc.Turn(
+        authors=tuple(authors),
+        tools=tuple(tools),
+        by_agent=tuple(by_agent or [(BOOKER, t) for t in tools]),
+    )
+
+
+def _route(per_turn, booked_on=None):
+    return orc.Route(
+        scenario_id="synthetic",
+        per_turn=tuple(per_turn),
+        digressed=tuple(False for _ in per_turn),
+        booked_on=booked_on,
+    )
+
+
+class TestScoringTheRouter:
+    def test_a_clean_route_scores_everything(self):
+        route = _route([COLLECTOR, BOOKER], booked_on=1)
+        turns = (_turn([ROUTER, COLLECTOR]), _turn([ROUTER, BOOKER], [BOOK_TOOL]))
+        verdict = sc.score_route(route, turns)
+        assert verdict.misroutes == ()
+        assert verdict.routing_accuracy == 1.0
+        assert verdict.clean
+
+    def test_the_expected_desk_only_has_to_be_among_the_authors(self):
+        """ADK's root agent authors the transfer, so it is on nearly every turn."""
+        route = _route([COLLECTOR])
+        verdict = sc.score_route(route, (_turn([ROUTER, COLLECTOR]),))
+        assert verdict.misroutes == ()
+
+    def test_a_misroute_is_caught(self):
+        route = _route([HANDOFF])
+        verdict = sc.score_route(route, (_turn([ROUTER, COLLECTOR]),))
+        assert verdict.misroutes == (0,)
+        assert verdict.routing_accuracy == 0.0
+
+    def test_a_booking_after_the_handoff_is_late(self):
+        """Day 16's reproducing defect, which the topology exists to prevent."""
+        route = _route([COLLECTOR, HANDOFF])
+        turns = (_turn([ROUTER, COLLECTOR]), _turn([ROUTER, BOOKER], [BOOK_TOOL]))
+        verdict = sc.score_route(route, turns)
+        assert verdict.late_booking
+        assert verdict.late_booking_turn == 1
+
+    def test_a_booking_before_the_handoff_is_not_late(self):
+        route = _route([BOOKER, HANDOFF], booked_on=0)
+        turns = (_turn([ROUTER, BOOKER], [BOOK_TOOL]), _turn([ROUTER, HANDOFF]))
+        assert not sc.score_route(route, turns).late_booking
+
+    def test_a_scenario_with_no_handoff_can_never_book_late(self):
+        route = _route([COLLECTOR, BOOKER], booked_on=1)
+        turns = (_turn([ROUTER, COLLECTOR]), _turn([ROUTER, BOOKER], [BOOK_TOOL]))
+        assert sc.score_route(route, turns).late_booking_turn is None
+
+    def test_a_scope_breach_is_attributed(self):
+        """Should be impossible. Checked at runtime because a graph proof is not
+        a proof about a framework's behaviour."""
+        route = _route([COLLECTOR])
+        turns = (_turn([ROUTER, COLLECTOR], [BOOK_TOOL], [(COLLECTOR, BOOK_TOOL)]),)
+        verdict = sc.score_route(route, turns)
+        assert verdict.scope_breaches == ((COLLECTOR, BOOK_TOOL),)
+        assert not verdict.clean
+
+    def test_the_booking_desk_running_the_tool_is_no_breach(self):
+        route = _route([BOOKER], booked_on=0)
+        turns = (_turn([ROUTER, BOOKER], [BOOK_TOOL], [(BOOKER, BOOK_TOOL)]),)
+        assert sc.score_route(route, turns).scope_breaches == ()
+
+    def test_nothing_scored_is_none_not_zero(self):
+        """Day 5's lesson: an unmeasured dimension rendered as 0.0 is a claim
+        nobody made."""
+        verdict = sc.score_route(_route([]), ())
+        assert verdict.routing_accuracy is None
+
+    def test_a_short_run_scores_only_the_turns_it_has(self):
+        route = _route([COLLECTOR, BOOKER], booked_on=1)
+        verdict = sc.score_route(route, (_turn([ROUTER, COLLECTOR]),))
+        assert verdict.scored_turns == 1
+
+
+class TestTheSummary:
+    def _summary(self):
+        clean = sc.score_route(
+            _route([COLLECTOR, BOOKER], booked_on=1),
+            (_turn([ROUTER, COLLECTOR]), _turn([ROUTER, BOOKER], [BOOK_TOOL])),
+        )
+        leaked = sc.score_route(
+            _route([COLLECTOR, HANDOFF]),
+            (_turn([ROUTER, COLLECTOR]), _turn([ROUTER, BOOKER], [BOOK_TOOL])),
+        )
+        held = sc.score_route(
+            _route([COLLECTOR, HANDOFF]),
+            (_turn([ROUTER, COLLECTOR]), _turn([ROUTER, HANDOFF])),
+        )
+        return sc.Summary(verdicts=(clean, leaked, held))
+
+    def test_accuracy_is_over_turns_not_scenarios(self):
+        """Six turns, one misroute: 5/6, not an average of per-scenario rates."""
+        summary = self._summary()
+        assert summary.turns == 6
+        assert summary.routing_accuracy == round(5 / 6, 4)
+
+    def test_late_bookings_are_listed(self):
+        assert len(self._summary().late_bookings) == 1
+
+    def test_handoff_scenarios_are_the_ones_with_a_handoff_expected(self):
+        assert len(self._summary().handoff_scenarios) == 2
+
+    def test_handoff_held_counts_only_the_clean_ones(self):
+        assert self._summary().handoff_held == 1
+
+    def test_it_serialises(self):
+        payload = json.loads(json.dumps(self._summary().as_dict()))
+        assert payload["handoff_held"] == 1
+        assert len(payload["verdicts"]) == 3
+
+
+# ----------------------------------------------------------------------------
+# The artifact, which does not exist yet.
+# ----------------------------------------------------------------------------
+
+
+class TestResultsWithNoRun:
+    def test_load_returns_none_rather_than_raising(self):
+        from convo.projects.day19_multi_agent.results import ARTIFACT_FILE, load
+
+        load.cache_clear()
+        if not ARTIFACT_FILE.exists():
+            assert load() is None
+
+    def test_the_experiment_describes_itself_without_an_artifact(self):
+        """The topology and the five scenarios are free and deterministic, which
+        is what lets the tab be honest before the run is paid for."""
+        from convo.projects.day19_multi_agent.results import handoff_scenarios
+
+        assert len(handoff_scenarios()) == 5
+
+    def test_the_targets_were_named_in_advance(self):
+        from convo.projects.day19_multi_agent.results import PENDING_TARGETS, handoff_scenarios
+
+        assert set(PENDING_TARGETS) <= set(handoff_scenarios())
+
+
+def _results(verdicts: dict[str, bool], day16: dict[str, str]):
+    from convo.projects.day19_multi_agent.results import Results
+
+    cases = [
+        CaseResult.from_assertions(
+            scenario,
+            [Assertion(name="booked", passed=passed, dimension="safety")],
+        )
+        for scenario, passed in verdicts.items()
+    ]
+    run = EvalRun(suite="t", run_id="t", started_at="t", cases=cases)
+    return Results(
+        model="none",
+        scenarios=len(cases),
+        of_suite=32,
+        partial=False,
+        quota_note="",
+        unavailable=(),
+        topology={},
+        run=run,
+        engine=run,
+        rows=(),
+        routing_accuracy=None,
+        handoff_held=0,
+        transfers={},
+        day16_stored=day16,
+        day16_corrected=day16,
+        day16_stale=False,
+    )
+
+
+class TestComparingAgainstDay16:
+    def test_it_reports_what_the_router_fixed(self):
+        results = _results({"a": True}, {"a": "fail"})
+        assert results.fixed_what_day16_broke() == ("a",)
+        assert results.broke_what_day16_held() == ()
+
+    def test_it_reports_what_the_router_broke_with_equal_prominence(self):
+        results = _results({"a": False}, {"a": "pass"})
+        assert results.broke_what_day16_held() == ("a",)
+        assert results.fixed_what_day16_broke() == ()
+
+    def test_a_scenario_neither_ran_is_claimed_either_way(self):
+        results = _results({}, {"a": "fail"})
+        assert results.fixed_what_day16_broke() == ()
+        assert results.broke_what_day16_held() == ()
+
+
+# ----------------------------------------------------------------------------
+# The preflight, and the baseline it refuses to flatter.
+# ----------------------------------------------------------------------------
+
+
+@needs_adk
+class TestThePreflight:
+    def test_it_passes_on_the_committed_state(self):
+        from convo.projects.day19_multi_agent.build import preflight
+
+        assert preflight(verbose=False) == []
+
+    def test_it_runs_with_no_key(self, monkeypatch):
+        monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+        from convo.projects.day19_multi_agent.build import preflight
+
+        assert preflight(verbose=False) == []
+
+
+class TestTheBaselineIsNotFlattered:
+    def test_the_known_false_positive_is_corrected(self):
+        """Day 16's artifact records `never_books_without_details` as a failure
+        and it was not one. Taking the stored verdict would credit the router
+        with fixing a conversation the single agent never got wrong."""
+        from convo.projects.day19_multi_agent.build import (
+            DAY16_CORRECTIONS,
+            day16_baseline,
+            day16_corrected,
+            day16_stale,
+        )
+
+        if not day16_stale():
+            pytest.skip("day 16 has been re-run; the correction no longer applies")
+        scenario = "never_books_without_details"
+        assert day16_baseline().get(scenario) == "fail"
+        assert day16_corrected().get(scenario) == "pass"
+        assert DAY16_CORRECTIONS[scenario] == "pass"
+
+    def test_the_two_targets_really_did_fail(self):
+        """If day 16 passed them, day 19 has nothing to test and the write-up
+        must say so instead of reporting an improvement."""
+        from convo.projects.day19_multi_agent.build import day16_corrected
+        from convo.projects.day19_multi_agent.results import PENDING_TARGETS
+
+        corrected = day16_corrected()
+        if not corrected:
+            pytest.skip("day 16 has no artifact")
+        for target in PENDING_TARGETS:
+            assert corrected[target] == "fail", target
+
+    def test_the_correction_disappears_once_day_16_is_rerun(self, monkeypatch):
+        from convo.projects.day19_multi_agent import build
+
+        monkeypatch.setattr(build, "day16_stale", lambda: False)
+        monkeypatch.setattr(
+            build, "day16_baseline", lambda: {"never_books_without_details": "fail"}
+        )
+        assert build.day16_corrected() == {"never_books_without_details": "fail"}
+
+
+class TestTheRetryTaxonomyIsShared:
+    def test_day_19_does_not_redefine_day_16s_error_classes(self):
+        """Two copies would drift, and each rule in it cost a day's quota."""
+        from convo.projects.day16_adk_agent import build as d16
+        from convo.projects.day19_multi_agent import build as d19
+
+        assert d19.QuotaExhausted is d16.QuotaExhausted
+        assert d19.ScenarioUnavailable is d16.ScenarioUnavailable
+        assert d19.BACKOFF_S is d16.BACKOFF_S
+
+
+class TestTheTabRenders:
+    def test_it_builds_with_no_artifact(self):
+        import gradio as gr
+
+        from convo.projects.day19_multi_agent.ui import build
+
+        with gr.Blocks():
+            build()

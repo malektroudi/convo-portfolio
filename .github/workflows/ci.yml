@@ -142,6 +142,21 @@ jobs:
       - name: Day 18's own tests, with the framework present
         run: uv run --no-sync pytest tests/test_day18_eval_gate.py -q
 
+      # Day 19's guarantee is a claim about a graph: once the router transfers
+      # to the handoff desk, no transfer leads back, so the booking tool is out
+      # of scope for the rest of the conversation. That is checkable with no
+      # model, no key and no quota, which is the only reason it can be a gate
+      # at all — and it runs here rather than in the main job because building
+      # the agent tree needs the framework.
+      #
+      # It also fails if nothing can reach the booking tool, because a
+      # guarantee that holds only because the feature is missing is not one.
+      - name: Day 19's topology must still make booking unreachable after a handoff
+        run: uv run --no-sync python -m convo.projects.day19_multi_agent.build --preflight
+
+      - name: Day 19's own tests, with the framework present
+        run: uv run --no-sync pytest tests/test_day19_multi_agent.py -q
+
   # The container is what Cloud Run actually runs, so build it on every PR.
   # Day 6 extends this job with the eval suite, and day 18 turns the eval
   # pass rate into a deploy gate.

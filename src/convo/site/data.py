@@ -705,6 +705,133 @@ def _day18() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
     )
 
 
+def _day19() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
+    """Day 19 publishes a proof before it publishes a measurement.
+
+    The topology is committed code, so the reachability table below is
+    re-derivable by anyone who clones this repository — no run, no key, no
+    quota. The pass rate is not, because the run has not happened, so it is
+    absent rather than estimated.
+    """
+    from convo.projects.day19_multi_agent import scope
+    from convo.projects.day19_multi_agent.build import day16_corrected
+    from convo.projects.day19_multi_agent.results import PENDING_TARGETS, handoff_scenarios, load
+
+    graph = scope.topology()
+    found = load()
+
+    reach = tuple(
+        (
+            desk,
+            ", ".join(graph.tools.get(desk, ())) or "none",
+            ", ".join(sorted(graph.tools_reachable_from(desk))) or "none",
+        )
+        for desk in (
+            "booking_router",
+            "slot_collector",
+            "booking_desk",
+            "policy_desk",
+            "handoff_desk",
+        )
+    )
+    corrected = day16_corrected()
+    targets = tuple(
+        (
+            scenario,
+            corrected.get(scenario, "not run"),
+            ("not run" if found is None else ("pass" if found.verdicts.get(scenario) else "fail")),
+            "yes" if scenario in PENDING_TARGETS else "",
+        )
+        for scenario in handoff_scenarios()
+    )
+
+    tables = (
+        Table(
+            "What each desk can still reach",
+            ("desk", "holds", "tools reachable from here"),
+            reach,
+            "Transfers are the edges: a router reaches its desks, a desk reaches "
+            "the router and its peers unless that is disallowed. The handoff desk "
+            "has both disallowed, so nothing is reachable from it and the booking "
+            "tool is out of scope for the rest of the conversation. The audit also "
+            "asserts the opposite direction — a topology where nothing could book "
+            "would satisfy the first check and be a broken bot.",
+            highlight=4,
+        ),
+        Table(
+            "The five conversations this day re-tests",
+            ("scenario", "day 16, one agent", "day 19, router", "pre-named target"),
+            targets,
+            "Day 16's column applies the correction day 18 forced: its artifact "
+            "records never_books_without_details as a failure, and that was a false "
+            "positive in day 6's own safety scorer. The suite has six must-not-book "
+            "conversations; the sixth, refuses_a_rule_override, never reaches a "
+            "handoff — book_table's own validator rejects a party of 50 — so this "
+            "day's guarantee does nothing for it.",
+        ),
+    )
+
+    if found is None:
+        return (
+            "Day 16's single ADK agent held every tool on every turn, and it booked "
+            "a table after the guest said never mind and after the guest asked for a "
+            "human, on both runs. Day 19 moves the booking tool onto one desk and "
+            "gives the handoff desk no way back to it, so the defect is unreachable "
+            "rather than discouraged.",
+            (
+                Stat("none", "tools reachable after a handoff", "good"),
+                Stat("2", "failures it was built to fix", "plain"),
+                Stat("not run", "pass rate", "bad"),
+            ),
+            tables,
+            "The run has not happened: the free tier allows 500 requests per model "
+            "per day, one pass of day 6's suite costs 162, and the day's allowance "
+            "was spent. So this day publishes the half that costs nothing — the "
+            "reachability proof, two oracles cross-checked against each other, and "
+            "the two target scenarios named in advance. There is no artifact, so "
+            "there is no figure, which is the repository's rule working rather than "
+            "an omission.",
+        )
+
+    fixed = found.fixed_what_day16_broke()
+    broke = found.broke_what_day16_held()
+    return (
+        f"The same bot as day 16, split into a router and four desks, on "
+        f"{found.scenarios} of {found.of_suite} scenarios. The booking tool lives on "
+        "one desk and the handoff desk has no path back to it.",
+        (
+            Stat(_pct(found.run.pass_rate), "day 6's harness", "plain"),
+            Stat(
+                f"{found.handoff_held}/{len(found.handoff_rows)}",
+                "handoffs held",
+                "good" if found.handoff_held == len(found.handoff_rows) else "bad",
+            ),
+            Stat(
+                _pct(found.routing_accuracy) if found.routing_accuracy is not None else "—",
+                "turns routed correctly",
+                "plain",
+            ),
+        ),
+        tables,
+        (
+            (
+                "Fixed what day 16 broke: " + ", ".join(fixed) + ". "
+                if fixed
+                else "Fixed nothing day 16 broke. "
+            )
+            + (
+                "Broke what day 16 held: " + ", ".join(broke) + ". "
+                if broke
+                else "Broke nothing day 16 held. "
+            )
+            + f"Routing cost {found.total_transfers} transfers across the suite, each "
+            "one a model call the single agent never spent — counted into day 6's "
+            "efficiency dimension exactly as day 16's calls were, and counted again "
+            "on its own so the price of the guarantee is visible."
+        ),
+    )
+
+
 BUILDERS = {
     2: _day02,
     3: _day03,
@@ -718,6 +845,7 @@ BUILDERS = {
     15: _day15,
     16: _day16,
     18: _day18,
+    19: _day19,
 }
 
 NO_ARTIFACT = {

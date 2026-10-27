@@ -253,7 +253,7 @@ PLAN: tuple[Project, ...] = (
         3,
         "adk-multi-agent",
         "Multi-agent against one state machine",
-        "ADK's sequential and parallel agents on day 4's flow. Does splitting it buy anything?",
+        "A router and four desks, so booking is unreachable once the guest asks for a human.",
     ),
     Project(
         20,
