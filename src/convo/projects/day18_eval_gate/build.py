@@ -183,6 +183,10 @@ def _rescore() -> int:
         "adk": summary.spec_agreement("adk"),
     }
     payload["gate_choice"] = summary.gate_choice
+    # Day 16's figure is quoted here for the run-to-run comparison, so a
+    # re-run of day 16 would silently leave this one stale. Refreshing it is
+    # free: it is a number read off a committed file.
+    payload["day16_pass_rate"] = _day16_pass_rate()
     payload["rescored"] = True
 
     out.write_text(json.dumps(payload, indent=1), encoding="utf-8")
