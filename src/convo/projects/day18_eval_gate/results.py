@@ -73,6 +73,15 @@ class Comparison:
     spec_agreement: dict[str, float]
     gate_choice: str
     day16_pass_rate: float | None
+    unavailable: tuple[str, ...] = ()
+    """Scenarios the server would not serve, excluded rather than scored.
+
+    Reported because a suite of 30 scored scenarios out of 32 is a different
+    claim from a suite of 32, and because the alternative — scoring them — is
+    what day 18's refresh run showed to be incoherent: an error failed one
+    scenario and passed another, depending only on what each expected.
+    """
+
     rescorable: bool = False
     """Whether the artifact kept the raw outcomes, not just the scored verdicts.
 
@@ -202,5 +211,6 @@ def load() -> Comparison | None:
         spec_agreement=dict(payload.get("spec_agreement", {})),
         gate_choice=payload.get("gate_choice", "harness"),
         day16_pass_rate=payload.get("day16_pass_rate"),
+        unavailable=tuple(payload.get("unavailable") or ()),
         rescorable=bool(payload.get("outcomes")),
     )

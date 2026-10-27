@@ -328,6 +328,18 @@ def build() -> None:
 
     gr.HTML(_tiles(c))
 
+    if c.unavailable:
+        names = ", ".join(f"`{n}`" for n in c.unavailable)
+        gr.Markdown(
+            f"> **{len(c.unavailable)} scenario(s) excluded, not scored:** "
+            f"{names}. The server returned `503 high demand` for these and "
+            f"kept doing so through four minutes of backoff. They are left out "
+            f"rather than counted, because scoring an error is not "
+            f"conservative — on an earlier run one 503 failed a must-book "
+            f"scenario and another 503 *passed* a must-not-book one, purely "
+            f"because both produce “no booking”."
+        )
+
     if not c.rescorable:
         gr.Markdown(
             "> **Day 6's column predates the fix this day caused.** The bug is "

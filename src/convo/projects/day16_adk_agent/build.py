@@ -44,6 +44,36 @@ class QuotaExhausted(RuntimeError):
     """
 
 
+class ScenarioUnavailable(RuntimeError):
+    """The server would not serve this conversation, which is not the bot's fault.
+
+    Day 18's refresh run found why this needs a name of its own. Two scenarios
+    came back `503 UNAVAILABLE - this model is currently experiencing high
+    demand`, and because 503 is not a rate limit they fell through to the
+    "scenario failed" path and were scored. The effect was not a small
+    understatement, it was incoherent:
+
+        pii_email_volunteered      must book  -> errored -> booked=False -> FAIL
+        does_not_book_on_escalation must not  -> errored -> booked=False -> PASS
+
+    A transient server error made one scenario fail and another *succeed*, and
+    the one it handed a pass to is a conversation we know from day 16 the agent
+    gets wrong. Scoring an error is never conservative: which way it biases
+    depends on what the scenario happened to expect.
+
+    So a scenario that cannot be served is excluded and counted, exactly like a
+    quota failure. The difference is scope: a quota wall stops the run, while
+    one unavailable scenario only removes itself.
+    """
+
+
+TRANSIENT_MARKERS = ("503", "unavailable", "504", "deadline", "high demand", "overloaded")
+"""Server-side conditions that say nothing about the agent and may pass.
+
+Retried on the same backoff as a rate limit, because the message literally
+says spikes are usually temporary.
+"""
+
 PER_DAY_MARKERS = ("perday", "per day", "requests per day")
 """Substrings that identify a 429 as the *daily* quota rather than per-minute.
 
@@ -76,6 +106,16 @@ def _is_rate_limit(exc: Exception) -> bool:
     return "429" in text or "resource_exhausted" in text or "rate" in text and "limit" in text
 
 
+def _is_transient(exc: Exception) -> bool:
+    """Whether this is the server being busy rather than the agent being wrong."""
+    text = str(exc).lower()
+    return any(marker in text for marker in TRANSIENT_MARKERS)
+
+
+def _is_retryable(exc: Exception) -> bool:
+    return _is_rate_limit(exc) or _is_transient(exc)
+
+
 def _is_daily_quota(exc: Exception) -> bool:
     """Whether this 429 is the daily allowance, which waiting will not fix."""
     text = str(exc).lower().replace("_", "")
@@ -95,25 +135,19 @@ def adk_runner(model: str) -> callable:
                 last = exc
                 if _is_rate_limit(exc) and _is_daily_quota(exc):
                     raise QuotaExhausted(redact(exc)[:300]) from exc
-                if _is_rate_limit(exc) and attempt == RETRIES - 1:
-                    raise QuotaExhausted(redact(exc)[:300]) from exc
-                if not _is_rate_limit(exc):
-                    log.info(
-                        "scenario failed",
-                        extra={"scenario": scenario.id, "error": redact(exc)[:160]},
-                    )
-                    return Outcome(
-                        scenario_id=scenario.id,
-                        booked=False,
-                        captured={},
-                        transcript=[],
-                        escalated=False,
-                        user_turns=len(scenario.utterances),
-                        failed_steps=1,
-                    )
+                if not _is_retryable(exc):
+                    # Not the server being busy: a bad request, a blocked
+                    # prompt, or a bug in this repository. Excluding it would
+                    # hide the bug and scoring it would invent a result, so it
+                    # stops the run where someone has to look at it.
+                    raise
+                if attempt == RETRIES - 1:
+                    if _is_rate_limit(exc):
+                        raise QuotaExhausted(redact(exc)[:300]) from exc
+                    raise ScenarioUnavailable(redact(exc)[:300]) from exc
                 wait = BACKOFF_S[min(attempt, len(BACKOFF_S) - 1)]
                 log.info(
-                    "rate limited, backing off",
+                    "retrying after a transient error",
                     extra={"seconds": wait, "attempt": attempt + 1, "of": RETRIES},
                 )
                 time.sleep(wait)
@@ -231,9 +265,17 @@ def main(argv: list[str] | None = None) -> int:
     cache: dict[str, Outcome] = {}
     attempted: list[Scenario] = []
     quota_note = ""
+    unavailable: list[str] = []
     for scenario in scenarios:
         try:
             cache[scenario.id] = live(scenario)
+        except ScenarioUnavailable as exc:
+            unavailable.append(scenario.id)
+            log.info(
+                "scenario excluded, not scored",
+                extra={"scenario": scenario.id, "error": str(exc)[:160]},
+            )
+            continue
         except QuotaExhausted as exc:
             quota_note = str(exc)
             log.info(
@@ -273,6 +315,7 @@ def main(argv: list[str] | None = None) -> int:
         "of_suite": len(SUITE),
         "partial": len(attempted) < len(SUITE),
         "quota_note": quota_note,
+        "unavailable": unavailable,
         "adk": run.as_dict(),
         # The raw outcomes, so a scorer change can be re-applied without
         # paying for another run. Added on day 18, which found a bug in day

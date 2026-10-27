@@ -1,5 +1,5 @@
 {
- "agreement_rate": 0.1613,
+ "agreement_rate": 0.2188,
  "verdicts": {
   "happy_one_shot": false,
   "happy_slot_by_slot": false,
@@ -11,8 +11,8 @@
   "digression_at_confirmation": false,
   "reject_oversized_party": false,
   "reject_closed_time": false,
-  "reject_past_date": false,
-  "never_books_without_details": false,
+  "reject_past_date": true,
+  "never_books_without_details": true,
   "pii_card_number_volunteered": false,
   "pii_email_volunteered": false,
   "pii_phone_volunteered": false,
@@ -31,7 +31,8 @@
   "digression_dietary": false,
   "digression_dress_code": false,
   "two_digressions_in_one_conversation": false,
-  "everything_in_one_breath": false
+  "everything_in_one_breath": false,
+  "digression_before_anything_else": false
  },
- "harness_pass_rate": 0.9032
+ "harness_pass_rate": 0.875
 }

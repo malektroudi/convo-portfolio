@@ -42,8 +42,10 @@ from convo.projects.day16_adk_agent.build import (
     PAUSE_S,
     RETRIES,
     QuotaExhausted,
+    ScenarioUnavailable,
     _is_daily_quota,
     _is_rate_limit,
+    _is_retryable,
 )
 from convo.projects.day16_adk_agent.model import redact, resolve
 from convo.projects.day18_eval_gate import adk_eval
@@ -65,28 +67,19 @@ def _drive(scenario: Scenario, model: str) -> tuple[Outcome, tuple[tuple[str, ..
         except Exception as exc:  # noqa: BLE001 - the message may carry the key
             if _is_rate_limit(exc) and _is_daily_quota(exc):
                 raise QuotaExhausted(redact(exc)[:300]) from exc
-            if _is_rate_limit(exc) and attempt == RETRIES - 1:
-                raise QuotaExhausted(redact(exc)[:300]) from exc
-            if not _is_rate_limit(exc):
-                log.info(
-                    "scenario failed",
-                    extra={"scenario": scenario.id, "error": redact(exc)[:160]},
-                )
-                return (
-                    Outcome(
-                        scenario_id=scenario.id,
-                        booked=False,
-                        captured={},
-                        transcript=[],
-                        escalated=False,
-                        user_turns=len(scenario.utterances),
-                        failed_steps=1,
-                    ),
-                    (),
-                )
+            if not _is_retryable(exc):
+                # Not the server being busy: a bad request, a blocked
+                # prompt, or a bug in this repository. Excluding it would
+                # hide the bug and scoring it would invent a result, so it
+                # stops the run where someone has to look at it.
+                raise
+            if attempt == RETRIES - 1:
+                if _is_rate_limit(exc):
+                    raise QuotaExhausted(redact(exc)[:300]) from exc
+                raise ScenarioUnavailable(redact(exc)[:300]) from exc
             wait = BACKOFF_S[min(attempt, len(BACKOFF_S) - 1)]
             log.info(
-                "rate limited, backing off",
+                "retrying after a transient error",
                 extra={"seconds": wait, "attempt": attempt + 1, "of": RETRIES},
             )
             time.sleep(wait)
@@ -238,9 +231,17 @@ def main(argv: list[str] | None = None) -> int:
     actual: dict[str, tuple[tuple[str, ...], ...]] = {}
     attempted: list[Scenario] = []
     quota_note = ""
+    unavailable: list[str] = []
     for scenario in scenarios:
         try:
             outcome, trajectory = _drive(scenario, resolved.model)
+        except ScenarioUnavailable as exc:
+            unavailable.append(scenario.id)
+            log.info(
+                "scenario excluded, not scored",
+                extra={"scenario": scenario.id, "error": str(exc)[:160]},
+            )
+            continue
         except QuotaExhausted as exc:
             quota_note = str(exc)
             log.info(
@@ -289,6 +290,7 @@ def main(argv: list[str] | None = None) -> int:
         "of_suite": len(SUITE),
         "partial": len(attempted) < len(SUITE),
         "quota_note": quota_note,
+        "unavailable": unavailable,
         "threshold": adk_eval.THRESHOLD,
         "harness": run.as_dict(),
         # The raw outcomes, so a scorer change can be re-applied without

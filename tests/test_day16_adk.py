@@ -357,3 +357,93 @@ class TestTheTwoScopesShareDenominators:
         assert 'payload["adk"] =' not in source
         for comparator in ("engine", "schema_only", "grounded"):
             assert f'payload["{comparator}"] =' in source, comparator
+
+
+class TestAnErrorIsNotAResult:
+    """Day 18's refresh run is why this class exists.
+
+    Two scenarios came back `503 UNAVAILABLE - this model is currently
+    experiencing high demand`. Because 503 is not a rate limit, the runner
+    fell through to its "scenario failed" path and scored them, and the effect
+    was not a mild understatement:
+
+        pii_email_volunteered       must book     -> errored -> FAIL
+        does_not_book_on_escalation must not book -> errored -> PASS
+
+    One error failed a scenario, another error *passed* one — and the pass
+    went to a conversation day 16 shows the agent gets wrong. Scoring an error
+    is never conservative: the direction of the bias depends on what the
+    scenario happened to expect.
+    """
+
+    def test_a_503_is_recognised_as_transient(self):
+        from convo.projects.day16_adk_agent.build import _is_transient
+
+        for message in (
+            "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is "
+            "currently experiencing high demand.'}}",
+            "504 Deadline Exceeded",
+            "The model is overloaded, please try again",
+        ):
+            assert _is_transient(Exception(message)), message
+
+    def test_a_transient_error_is_retried_not_scored(self):
+        from convo.projects.day16_adk_agent.build import _is_retryable
+
+        assert _is_retryable(Exception("503 UNAVAILABLE high demand"))
+        assert _is_retryable(Exception("429 RESOURCE_EXHAUSTED"))
+
+    def test_a_persistent_transient_excludes_the_scenario(self):
+        import inspect
+
+        from convo.projects.day16_adk_agent import build
+
+        source = inspect.getsource(build.adk_runner)
+        assert "raise ScenarioUnavailable" in source
+        assert "failed_steps=1" not in source, (
+            "a scenario that errored must not be handed to the scorer as a failure"
+        )
+
+    def test_an_excluded_scenario_is_skipped_rather_than_stopping_the_run(self):
+        """A quota wall ends the run; one unavailable scenario removes only
+        itself, because the rest of the suite is still answerable."""
+        import inspect
+
+        from convo.projects.day16_adk_agent import build
+
+        source = inspect.getsource(build.main)
+        assert "except ScenarioUnavailable" in source
+        assert "unavailable.append(scenario.id)" in source
+        assert '"unavailable": unavailable' in source
+
+    def test_a_non_retryable_error_stops_the_run(self):
+        """A bad request or a bug in this repository must not be filed as
+        "the server was busy" — excluding it would hide the bug and scoring it
+        would invent a result."""
+        import inspect
+
+        from convo.projects.day16_adk_agent import build
+
+        source = inspect.getsource(build.adk_runner)
+        assert "if not _is_retryable(exc):" in source
+        after = source.split("if not _is_retryable(exc):", 1)[1]
+        assert after.lstrip().startswith("#") or "raise" in after.split("\n")[1]
+
+    def test_the_daily_quota_is_told_apart_from_the_per_minute_one(self):
+        from convo.projects.day16_adk_agent.build import _is_daily_quota
+
+        per_day = (
+            "429 RESOURCE_EXHAUSTED quota_id: GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+        )
+        per_minute = (
+            "429 RESOURCE_EXHAUSTED quota_id: GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+        )
+        assert _is_daily_quota(Exception(per_day))
+        assert not _is_daily_quota(Exception(per_minute))
+
+    def test_the_backoff_outlasts_a_per_minute_window(self):
+        """The policy that replaced 8 and 16 seconds, which was read as a day's
+        quota and stopped a run after two scenarios."""
+        from convo.projects.day16_adk_agent.build import BACKOFF_S
+
+        assert sum(BACKOFF_S) >= 120
