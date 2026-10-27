@@ -2533,11 +2533,25 @@ agent. Useless in CI: no key, no quota, and no business having either.
 
 But a trajectory metric does not need a live agent. It needs a recorded
 trajectory and an expected one, and both are committed. So CI installs
-`google-adk` with `--no-deps` in a **separate job** that never imports Gradio
-— the two cannot coexist, as day 16 found — re-scores the stored trajectories,
-and fails if ADK's own evaluator stops producing the numbers that were
-published. A step in that job also fails if Gradio ever *becomes* importable
-there, so the job's premise cannot drift silently.
+`google-adk` with `--no-deps` in a **separate job**, re-scores the stored
+trajectories there, and fails if ADK's own evaluator stops producing the
+numbers that were published.
+
+I had this job's rationale wrong twice, and the corrections are worth more
+than the original claim. I wrote that the job "never imports Gradio", because
+ADK and Gradio "cannot coexist". Both halves are false. `uv sync` installs
+this project and Gradio is one of its core dependencies; day 18's package
+`__init__` imports its own Gradio tab, so importing any part of the package
+imports Gradio. The first version of the guard asserted Gradio was absent and
+failed on its first CI run, which is how I found out.
+
+The real situation is narrower and more interesting. The two conflict **only
+on paper**: Gradio caps pydantic below 2.12, ADK requires 2.12 or above, so no
+resolver can satisfy both and declaring an `agents` extra breaks `uv sync` for
+everyone. Installed anyway, they import together and the gate runs — Gradio's
+cap is conservative. The separate job exists because of the *resolver*, not
+the runtime, and CI now asserts the true property: both installed, both
+importable, under the pydantic ADK needs.
 
 That reproducibility check is the one worth having. This is the only day where
 a **dependency** derives a published figure, and pinning the version is not

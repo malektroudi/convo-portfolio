@@ -62,11 +62,12 @@ jobs:
 
   # ADK's evaluator, re-scoring day 18's committed trajectories.
   #
-  # Its own job because `google-adk` and `gradio` cannot coexist: ADK needs
-  # pydantic>=2.12 and starlette>=1.3.1, gradio 5.x caps pydantic below 2.12.
-  # So this job installs ADK with `--no-deps` into an environment that never
-  # imports gradio, which is possible only because day 18's evaluator modules
-  # pull in day 4 and day 6 and nothing else.
+  # Its own job because `google-adk` and `gradio` cannot be *resolved*
+  # together: ADK needs pydantic>=2.12 and starlette>=1.3.1, gradio 5.x caps
+  # pydantic below 2.12. No version pair satisfies both, so declaring an
+  # `agents` extra would make `uv sync` fail for everyone rather than for the
+  # one day that needs it. Installed with `--no-deps` they coexist fine — the
+  # step below proves it — so this job is about the resolver, not the runtime.
   #
   # It calls no model and needs no API key. A trajectory metric needs a
   # recorded trajectory and an expected one, both of which are committed —
@@ -89,16 +90,36 @@ jobs:
           uv pip install --no-deps google-adk==2.13.0
           uv pip install --upgrade "pydantic>=2.12"
 
-      # Guards the comment above: if gradio ever becomes importable here, the
-      # two dependency sets have been reconciled and this job's whole premise
-      # needs revisiting rather than silently drifting.
-      - name: This environment must not carry gradio
+      # This step started life asserting that gradio was not importable here,
+      # then that the evaluator path did not import it. Both were wrong, and
+      # wrong in the same way: `uv sync` installs this project, gradio is one
+      # of its core dependencies, and day 18's package `__init__` imports its
+      # Gradio tab — so importing any part of the package imports gradio.
+      #
+      # Having checked, the interesting fact is the opposite of what I
+      # assumed. The two conflict only on *paper*: gradio caps pydantic below
+      # 2.12, ADK requires 2.12 or above, so no resolver can satisfy both and
+      # `uv sync --extra agents` fails for everyone. Installed anyway, they
+      # import together and the gate runs. gradio's cap is conservative.
+      #
+      # So this asserts the true property — both present, both importable,
+      # under the pydantic ADK needs. If that ever stops holding, the
+      # separate job is no longer a workaround but a necessity, and the
+      # comments above need rewriting rather than quietly rotting.
+      - name: ADK and Gradio coexist, despite the declared conflict
         run: |
-          if uv run --no-sync python -c "import gradio" 2>/dev/null; then
-            echo "gradio is importable here; day 18's job premise has changed" >&2
-            exit 1
-          fi
-          uv run --no-sync python -c "import google.adk; print('adk', google.adk.__name__)"
+          uv run --no-sync python - <<'PY'
+          import importlib.metadata as md
+
+          import google.adk  # noqa: F401
+          import gradio  # noqa: F401
+
+          from convo.projects.day18_eval_gate import adk_eval  # noqa: F401
+
+          print("google-adk", md.version("google-adk"))
+          print("gradio    ", md.version("gradio"))
+          print("pydantic  ", md.version("pydantic"))
+          PY
 
       - name: ADK must reproduce its committed scores
         run: uv run --no-sync python -m convo.projects.day18_eval_gate.gate --require-adk

@@ -47,12 +47,17 @@ analytics = [
 #     uv pip install --no-deps google-adk
 #     uv pip install --upgrade pydantic   # 2.12, which ADK needs
 #
-# That leaves an environment neither package's metadata endorses, and it works
-# because the violated paths are not exercised: the hub never imports ADK (CI
-# blocks it inside the image), and day 16 uses ADK's in-process runner, never
-# its FastAPI server — which is the part that wants the newer starlette. The
-# README says so, and this comment exists so the next person does not "fix"
-# the missing extra.
+# That leaves an environment neither package's metadata endorses, and day 18
+# established why it nonetheless works. Gradio's pydantic cap turns out to be
+# conservative: with pydantic 2.12 installed, Gradio still imports and the hub
+# still builds, which CI asserts rather than assumes. ADK's starlette floor is
+# never reached because day 16 uses its in-process runner and never its
+# FastAPI server. And the hub never imports ADK at all — CI blocks that inside
+# the built image.
+#
+# So the conflict is a resolver problem, not a runtime one. This comment
+# exists so the next person does not "fix" the missing extra and break
+# `uv sync` for everyone.
 
 [project.scripts]
 convo-hub = "convo.hub.__main__:main"
