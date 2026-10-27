@@ -84,10 +84,25 @@ jobs:
         with:
           enable-cache: true
 
+      # `--no-deps` on google-adk is load-bearing and so is the line after
+      # it. Letting uv resolve ADK's dependencies normally upgrades starlette
+      # past 1.3.1, which gradio imports and this project has not tested; ADK
+      # itself runs fine on the older one because day 18 uses its in-process
+      # runner, never its FastAPI server. But `--no-deps` also skips the deps
+      # the evaluator genuinely needs, and the first attempt at this job died
+      # on `No module named google.genai`.
+      #
+      # So ADK goes in without its pins, and the packages its evaluator path
+      # actually imports go in with theirs resolved. None of them pulls
+      # starlette. The list was derived by importing the evaluator path and
+      # diffing sys.modules against a plain `uv sync --extra dev`, then
+      # verified in a throwaway virtualenv built the same way as this job —
+      # after two red builds from guessing.
       - name: Install, then add ADK on top
         run: |
           uv sync --extra dev
           uv pip install --no-deps google-adk==2.13.0
+          uv pip install google-genai opentelemetry-sdk aiohttp pyarrow protobuf
           uv pip install --upgrade "pydantic>=2.12"
 
       # This step started life asserting that gradio was not importable here,

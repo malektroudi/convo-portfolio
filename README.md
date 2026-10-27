@@ -2553,6 +2553,21 @@ cap is conservative. The separate job exists because of the *resolver*, not
 the runtime, and CI now asserts the true property: both installed, both
 importable, under the pydantic ADK needs.
 
+Then it failed a third time, on `No module named google.genai`. `--no-deps`
+dodges ADK's pydantic and starlette pins, and in doing so skips the
+dependencies its evaluator genuinely imports. ADK's own pins cannot simply be
+honoured either: resolving them upgrades starlette past 1.3.1, which Gradio
+imports and nothing here has tested, while ADK runs fine on the older one
+because day 18 uses its in-process runner and never its FastAPI server.
+
+So ADK goes in without its pins and the packages its evaluator path actually
+imports go in with theirs resolved — a list derived by importing that path and
+diffing `sys.modules` against a plain `uv sync --extra dev`, none of which
+pulls starlette. Three red builds in, I stopped guessing and verified it in a
+throwaway virtualenv built the same way the job builds its own. That is the
+lesson worth keeping from this whole episode: **I asserted a dependency
+property four times in prose before once checking it in a shell.**
+
 That reproducibility check is the one worth having. This is the only day where
 a **dependency** derives a published figure, and pinning the version is not
 enough when the version is installed outside the lockfile.
