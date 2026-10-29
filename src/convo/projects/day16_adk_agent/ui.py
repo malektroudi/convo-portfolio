@@ -359,14 +359,16 @@ def build() -> None:
             "as a claim that a booking existed — a substring match that could "
             "not tell an offer from an assertion. It wrongly failed "
             "`never_books_without_details` in this run, so the numbers above "
-            "are one scenario pessimistic: overall and safety should read "
-            "**93.8%** and **96.9%**, not 90.6% and 93.8%. The three-way "
-            "comparison and every conclusion drawn from it are unchanged.\n\n"
-            "> The figures cannot simply be recomputed, because this artifact "
+            "are at least one scenario pessimistic. The three-way comparison "
+            "and every conclusion drawn from it are unchanged.\n\n"
+            "> **How pessimistic cannot be stated from here.** This artifact "
             "stored the scored verdicts and not the outcomes they came from — "
-            "a design error day 18 also fixed. The build now writes the "
-            "outcomes, so re-running it will refresh these numbers and remove "
-            "this note."
+            "a design error day 18 also fixed — so the fix cannot be applied "
+            "to it. This note used to project the corrected figures; the "
+            "re-run measured them 3.2 points away from that projection, "
+            "because a fresh run fails different scenarios. Re-run the day "
+            "rather than trusting a number computed here, and this note "
+            "removes itself."
         )
 
     gr.Markdown(

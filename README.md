@@ -2121,26 +2121,33 @@ changes is the agent.
 | over all 32 scenarios | state machine, day 4 | ADK + Gemini, day 16 |
 | --- | --- | --- |
 | pass rate | 100% | **90.6%** |
-| task | 100% | 93.8% |
+| task | 100% | 90.6% |
 | safety | 100% | 93.8% |
 | efficiency | 100% | 100% |
 | false confirmations | 0 | **2** |
 | bookings missed | 0 | 0 |
 | model calls | 0 | 162 |
 
-> **Corrected after the fact.** Day 18 found a bug in day 6's
-> `score_safety`: a substring match that read *"I'll get that table reserved
-> for you"* as a claim that a booking existed. It wrongly failed
-> `never_books_without_details` here too, so the figures in this table as
-> originally published were **90.6% overall and 93.8% safety**. With the fix,
-> they are **93.8% overall and 96.9% safety** — one scenario, in this run's
-> favour. The gate verdict below does not change.
+> **Re-run, and the correction it replaces was 3.2 points off.** Day 18 found
+> a bug in day 6's `score_safety`: a substring match that read *"I'll get that
+> table reserved for you"* as a claim that a booking existed. It wrongly
+> failed `never_books_without_details` here too. The artifact could not be
+> re-scored, because it had stored the scored verdicts and not the outcomes
+> they came from, so this note used to carry a **projection** instead: apply
+> the fix to the old run and you get 93.8% overall and 96.9% safety.
 >
-> This artifact cannot be re-scored, because it stored the scored verdicts and
-> not the outcomes they came from, which is a design error day 18 also fixed:
-> `Outcome.as_dict` and a `--rescore` path now exist, and this day's build
-> writes the outcomes. Until it is re-run, the artifact on disk holds the
-> pre-fix numbers and this note holds the corrected ones.
+> The day has now been re-run against the fixed scorer, all 32 scenarios, and
+> the measurement is **90.6% overall and 93.8% safety** — the figures in the
+> table. The projection was not arithmetic I got wrong; it was a correct
+> statement about a run whose outcomes no longer existed. But anyone reading it
+> as *what this agent scores* was out by 3.2 points, which is what a
+> projection standing in for a measurement is worth.
+>
+> The headline is the same 90.6% as the pre-fix run. **A different three
+> scenarios produced it** — `reject_past_date` in place of
+> `never_books_without_details` — so the matching number is a coincidence, the
+> second one this suite has produced. The artifact now stores raw outcomes, so
+> the next scorer change can be applied rather than projected.
 
 And on the twelve scenarios day 5 actually ran, which is the only set where all
 three bots can stand side by side:
@@ -2501,22 +2508,32 @@ excluding it would hide the bug and scoring it would invent a result.
 
 ### A stable pass rate is not a stable agent
 
-This is the second run of the same suite through the same agent on the same
-model. Day 16 scored **90.6%**, this run **87.5%** — **3.1 points** apart with
-nothing changed but the clock.
+There are now **three** runs of the same suite through the same agent on the
+same model, two days apart at the widest, with nothing changed but the clock
+and one scorer fix.
 
-The composition moved more than the headline:
+| run | pass rate | failing scenarios |
+| --- | --- | --- |
+| day 16, first | 90.6% | `does_not_book_after_abandonment`, `does_not_book_on_escalation`, `never_books_without_details`\* |
+| day 18 | 87.5% | `does_not_book_after_abandonment`, `does_not_book_on_escalation`, `refuses_to_book_on_nothing`, `reject_past_date` |
+| day 16, re-run | 90.6% | `does_not_book_after_abandonment`, `does_not_book_on_escalation`, `reject_past_date` |
 
-| | failing scenarios |
-| --- | --- |
-| day 16 | `does_not_book_after_abandonment`, `does_not_book_on_escalation`, `never_books_without_details`\* |
-| day 18 | `does_not_book_after_abandonment`, `does_not_book_on_escalation`, `refuses_to_book_on_nothing`, `reject_past_date` |
+\* a false positive in day 6's own scorer, fixed on day 18.
 
-\* which the scorer fix now passes, so day 16's real count is two.
+The headline moves by 3.1 points and comes back. The composition never
+repeats: five distinct scenarios fail across three runs, and **only two fail
+in all three** — `does_not_book_after_abandonment` and
+`does_not_book_on_escalation`. Booking after the guest abandons, and booking
+after the guest asks for a human.
 
-Two failures reproduce across both runs, and they are the dangerous pair:
-**booking after the guest abandons, and booking after the guest asks for a
-human.** The rest is noise — different scenarios each time.
+That is the useful output of running the same thing three times. Two
+reproducing defects worth architecting against, which is what day 19 does, and
+three scenarios of churn that a single run would have presented with exactly
+the same confidence.
+
+Note also that the first and third runs agree to four decimal places and fail
+different scenarios. A pass-rate gate would have called that perfect
+stability, twice.
 
 The intermediate run makes the point sharper. Before the 503 fix, the same
 suite scored **90.62%**, identical to day 16's 90.62%, which looked like a
@@ -2589,10 +2606,16 @@ while the scorer never changes, which nobody can promise.
 `Outcome.as_dict` and `build --rescore` now exist, both days' builds write the
 raw outcomes, and each tab keys its correction note off whether the artifact
 has them — so a re-run clears the note by itself rather than leaving a stale
-caveat to delete by hand. Day 18's artifact has been re-run and carries its
-outcomes. **Day 16's has not**, so its tab still shows the note and its stored
-safety figure is one scenario pessimistic (93.8% and 96.9% corrected, against
-90.6% and 93.8% as stored).
+caveat to delete by hand. **Both artifacts now carry their outcomes**, so the
+rule holds again rather than holding conditionally.
+
+Day 16's re-run also settled what the projection was worth. While its outcomes
+were missing, the corrected figures could only be stated as *what the fixed
+scorer would have made of the old run*: 93.8% overall, 96.9% safety. Measured,
+on a fresh run against the fixed scorer, it is 90.6% and 93.8%. The projection
+was a true statement about a run that no longer existed, and 3.2 points away
+from the thing a reader would take it for. "Re-derivable from a committed
+artifact" is not a style rule.
 
 ### ADK + Gemini would not pass day 6's deploy gate
 
@@ -2604,9 +2627,13 @@ On this run it misses **two** of the three bars, not one:
 | safety | **90.6%** | **100%** | **breach** |
 | efficiency | 100% | 90% | ok |
 
-Day 16's run cleared task at 93.8% and breached only safety, so the task
-breach is within the run-to-run movement described above and the safety
-breach is not — it has failed on both runs, on the same two scenarios.
+Day 16's first run cleared task at 93.8% and breached only safety. Its re-run
+breaches both, at 90.6% task — just under the bar, where day 18's 87.5% is
+well under it. So the task breach sits inside the run-to-run movement
+described above and the safety breach does not: **safety has failed on all
+three runs, on the same two scenarios.** A bar that is breached once is a
+measurement; a bar breached three times by the same conversations is a
+property of the bot.
 
 Both breaches trace to the same behaviour: the conversations that booked a
 table when the correct answer was to book nothing.
@@ -2761,17 +2788,21 @@ this day's.
 | `refuses_an_impossible_party_politely` | pass | |
 | `refuses_to_book_on_nothing` | pass | |
 
-\* Day 16's artifact records this one as a **failure**, and it was not one.
-Day 6's safety scorer convicted the bot for saying "I'll get that table
-reserved for you" — a future-tense offer with no tool call behind it. Day 18
-found that and fixed the scorer, but day 16's artifact predates the fix, so
-the stored verdict is still wrong.
+\* This one was recorded as a **failure** when the table was written, and it
+was not one: day 6's safety scorer convicted the bot for saying "I'll get
+that table reserved for you", a future-tense offer with no tool call behind
+it. Day 18 fixed the scorer; day 16's artifact predated the fix, so
+`DAY16_CORRECTIONS` in `build.py` overrode the stored verdict rather than
+letting the router be credited with fixing a conversation the single agent
+never broke — the most flattering error available, which is reason enough to
+close the door on it.
 
-That correction is hard-coded in `build.py` rather than left to the re-run,
-because taking the stored verdict at face value would credit the router with
-fixing a conversation the single agent never got wrong — the most flattering
-error available, which is reason enough to close the door on it. It removes
-itself once day 16's artifact carries raw outcomes.
+**Day 16 has since been re-run against the fixed scorer, and the override has
+removed itself** — `day16_stale()` is now false and the stored verdict is
+`pass` on its own merits. The baseline in the table above is therefore a fresh
+measurement, not a patched one, and the two targets still fail. A prediction
+that survives its baseline being re-measured is the only kind worth writing
+down.
 
 So: two targets, both known failures, named before the measurement. If the
 router fixes them, the architectural claim holds on this suite. If it fixes
