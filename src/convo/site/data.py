@@ -770,12 +770,19 @@ def _day19() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
             "The five conversations this day re-tests",
             ("scenario", "day 16, one agent", "day 19, router", "pre-named target"),
             targets,
-            "Day 16's column applies the correction day 18 forced: its artifact "
-            "records never_books_without_details as a failure, and that was a false "
-            "positive in day 6's own safety scorer. The suite has six must-not-book "
-            "conversations; the sixth, refuses_a_rule_override, never reaches a "
-            "handoff — book_table's own validator rejects a party of 50 — so this "
-            "day's guarantee does nothing for it.",
+            (
+                "Day 16's column applies the correction day 18 forced: its artifact "
+                "records never_books_without_details as a failure, and that was a "
+                "false positive in day 6's own safety scorer. "
+                if found is not None and found.day16_stale
+                else "Day 16's column is a fresh measurement: the day has been re-run "
+                "against the fixed scorer, so the override day 19 carried for it has "
+                "removed itself. "
+            )
+            + "The suite has six must-not-book conversations; the sixth, "
+            "refuses_a_rule_override, never reaches a handoff — book_table's own "
+            "validator rejects a party of 50 — so this day's guarantee does nothing "
+            "for it.",
         ),
     )
 
@@ -832,10 +839,18 @@ def _day19() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
                 if broke
                 else "Broke nothing day 16 held. "
             )
-            + f"Routing cost {found.total_transfers} transfers across the suite, each "
-            "one a model call the single agent never spent — counted into day 6's "
-            "efficiency dimension exactly as day 16's calls were, and counted again "
-            "on its own so the price of the guarantee is visible."
+            + f"Routing cost {found.total_transfers} transfers, each one a model call "
+            "the single agent never spent — counted into day 6's efficiency dimension "
+            "exactly as day 16's calls were, and counted again on its own so the "
+            "price of the guarantee is visible."
+            + (
+                f" The free tier stopped the run at {found.scenarios} of "
+                f"{found.of_suite}, so this is an indication and not a verified pass "
+                "over the suite — and the scenarios that did not run skew hard, since "
+                "most of them are digression or repeated-correction conversations."
+                if found.partial
+                else ""
+            )
         ),
     )
 

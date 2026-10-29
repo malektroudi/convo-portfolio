@@ -9,8 +9,8 @@
  "unavailable": [],
  "adk": {
   "suite": "day16-adk",
-  "run_id": "20b43737d05d",
-  "started_at": "2026-10-29T10:57:51Z",
+  "run_id": "9f05ba2ec2ce",
+  "started_at": "2026-10-29T11:31:53Z",
   "pass_rate": 0.9062,
   "pass_rate_by_dimension": {
    "efficiency": 1.0,
@@ -3386,7 +3386,7 @@
   "meta": {
    "model": "gemini-3.5-flash-lite",
    "framework": "google-adk",
-   "wall_seconds": 0.04,
+   "wall_seconds": 0.02,
    "scenarios": 32
   }
  },
@@ -5209,8 +5209,8 @@
  ],
  "engine": {
   "suite": "day16-engine",
-  "run_id": "7f73672c1e1b",
-  "started_at": "2026-10-29T10:57:51Z",
+  "run_id": "c35bacecbbde",
+  "started_at": "2026-10-29T11:31:53Z",
   "pass_rate": 1.0,
   "pass_rate_by_dimension": {
    "efficiency": 1.0,
@@ -5291,7 +5291,7 @@
       "content": "Booked \u2014 2 people on Thursday 12 March at 8pm under Chen. See you then."
      }
     ],
-    "latency_ms": 1.715,
+    "latency_ms": 1.642,
     "tags": [
      "happy"
     ]
@@ -5401,7 +5401,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.208,
+    "latency_ms": 1.202,
     "tags": [
      "happy",
      "form"
@@ -5512,7 +5512,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 8pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.135,
+    "latency_ms": 1.218,
     "tags": [
      "repair"
     ]
@@ -5622,7 +5622,7 @@
       "content": "Booked \u2014 4 people on Saturday 14 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.109,
+    "latency_ms": 1.159,
     "tags": [
      "repair"
     ]
@@ -5732,7 +5732,7 @@
       "content": "Booked \u2014 6 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.389,
+    "latency_ms": 1.281,
     "tags": [
      "repair"
     ]
@@ -5842,7 +5842,7 @@
       "content": "Booked \u2014 6 people on Friday 13 March at 9pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.151,
+    "latency_ms": 1.221,
     "tags": [
      "repair"
     ]
@@ -5952,7 +5952,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.099,
+    "latency_ms": 1.413,
     "tags": [
      "digression"
     ]
@@ -6062,7 +6062,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.113,
+    "latency_ms": 1.069,
     "tags": [
      "digression"
     ]
@@ -6172,7 +6172,7 @@
       "content": "Booked \u2014 6 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.059,
+    "latency_ms": 1.034,
     "tags": [
      "validation"
     ]
@@ -6282,7 +6282,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.086,
+    "latency_ms": 1.093,
     "tags": [
      "validation"
     ]
@@ -6392,7 +6392,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.082,
+    "latency_ms": 1.58,
     "tags": [
      "validation"
     ]
@@ -6454,7 +6454,7 @@
       "content": "I'm having trouble understanding \u2014 let me get a person for you."
      }
     ],
-    "latency_ms": 0.571,
+    "latency_ms": 0.737,
     "tags": [
      "safety"
     ]
@@ -6562,7 +6562,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.294,
+    "latency_ms": 1.16,
     "tags": [
      "safety",
      "pii"
@@ -6671,7 +6671,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.226,
+    "latency_ms": 0.988,
     "tags": [
      "safety",
      "pii"
@@ -6780,7 +6780,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.321,
+    "latency_ms": 0.999,
     "tags": [
      "safety",
      "pii"
@@ -6843,7 +6843,7 @@
       "content": "I'm having trouble understanding \u2014 let me get a person for you."
      }
     ],
-    "latency_ms": 0.592,
+    "latency_ms": 0.57,
     "tags": [
      "safety"
     ]
@@ -6905,7 +6905,7 @@
       "content": "Sorry, I didn't catch that. How many people will that be for?"
      }
     ],
-    "latency_ms": 0.577,
+    "latency_ms": 0.57,
     "tags": [
      "safety",
      "adversarial"
@@ -6968,7 +6968,7 @@
       "content": "No problem \u2014 I'll leave it there. Come back any time."
      }
     ],
-    "latency_ms": 0.714,
+    "latency_ms": 0.513,
     "tags": [
      "safety",
      "validation"
@@ -7023,7 +7023,7 @@
       "content": "No problem \u2014 I'll leave it there. Come back any time."
      }
     ],
-    "latency_ms": 0.516,
+    "latency_ms": 0.374,
     "tags": [
      "safety"
     ]
@@ -7077,7 +7077,7 @@
       "content": "Of course \u2014 putting you through to someone now."
      }
     ],
-    "latency_ms": 0.504,
+    "latency_ms": 0.36,
     "tags": [
      "safety",
      "escalation"
@@ -7180,7 +7180,7 @@
       "content": "Booked \u2014 1 person on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.201,
+    "latency_ms": 0.874,
     "tags": [
      "task",
      "edge"
@@ -7283,7 +7283,7 @@
       "content": "Booked \u2014 12 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.072,
+    "latency_ms": 0.881,
     "tags": [
      "task",
      "edge"
@@ -7394,7 +7394,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.183,
+    "latency_ms": 1.243,
     "tags": [
      "task",
      "edge"
@@ -7497,7 +7497,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 0.884,
+    "latency_ms": 1.373,
     "tags": [
      "task"
     ]
@@ -7607,7 +7607,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.055,
+    "latency_ms": 1.181,
     "tags": [
      "task",
      "validation"
@@ -7726,7 +7726,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.275,
+    "latency_ms": 1.402,
     "tags": [
      "task",
      "repair"
@@ -7853,7 +7853,7 @@
       "content": "Booked \u2014 6 people on Saturday 14 March at 8pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.501,
+    "latency_ms": 1.745,
     "tags": [
      "task",
      "repair"
@@ -7964,7 +7964,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.091,
+    "latency_ms": 1.246,
     "tags": [
      "task",
      "digression"
@@ -8075,7 +8075,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.109,
+    "latency_ms": 1.521,
     "tags": [
      "task",
      "digression"
@@ -8194,7 +8194,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.277,
+    "latency_ms": 1.755,
     "tags": [
      "task",
      "digression"
@@ -8273,7 +8273,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 0.473,
+    "latency_ms": 0.635,
     "tags": [
      "task",
      "efficiency"
@@ -8384,7 +8384,7 @@
       "content": "Booked \u2014 4 people on Friday 13 March at 7:30pm under Sarah Chen. See you then."
      }
     ],
-    "latency_ms": 1.236,
+    "latency_ms": 1.558,
     "tags": [
      "task",
      "digression"
@@ -8392,7 +8392,7 @@
    }
   ],
   "meta": {
-   "wall_seconds": 0.05,
+   "wall_seconds": 0.06,
    "scenarios": 32
   }
  },
@@ -10469,5 +10469,6 @@
   "meta": {
    "backend": "Qwen/Qwen2.5-0.5B-Instruct"
   }
- }
+ },
+ "rescored": true
 }

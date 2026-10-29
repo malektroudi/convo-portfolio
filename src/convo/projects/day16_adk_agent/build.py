@@ -203,26 +203,57 @@ def _day5(which: str) -> dict | None:
 
 
 def _rescore_stored() -> int:
-    """Recompute the free half of the artifact, keeping the stored ADK run.
+    """Recompute everything free: the comparators, and ADK's own verdicts.
 
-    The ADK run is the only part that costs anything — a day's quota and
-    twenty minutes of wall clock. Everything beside it is deterministic and
-    free: day 4's engine has no model in it, and day 5's passes are read off
-    disk. So when a comparator changes, as it did when the engine column moved
-    from day 5's 12-scenario run to day 6's full one, there is no reason to
-    pay for the model a second time to find out.
+    The model run is the only part that costs anything — a day's quota and
+    twenty minutes of wall clock. Everything beside it is deterministic: day
+    4's engine has no model in it, day 5's passes are read off disk, and
+    **scoring is a pure function of the stored outcomes.**
 
-    What this cannot do is re-score ADK itself. The artifact keeps scored
-    `CaseResult`s, not the raw `Outcome`s, so a change to day 6's *scorers*
-    needs a real run. That is a deliberate limit and not a hidden one.
+    That last clause was not true when this function was written. The artifact
+    kept scored `CaseResult`s and nothing to re-score, so this path rebuilt the
+    comparators and left ADK's column alone — a limit the docstring declared
+    and day 18 then ran into, when a fix to `score_safety` could not be applied
+    to the figures it invalidated.
+
+    The outcomes are stored now, and day 19 found the same scorer wrong a
+    second time. This had still been keeping the stored verdicts, so the second
+    fix would have gone unapplied here exactly like the first. It re-scores
+    from the outcomes instead, which is what storing them was for.
     """
     out = ARTIFACT_DIR / "adk.json"
     if not out.exists():
         raise SystemExit(f"nothing to rescore: {out} does not exist")
     payload = json.loads(out.read_text(encoding="utf-8"))
 
-    kept = {c["case_id"] for c in payload["adk"]["cases"]}
-    attempted = tuple(s for s in SUITE if s.id in kept)
+    stored = payload.get("outcomes") or []
+    if stored:
+        by_id = {raw["scenario_id"]: Outcome.from_dict(raw) for raw in stored}
+        attempted = tuple(s for s in SUITE if s.id in by_id)
+        was = payload["adk"]["pass_rate"]
+        run = run_suite(
+            "day16-adk",
+            lambda scenario: by_id[scenario.id],
+            scenarios=attempted,
+            meta=payload["adk"].get("meta", {}),
+        )
+        payload["adk"] = run.as_dict()
+        log.info(
+            "ADK re-scored from stored outcomes",
+            extra={"pass_rate_was": was, "pass_rate_now": run.pass_rate},
+        )
+    else:
+        # Pre-day-18 artifact: verdicts only, nothing to re-score. Say so
+        # rather than silently reporting a number the current scorers did not
+        # produce.
+        attempted = tuple(
+            s for s in SUITE if s.id in {c["case_id"] for c in payload["adk"]["cases"]}
+        )
+        log.warning(
+            "no stored outcomes; ADK's verdicts are the ones the old scorers produced",
+            extra={"fix": "re-run the build"},
+        )
+
     payload["engine"] = _engine(attempted)
     payload["schema_only"] = _day5("schema")
     payload["grounded"] = _day5("grounded")
@@ -230,7 +261,7 @@ def _rescore_stored() -> int:
 
     out.write_text(json.dumps(payload, indent=1), encoding="utf-8")
     log.info(
-        "comparators rebuilt, ADK run kept",
+        "comparators rebuilt",
         extra={"scenarios": len(attempted), "adk_pass_rate": payload["adk"]["pass_rate"]},
     )
     return 0

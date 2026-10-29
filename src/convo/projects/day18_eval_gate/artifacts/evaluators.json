@@ -8,8 +8,8 @@
  "threshold": 1.0,
  "harness": {
   "suite": "day18-adk",
-  "run_id": "8047ada62aec",
-  "started_at": "2026-10-29T10:58:49Z",
+  "run_id": "20ba8b3ba839",
+  "started_at": "2026-10-29T11:30:20Z",
   "pass_rate": 0.875,
   "pass_rate_by_dimension": {
    "efficiency": 1.0,

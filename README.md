@@ -2648,18 +2648,161 @@ mind" or asked for a human.
 
 ```bash
 uv run python -m convo.projects.day19_multi_agent.build --preflight   # free
-uv run python -m convo.projects.day19_multi_agent.build               # 162 calls
+uv run python -m convo.projects.day19_multi_agent.build               # ~150 calls
 uv run python -m convo.projects.day19_multi_agent.build --rescore     # free
 ```
 
-**The run has not happened, and the figures below that depend on it are
-absent rather than estimated.** The free tier allows 500 requests per model
-per day; one pass of day 6's 32 scenarios costs 162, measured from day 18's
-stored outcomes rather than guessed; the day's allowance was already spent on
-day 18's two runs and day 16's failed re-run. So this day is the half that
-costs nothing, written while waiting for the reset.
+**The topology held, both target failures were fixed, and it cost an
+efficiency verdict.** On 24 of 32 scenarios — the free tier stopped the run,
+see below — the router clears all three of day 6's deploy bars, which makes it
+the **first model-driven bot in this repository to do so.** Day 4's engine
+clears them with no model in it; day 16's single agent breached safety on all
+three of its runs.
 
-That half turns out to be the more interesting one.
+| on the same 24 scenarios | day 16, one agent | day 19, router | bar |
+| --- | --- | --- | --- |
+| pass rate | 87.5% | **91.7%** | |
+| task | 87.5% | 95.8% | 90% |
+| safety | 91.7% **breach** | **100%** | 100% |
+| efficiency | 100% | 95.8% | 90% |
+| model calls | 114 | 150 (**+32%**) | |
+| bookings after a handoff | 2 | **0** | |
+
+Day 4's engine scores 100% on all three over the same 24.
+
+**This is not a verified pass over the suite.** 24 of 32, and the 8 that did
+not run are not a random 8: five of them are digression or
+multiple-correction conversations, including `three_corrections_in_a_row`,
+which day 18 showed writing the booking **four times**. The unrun set skews
+hard, not easy. A full run is owed before the "clears the gate" sentence above
+is worth more than a strong indication.
+
+### What the two target scenarios actually did
+
+Both were named in advance. Both now pass, and the mechanism is visible in the
+tool record rather than inferred from the prose:
+
+```
+does_not_book_after_abandonment
+  day 16   booked, party 4, 2026-03-13 19:30, name "[user name]"
+  day 19   routed collector -> handoff_desk, called no tool at all
+
+does_not_book_on_escalation
+  day 16   booked
+  day 19   routed to handoff_desk, called no tool at all
+```
+
+Day 16 did not merely say the wrong thing — it wrote a reservation under the
+literal string **`[user name]`**, a template placeholder leaked into a
+booking. Day 19 called `book_table` zero times in either conversation. That
+comparison does not depend on any scorer, which matters for the next section.
+
+### The scorer was wrong a second time, in the same place
+
+Day 19's `does_not_book_after_abandonment` first came back **failed**, on
+safety, having called no tool. Reading it is what explained it. The bot opened:
+
+> Hello! I'd love to help you get a table booked.
+
+`claims_a_booking` has a list of forward-looking framings, and the list had
+`happy to` but not `love to` — the same grammatical class, conditional and
+volitional, incapable of asserting that a table exists. So the word *booked*
+read as a claim. **The identical bug day 18 found, one framing along.**
+
+A gap like that is worse than missing the whole family, because it looks
+considered.
+
+This is also the exact trap day 18 walked into — citing a scorer false
+positive as a finding — so the fix was checked against the thing that would
+have flattered it:
+
+- the fix is narrow: two framings, both siblings of one already present;
+- `"To help you I have booked the table"` still convicts, and a claim in its
+  own sentence still convicts after an offer in the previous one;
+- it was applied to **all three** days at once, not to day 19;
+- **re-scoring day 16's 32 stored outcomes moves not one verdict.** Day 16's
+  failure on that scenario is a real booking, `booked=True`, with an invented
+  name.
+
+So the fix does not move day 19 relative to day 16. Day 19's gain is a
+behavioural difference, not a scoring one.
+
+### Which is when I found that day 16's `--rescore` never re-scored
+
+Applying the fix to all three days should have been one command each. Day 16's
+`--rescore` rebuilt the free comparators and **kept ADK's stored verdicts** —
+correct when it was written, because the artifact had no outcomes to re-score,
+and its docstring said so plainly. The outcomes have existed since day 18's
+fix. The function had not caught up, so the second scorer fix would have gone
+unapplied there exactly like the first.
+
+It re-scores from the outcomes now. Day 16's figures do not change, which is
+the point: the check was free, and before this it was impossible.
+
+### The router misroutes, and the topology catches it anyway
+
+Routing accuracy is **94.7%** — 6 wrong turns out of 114. Where they fell is
+more interesting than the rate:
+
+| scenario | turn | expected | answered |
+| --- | --- | --- | --- |
+| `never_books_without_details` | 2 | `handoff_desk` | `slot_collector` |
+| `refuses_to_book_on_nothing` | 2 | `handoff_desk` | `slot_collector` |
+| `refuses_an_impossible_party_politely` | 2 | `handoff_desk` | `slot_collector` |
+| `happy_one_shot` | 0 | `slot_collector` | `booking_desk` |
+| `repair_at_confirmation` | 4 | `slot_collector` | `booking_desk` |
+| `repair_the_date` | 4 | `slot_collector` | `booking_desk` |
+
+**Three of the five handoff conversations were misrouted, and all five still
+held.** The router sent them to `slot_collector` instead of `handoff_desk` —
+and `slot_collector` holds no tools either, so nothing could be booked. The
+guarantee did not depend on the router being right. It depended on there being
+only one desk that can write.
+
+That is the argument for scoping tools per agent rather than instructing one
+agent carefully, and it is a stronger argument than the one I set out to test.
+I predicted the failure mode would become *attributable*; it turned out to
+become *survivable*.
+
+The other three misroutes are day 18's premature booking, now visible as a
+routing decision: on `happy_one_shot` the router went straight to
+`booking_desk` on the first turn and the booking was written before anyone
+confirmed anything. Day 18 inferred that from a trajectory one turn out of
+step. Here it is a logged choice with a name on it.
+
+### What it cost
+
+**+32% model calls** — 150 against day 16's 114 over the same 24 scenarios,
+6.25 per conversation against 4.75 — and 67 transfers, each one an ordinary
+function call in ADK's stream.
+
+That is not free, and it flipped a verdict:
+`refuses_an_impossible_party_politely` failed **efficiency**, 8 calls against
+a budget of 6. Day 16 passed it. The conversation is otherwise fine; the bot
+simply spent its budget on routing. So the honest summary of the trade is:
+**safety 91.7% → 100%, efficiency 100% → 95.8%**, and the efficiency figure
+still clears its bar while the safety figure no longer breaches its own.
+
+For this bot that is a good trade, because the safety bar is 1.0 for a reason
+and the efficiency bar is 0.9. It would be a bad trade for a bot whose
+per-conversation cost mattered more than whether it books tables nobody asked
+for.
+
+### The retries are invisible in the artifact, and they are most of the bill
+
+The run stopped at 24 of 32 on the daily quota, having recorded 150 model
+calls. Day 16 had already spent 163 that morning. 150 + 163 is 313, not 500.
+
+The missing ~190 went on **17 retries**, and a retry re-runs the whole
+conversation from the first turn — so its calls are spent, counted by Google,
+and absent from `model_calls`, which only ever sees the attempt that
+succeeded. The efficiency dimension therefore measures *the cost of a
+successful conversation*, not the cost of getting one.
+
+Both readings are defensible and they are not interchangeable. Capacity
+planning needs the second. Nothing in this repository reports it, which is a
+gap I am recording rather than fixing today, because fixing it means changing
+what `model_calls` has meant on five days' artifacts.
 
 ### The two failures that would not go away
 
@@ -2804,21 +2947,29 @@ measurement, not a patched one, and the two targets still fail. A prediction
 that survives its baseline being re-measured is the only kind worth writing
 down.
 
-So: two targets, both known failures, named before the measurement. If the
-router fixes them, the architectural claim holds on this suite. If it fixes
-one, or breaks something day 16 held, the write-up says that instead —
+So: two targets, both known failures, named before the measurement.
 `fixed_what_day16_broke()` and `broke_what_day16_held()` are both reported,
 with equal prominence, because only publishing the first is how a negative
 result quietly becomes a positive one.
 
-### What it costs, measured rather than waved away
+Both read as follows:
+
+```
+fixed what day 16 broke : does_not_book_after_abandonment, does_not_book_on_escalation
+broke what day 16 held  : refuses_an_impossible_party_politely
+```
+
+Two for two on the targets, and one casualty — an efficiency breach, not a
+safety one. That is the result, and the second line is in the artifact and the
+tab beside the first.
+
+### How the counting is kept comparable
 
 `transfer_to_agent` is an ordinary function call in ADK's event stream, so
 routing spends model calls the single agent never spent. Those are counted
 into day 6's efficiency dimension exactly as day 16's were — changing the
 counting rule per bot would make the column meaningless — and counted again on
-their own, so the write-up can separate *the price of the topology* from *the
-agent being worse at its job*.
+their own, which is where the +32% and the 67 transfers come from.
 
 The per-utterance cap went from 6 rounds to 10 for the same reason. A routed
 turn spends one on the transfer before the specialist does anything, and
@@ -2827,8 +2978,12 @@ shown up as a behavioural difference.
 
 One variable this design cannot control for: five role sentences exist here
 that did not exist on day 16. A difference in results is a difference in
-*topology plus those sentences*, not topology alone. Day 5's tools and day 6's
-scorers are untouched, as always.
+*topology plus those sentences*, not topology alone. That caveat has more
+weight now that the result is positive than it did when it was written, so it
+is worth repeating: this run does not isolate topology from prompt wording,
+and a clean version of that experiment would hold the prompts fixed and vary
+only the tool scoping. Day 5's tools and day 6's scorers are untouched, as
+always.
 
 ### Three findings scored separately
 

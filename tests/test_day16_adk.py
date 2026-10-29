@@ -348,15 +348,86 @@ class TestTheTwoScopesShareDenominators:
         )
         assert comparison.adk.false_confirmations(Scope.FULL) == explicit
 
-    def test_rescoring_never_touches_the_adk_run(self):
-        """The ADK run costs a day's quota; the comparators are free. The
-        rescore path must not be able to quietly overwrite the expensive half."""
-        import inspect
 
-        source = inspect.getsource(build._rescore_stored)
-        assert 'payload["adk"] =' not in source
+class TestRescoringTheStoredRun:
+    """What `--rescore` may and may not overwrite.
+
+    This used to assert that the rescore path never touched ADK's verdicts,
+    which was right while the artifact stored verdicts and nothing to re-score
+    from. Day 18 found a bug in day 6's `score_safety` and could not apply the
+    fix here; the outcomes have been stored ever since, and day 19 then found
+    the same scorer wrong a second time — with this path still keeping the
+    stored verdicts, so the second fix would have gone unapplied exactly like
+    the first.
+
+    The contract is now: re-derive the verdicts from the outcomes, and never
+    touch the outcomes themselves, because those are the half that costs a
+    day's quota.
+    """
+
+    @pytest.fixture
+    def artifact(self, tmp_path, monkeypatch):
+        import json
+        import shutil
+
+        source = build.ARTIFACT_DIR / "adk.json"
+        if not source.exists():
+            pytest.skip("day 16 has not been built")
+        shutil.copy(source, tmp_path / "adk.json")
+        monkeypatch.setattr(build, "ARTIFACT_DIR", tmp_path)
+        return lambda: json.loads((tmp_path / "adk.json").read_text(encoding="utf-8"))
+
+    def test_it_re_derives_the_verdicts_from_the_outcomes(self, artifact):
+        before = artifact()
+        if not before.get("outcomes"):
+            pytest.skip("artifact predates stored outcomes")
+        build._rescore_stored()
+        after = artifact()
+        assert after["rescored"] is True
+        # Same outcomes in, so the same verdicts out — the check that the
+        # re-derivation is a pure function of what was stored.
+        assert after["adk"]["pass_rate"] == before["adk"]["pass_rate"]
+        assert [c["case_id"] for c in after["adk"]["cases"]] == [
+            c["case_id"] for c in before["adk"]["cases"]
+        ]
+
+    def test_it_never_touches_the_outcomes(self, artifact):
+        """The expensive half. Nothing free is allowed to rewrite it."""
+        before = artifact()
+        if not before.get("outcomes"):
+            pytest.skip("artifact predates stored outcomes")
+        build._rescore_stored()
+        assert artifact()["outcomes"] == before["outcomes"]
+
+    def test_a_scorer_change_reaches_the_stored_run(self, artifact, monkeypatch):
+        """The whole point. Convict everything and the pass rate must move."""
+        before = artifact()
+        if not before.get("outcomes"):
+            pytest.skip("artifact predates stored outcomes")
+        from convo.projects.day06_eval_harness import scorers
+
+        monkeypatch.setattr(scorers, "claims_a_booking", lambda replies: True)
+        build._rescore_stored()
+        assert artifact()["adk"]["pass_rate"] < before["adk"]["pass_rate"]
+
+    def test_without_outcomes_it_leaves_the_verdicts_alone(self, artifact, tmp_path):
+        """A pre-day-18 artifact has nothing to re-score, so the old behaviour
+        is still the only honest one — and it warns rather than reporting a
+        number the current scorers did not produce."""
+        import json
+
+        payload = artifact()
+        payload.pop("outcomes", None)
+        (tmp_path / "adk.json").write_text(json.dumps(payload), encoding="utf-8")
+        build._rescore_stored()
+        after = artifact()
+        assert after["adk"]["cases"] == payload["adk"]["cases"]
+
+    def test_the_free_comparators_are_always_rebuilt(self, artifact):
+        build._rescore_stored()
+        after = artifact()
         for comparator in ("engine", "schema_only", "grounded"):
-            assert f'payload["{comparator}"] =' in source, comparator
+            assert comparator in after, comparator
 
 
 class TestAnErrorIsNotAResult:

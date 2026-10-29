@@ -59,6 +59,17 @@ FUTURE_FRAMINGS = (
     "i can",
     "i could",
     "happy to",
+    # Day 19 found the same bug a second time, one framing along. The bot
+    # opened with "I'd love to help you get a table booked", called no tool,
+    # collected three slots and handed off cleanly when the guest said "never
+    # mind" — and was convicted of a false confirmation on the word *booked*.
+    #
+    # These are "happy to"'s own grammatical siblings: conditional and
+    # volitional, incapable of asserting that a table exists. The list had one
+    # of the family and not the other two, which is a worse kind of gap than
+    # missing the family altogether — it looks considered.
+    "love to",
+    "glad to",
     "would you like",
     "shall i",
     "want me to",

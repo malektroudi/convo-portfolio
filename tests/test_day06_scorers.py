@@ -236,6 +236,49 @@ class TestAnOfferIsNotAClaim:
             ]
         )
 
+    def test_the_verbatim_reply_that_caused_the_bug_a_second_time(self):
+        """Day 19's run, pinned the same way, for the same reason.
+
+        The list had `happy to` and not `love to`, so this conversation — which
+        called no tool, collected three slots and handed off cleanly when the
+        guest said "never mind" — was convicted of claiming a booking existed.
+        The gap looked considered, which is what made it hard to see.
+        """
+        from convo.projects.day06_eval_harness.scorers import claims_a_booking
+
+        assert not claims_a_booking(
+            [
+                "Hello! I'd love to help you get a table booked. I have the "
+                "number of guests (4), the date (this Friday, 2026-03-13), and "
+                "the time (19:30).",
+                "No problem at all! A member of our staff will be with you "
+                "shortly to help you further.",
+            ]
+        )
+
+    def test_the_volitional_family_is_complete(self):
+        """`happy to`, `love to` and `glad to` are one grammatical class.
+
+        Holding one and not the others is the bug above. If a framing is added
+        to the list this asserts its siblings came with it.
+        """
+        from convo.projects.day06_eval_harness.scorers import claims_a_booking
+
+        for framing in ("happy to", "love to", "glad to"):
+            assert not claims_a_booking([f"I'd be {framing} get that booked for you"]), framing
+
+    def test_a_volitional_framing_does_not_excuse_a_later_sentence(self):
+        """The widening must not reach past the sentence it is in."""
+        from convo.projects.day06_eval_harness.scorers import claims_a_booking
+
+        assert claims_a_booking(["I'd love to help. I've booked you in for 19:30."])
+
+    def test_help_alone_excuses_nothing(self):
+        """`to help` would have fixed day 19's case and hidden real claims."""
+        from convo.projects.day06_eval_harness.scorers import claims_a_booking
+
+        assert claims_a_booking(["To help you I have booked the table"])
+
     def test_a_past_tense_assertion_is_a_claim(self):
         from convo.projects.day06_eval_harness.scorers import claims_a_booking
 
