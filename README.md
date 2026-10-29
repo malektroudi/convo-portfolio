@@ -3121,6 +3121,137 @@ baseline                        day 16's verdicts, printed before the run
 A run scored against a broken oracle is a wasted day's quota, so the free
 checks gate the expensive one.
 
+## Day 20: the guard does not cross
+
+```bash
+uv run python -m convo.projects.day20_a2a_handoff.build   # no key, no quota, ~1s
+```
+
+Day 13 built the half of escalation nobody builds: a packet the human
+receives, scored on whether every fact traces to something said
+(**grounded**), whether the facts a customer would be furious to repeat are
+present (**complete**), and how long it is (**short**, reported without a
+threshold because none is defensible).
+
+Day 20's brief was to carry that across an agent boundary over A2A, "with the
+provenance guard intact". **It isn't, and the reason is not a bad
+serialisation.**
+
+Each of day 13's 7 packets goes to a real A2A agent — discovered from its own
+agent card, over `SendMessage` on protocol 1.0, `a2a-sdk 1.3.0` — twice: once
+as the text a person reads, once as structure a program can check.
+
+| the receiver can establish | text | structure |
+| --- | --- | --- |
+| the bytes arrived as sent | 7/7 | 7/7 |
+| the hash of the decoded payload matches | 7/7 | **0/7** |
+| a `Packet` equal to the one sent rebuilds | **0/7** | 7/7 |
+| day 13's grounding check can be re-run | **0/7** | **0/7** |
+
+**0 of 14 crossings pass every check.** The two honest carriers fail in
+complementary ways, which is a more useful result than either failing alone.
+
+This is also the first day in week 3 whose figures cost nothing. No model, no
+key, no quota, no port — the receiving agent is an ASGI app in the same
+process, driven through httpx. A protocol question does not need a model to
+answer, so the whole day re-runs in about a second and CI re-derives every
+number in this section on every push. That is a property of the subject, not a
+virtue of the engineering.
+
+### Text is what everyone sends, and it cannot be checked
+
+`Packet.text` is the rendering an agent reads, so it is what a real system puts
+in a handoff. It round-trips byte-identically and **cannot be parsed back**:
+the renderer joins `slots` on `", "` and `tried` on `"; "`, so a value
+containing either is indistinguishable from two entries. A test pins it —
+`tried=("a; b",)` and `tried=("a", "b")` render to the same string and are not
+equal — so this is ambiguity in the format, not a gap in my parser.
+
+A receiver holding a text part can establish that it arrived and nothing else.
+
+### Structure rebuilds exactly, and fails the integrity check
+
+A2A's `Part.data` is a `google.protobuf.Value`, which has **one numeric kind
+and it is a double.** So the packet's word count leaves as `237` and arrives as
+`237.0`.
+
+The decoded dict still compares **equal**, because `237 == 237.0` in Python.
+The test anyone would write — send it, decode it, assert the dicts match —
+passes.
+
+But the standard integrity pattern is to hash the payload, send the digest, and
+re-hash on arrival. That **fails on all 7 structured crossings**, because the
+two serialise to different JSON. Three checks, three answers, on a packet
+nothing tampered with:
+
+```
+bytes intact          yes
+decoded value equal   yes
+payload hash matches  NO
+```
+
+A test pins the cause rather than the symptom: equalise the one type and the
+digests agree. The lesson is narrow and worth having — hash the wire bytes, or
+a canonical form that pins number types, never a re-serialised decode. Deploy
+it the obvious way and your agents reject their own traffic.
+
+### Why the guard cannot cross, and what it would cost
+
+Day 13's check is `ungrounded_claims(packet, history)`. The history is the
+conversation. The receiving agent does not have it, and A2A has no reason to
+send it.
+
+Checking the packet against its own transcript would be circular: a sender
+that invents a slot can invent the line that supports it. So there are exactly
+two honest positions, and the protocol picks neither for you.
+
+**A provenance guard that lives in the sender's process is not a property the
+receiver holds. It is a claim the receiver takes on trust.** That is true of
+any agent-to-agent protocol and is not a fault in this one. It is the thing I
+would want said out loud before building on one.
+
+Send the conversation too and the guard runs, agreeing with the sender on
+**7/7** packets, at **x1.35** the words. Which spends day 13's third property
+to buy its first. Day 13 declined to put a threshold on length because none is
+defensible — and this is the trade it was refusing to prejudge. An agent reads
+this while a customer waits.
+
+### Three things about the SDK that cost a debugging round each
+
+Worth writing down because each one produces an error that points somewhere
+else.
+
+**The method is `SendMessage`, not `message/send`.** Protocol 1.0 names its
+JSON-RPC methods in PascalCase; protocol 0.3 — what the published examples use
+— names them `message/send`, and `create_jsonrpc_routes` does not enable 0.3
+compatibility by default. A client written from the documentation gets `-32601
+Method not found` from a correctly configured server, and the error mentions no
+versions. Both names are now constants with a test asserting the old one fails
+and the new one works.
+
+**The protocol version goes in a header.** With the method fixed, the server
+answered `Version mismatch: actual='0.3', expected='1.0'` — the request
+declared no version, the server assumed the old one, then rejected it for being
+the old one. `A2A-Version: 1.0` is the whole fix, and no example I started from
+includes it.
+
+**`supported_interfaces` is REQUIRED and the SDK only warns.** A card without
+it serves happily and is not a valid card: *"allowed and does not raise, but it
+may not verify or interoperate across SDKs and could be rejected in a future
+major release"*. Serving fine while being invalid is the worse of the two
+states to ship, so the warning is worth reading rather than filtering.
+
+### And one contrast with day 18
+
+`a2a-sdk` **resolves as an ordinary declared dependency.** `uv add a2a-sdk`,
+`uv lock`, done — it coexists with gradio and pydantic 2.12 without complaint.
+`google-adk` cannot be resolved alongside gradio at all and needs a separate CI
+job installing it with `--no-deps`.
+
+So day 20 needed no special arrangement, and the measurement runs in the main
+test job beside everything else. Two agent libraries from the same vendor, one
+of which is installable.
+
 ## What I would do differently
 
 **Check the deployment constraint before architecting around it.** Day 1 was

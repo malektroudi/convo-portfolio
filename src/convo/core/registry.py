@@ -260,7 +260,7 @@ PLAN: tuple[Project, ...] = (
         3,
         "a2a-handoff",
         "A2A carrying day 13's handoff packet",
-        "Day 13's escalation across an agent boundary over A2A, with the provenance guard intact.",
+        "Day 13's packet over real A2A. The provenance guard does not cross, and that is the day.",
     ),
     Project(
         21,

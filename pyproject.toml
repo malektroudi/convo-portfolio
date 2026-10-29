@@ -4,6 +4,10 @@ version = "0.1.0"
 description = "Conversational AI engineering portfolio: 21 projects behind one hub."
 requires-python = ">=3.11"
 dependencies = [
+    # Day 20. Unlike google-adk, this resolves alongside gradio as an ordinary
+    # dependency — no separate CI job, no --no-deps. Pinned because day 20
+    # publishes figures a dependency helps derive, which is day 18's lesson.
+    "a2a-sdk[http-server]>=1.3,<2",
     "gradio>=5.9,<6",
     "numpy>=1.26,<3",
     "pydantic>=2.9,<3",

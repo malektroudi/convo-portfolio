@@ -927,6 +927,65 @@ def _day19() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
     )
 
 
+def _day20() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
+    """Day 20 is the only week-3 day whose figures cost nothing to re-derive.
+
+    No model, no key, no quota: the measurement is protobuf serialisation and
+    the transport is an ASGI app in the same process.
+    """
+    from convo.projects.day20_a2a_handoff.results import load
+
+    found = load()
+    if found is None:
+        return "", (), (), ""
+
+    checks = (
+        ("bytes arrived as sent", "integrity"),
+        ("hash of the decoded payload matches", "payload_hash_matches"),
+        ("a Packet equal to the one sent rebuilds", "reconstructed"),
+        ("day 13's grounding check can be re-run", "provenance_recheckable"),
+    )
+    rows = tuple(
+        (label,) + tuple(found.tally(carrier, field) for carrier in found.carriers)
+        for label, field in checks
+    )
+
+    return (
+        f"Day 13's {found.packets} escalation packets, each sent twice to a real A2A "
+        f"agent discovered from its own card — once as the text a person reads, once "
+        f"as structure a program can check. Protocol {found.protocol}, "
+        f"a2a-sdk {found.sdk}.",
+        (
+            Stat(f"{found.any_clean}/{len(found.crossings)}", "crossings fully verifiable", "bad"),
+            Stat(found.tally("data", "payload_hash_matches"), "structured hashes match", "bad"),
+            Stat(f"x{found.mean_multiplier}", "words, to make provenance checkable", "plain"),
+        ),
+        (
+            Table(
+                "What the receiving agent can establish",
+                ("the receiver can establish", *found.carriers),
+                rows,
+                "Text is what most systems send and cannot be parsed back: the "
+                "rendering joins slots on a comma and tried-items on a semicolon, so a "
+                "value containing either is indistinguishable from two entries. "
+                "Structure rebuilds exactly and fails the hash, because protobuf's "
+                "Value has one numeric kind and it is a double, so a word count of 237 "
+                "arrives as 237.0. The dict still compares equal, which is why the "
+                "obvious test passes. Neither carrier can re-run the grounding check: "
+                "it needs the conversation, and the protocol has no reason to send it.",
+                highlight=3,
+            ),
+        ),
+        "A provenance guard that lives in the sender's process is not a property the "
+        "receiver holds — it is a claim the receiver takes on trust. Sending the "
+        f"conversation as well makes the guard runnable, agreeing with the sender on "
+        f"{found.grounded_with_history} packets, at x{found.mean_multiplier} the words. "
+        "That spends day 13's third property, brevity, to buy its first. Day 13 "
+        "declined to put a threshold on length because none is defensible; this is the "
+        "trade it was refusing to prejudge.",
+    )
+
+
 BUILDERS = {
     2: _day02,
     3: _day03,
@@ -941,6 +1000,7 @@ BUILDERS = {
     16: _day16,
     18: _day18,
     19: _day19,
+    20: _day20,
 }
 
 NO_ARTIFACT = {

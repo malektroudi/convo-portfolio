@@ -1,0 +1,509 @@
+{
+ "packets": 7,
+ "of_conversations": 16,
+ "carriers": [
+  "text",
+  "data"
+ ],
+ "protocol": "1.0",
+ "sdk": "1.3.0",
+ "card": {
+  "name": "human_handoff_desk",
+  "accepts": [
+   "text/plain",
+   "application/json"
+  ],
+  "interfaces": [
+   "JSONRPC"
+  ]
+ },
+ "crossings": [
+  {
+   "conversation": "allergen-answered",
+   "carrier": "text",
+   "wire_bytes": 188,
+   "integrity": true,
+   "payload_hash_matches": true,
+   "reconstructed": false,
+   "equal_by_value": false,
+   "drift": [],
+   "complete_sender": 1.0,
+   "complete_receiver": null,
+   "complete_agrees": null,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 29,
+   "history_words": 9,
+   "history_multiplier": 1.31
+  },
+  {
+   "conversation": "allergen-answered",
+   "carrier": "data",
+   "wire_bytes": 292,
+   "integrity": true,
+   "payload_hash_matches": false,
+   "reconstructed": true,
+   "equal_by_value": true,
+   "drift": [
+    {
+     "field": "words",
+     "sent": "int",
+     "received": "float",
+     "value": "29 -> 29.0"
+    }
+   ],
+   "complete_sender": 1.0,
+   "complete_receiver": 1.0,
+   "complete_agrees": true,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 29,
+   "history_words": 9,
+   "history_multiplier": 1.31
+  },
+  {
+   "conversation": "asks-for-a-person",
+   "carrier": "text",
+   "wire_bytes": 205,
+   "integrity": true,
+   "payload_hash_matches": true,
+   "reconstructed": false,
+   "equal_by_value": false,
+   "drift": [],
+   "complete_sender": 1.0,
+   "complete_receiver": null,
+   "complete_agrees": null,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 31,
+   "history_words": 11,
+   "history_multiplier": 1.35
+  },
+  {
+   "conversation": "asks-for-a-person",
+   "carrier": "data",
+   "wire_bytes": 300,
+   "integrity": true,
+   "payload_hash_matches": false,
+   "reconstructed": true,
+   "equal_by_value": true,
+   "drift": [
+    {
+     "field": "words",
+     "sent": "int",
+     "received": "float",
+     "value": "31 -> 31.0"
+    }
+   ],
+   "complete_sender": 1.0,
+   "complete_receiver": 1.0,
+   "complete_agrees": true,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 31,
+   "history_words": 11,
+   "history_multiplier": 1.35
+  },
+  {
+   "conversation": "allergen-refused",
+   "carrier": "text",
+   "wire_bytes": 218,
+   "integrity": true,
+   "payload_hash_matches": true,
+   "reconstructed": false,
+   "equal_by_value": false,
+   "drift": [],
+   "complete_sender": 0.6667,
+   "complete_receiver": null,
+   "complete_agrees": null,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 31,
+   "history_words": 10,
+   "history_multiplier": 1.32
+  },
+  {
+   "conversation": "allergen-refused",
+   "carrier": "data",
+   "wire_bytes": 321,
+   "integrity": true,
+   "payload_hash_matches": false,
+   "reconstructed": true,
+   "equal_by_value": true,
+   "drift": [
+    {
+     "field": "words",
+     "sent": "int",
+     "received": "float",
+     "value": "31 -> 31.0"
+    }
+   ],
+   "complete_sender": 0.6667,
+   "complete_receiver": 0.6667,
+   "complete_agrees": true,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 31,
+   "history_words": 10,
+   "history_multiplier": 1.32
+  },
+  {
+   "conversation": "billing-complaint",
+   "carrier": "text",
+   "wire_bytes": 223,
+   "integrity": true,
+   "payload_hash_matches": true,
+   "reconstructed": false,
+   "equal_by_value": false,
+   "drift": [],
+   "complete_sender": 1.0,
+   "complete_receiver": null,
+   "complete_agrees": null,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 34,
+   "history_words": 11,
+   "history_multiplier": 1.32
+  },
+  {
+   "conversation": "billing-complaint",
+   "carrier": "data",
+   "wire_bytes": 327,
+   "integrity": true,
+   "payload_hash_matches": false,
+   "reconstructed": true,
+   "equal_by_value": true,
+   "drift": [
+    {
+     "field": "words",
+     "sent": "int",
+     "received": "float",
+     "value": "34 -> 34.0"
+    }
+   ],
+   "complete_sender": 1.0,
+   "complete_receiver": 1.0,
+   "complete_agrees": true,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 34,
+   "history_words": 11,
+   "history_multiplier": 1.32
+  },
+  {
+   "conversation": "repeats-the-question",
+   "carrier": "text",
+   "wire_bytes": 351,
+   "integrity": true,
+   "payload_hash_matches": true,
+   "reconstructed": false,
+   "equal_by_value": false,
+   "drift": [],
+   "complete_sender": 1.0,
+   "complete_receiver": null,
+   "complete_agrees": null,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 59,
+   "history_words": 24,
+   "history_multiplier": 1.41
+  },
+  {
+   "conversation": "repeats-the-question",
+   "carrier": "data",
+   "wire_bytes": 441,
+   "integrity": true,
+   "payload_hash_matches": false,
+   "reconstructed": true,
+   "equal_by_value": true,
+   "drift": [
+    {
+     "field": "words",
+     "sent": "int",
+     "received": "float",
+     "value": "59 -> 59.0"
+    }
+   ],
+   "complete_sender": 1.0,
+   "complete_receiver": 1.0,
+   "complete_agrees": true,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 59,
+   "history_words": 24,
+   "history_multiplier": 1.41
+  },
+  {
+   "conversation": "food-safety",
+   "carrier": "text",
+   "wire_bytes": 207,
+   "integrity": true,
+   "payload_hash_matches": true,
+   "reconstructed": false,
+   "equal_by_value": false,
+   "drift": [],
+   "complete_sender": 1.0,
+   "complete_receiver": null,
+   "complete_agrees": null,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 30,
+   "history_words": 9,
+   "history_multiplier": 1.3
+  },
+  {
+   "conversation": "food-safety",
+   "carrier": "data",
+   "wire_bytes": 305,
+   "integrity": true,
+   "payload_hash_matches": false,
+   "reconstructed": true,
+   "equal_by_value": true,
+   "drift": [
+    {
+     "field": "words",
+     "sent": "int",
+     "received": "float",
+     "value": "30 -> 30.0"
+    }
+   ],
+   "complete_sender": 1.0,
+   "complete_receiver": 1.0,
+   "complete_agrees": true,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 30,
+   "history_words": 9,
+   "history_multiplier": 1.3
+  },
+  {
+   "conversation": "abandons-then-escalates",
+   "carrier": "text",
+   "wire_bytes": 220,
+   "integrity": true,
+   "payload_hash_matches": true,
+   "reconstructed": false,
+   "equal_by_value": false,
+   "drift": [],
+   "complete_sender": 1.0,
+   "complete_receiver": null,
+   "complete_agrees": null,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 31,
+   "history_words": 14,
+   "history_multiplier": 1.45
+  },
+  {
+   "conversation": "abandons-then-escalates",
+   "carrier": "data",
+   "wire_bytes": 312,
+   "integrity": true,
+   "payload_hash_matches": false,
+   "reconstructed": true,
+   "equal_by_value": true,
+   "drift": [
+    {
+     "field": "words",
+     "sent": "int",
+     "received": "float",
+     "value": "31 -> 31.0"
+    }
+   ],
+   "complete_sender": 1.0,
+   "complete_receiver": 1.0,
+   "complete_agrees": true,
+   "grounded_sender": true,
+   "provenance_recheckable": false,
+   "sent_words": 31,
+   "history_words": 14,
+   "history_multiplier": 1.45
+  }
+ ],
+ "transport": [
+  {
+   "conversation": "allergen-answered",
+   "carrier": "text",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "text handoff received; fields not recoverable"
+  },
+  {
+   "conversation": "allergen-answered",
+   "carrier": "data",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "structured handoff for allergen-answered"
+  },
+  {
+   "conversation": "asks-for-a-person",
+   "carrier": "text",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "text handoff received; fields not recoverable"
+  },
+  {
+   "conversation": "asks-for-a-person",
+   "carrier": "data",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "structured handoff for asks-for-a-person"
+  },
+  {
+   "conversation": "allergen-refused",
+   "carrier": "text",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "text handoff received; fields not recoverable"
+  },
+  {
+   "conversation": "allergen-refused",
+   "carrier": "data",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "structured handoff for allergen-refused"
+  },
+  {
+   "conversation": "billing-complaint",
+   "carrier": "text",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "text handoff received; fields not recoverable"
+  },
+  {
+   "conversation": "billing-complaint",
+   "carrier": "data",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "structured handoff for billing-complaint"
+  },
+  {
+   "conversation": "repeats-the-question",
+   "carrier": "text",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "text handoff received; fields not recoverable"
+  },
+  {
+   "conversation": "repeats-the-question",
+   "carrier": "data",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "structured handoff for repeats-the-question"
+  },
+  {
+   "conversation": "food-safety",
+   "carrier": "text",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "text handoff received; fields not recoverable"
+  },
+  {
+   "conversation": "food-safety",
+   "carrier": "data",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "structured handoff for food-safety"
+  },
+  {
+   "conversation": "abandons-then-escalates",
+   "carrier": "text",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "text handoff received; fields not recoverable"
+  },
+  {
+   "conversation": "abandons-then-escalates",
+   "carrier": "data",
+   "status": 200,
+   "discovered": "human_handoff_desk",
+   "accepts": [
+    "text/plain",
+    "application/json"
+   ],
+   "reply": "structured handoff for abandons-then-escalates"
+  }
+ ],
+ "provenance_with_history": {
+  "allergen-answered": {
+   "grounded": true,
+   "problems": 0
+  },
+  "asks-for-a-person": {
+   "grounded": true,
+   "problems": 0
+  },
+  "allergen-refused": {
+   "grounded": true,
+   "problems": 0
+  },
+  "billing-complaint": {
+   "grounded": true,
+   "problems": 0
+  },
+  "repeats-the-question": {
+   "grounded": true,
+   "problems": 0
+  },
+  "food-safety": {
+   "grounded": true,
+   "problems": 0
+  },
+  "abandons-then-escalates": {
+   "grounded": true,
+   "problems": 0
+  }
+ }
+}

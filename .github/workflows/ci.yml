@@ -72,6 +72,15 @@ jobs:
           print("tools reachable from it   :", sorted(graph.tools_reachable_from(scope.HANDOFF)) or "none")
           PY
 
+      # Day 20 is the only week-3 day whose figures cost nothing to re-derive:
+      # no model, no key, no quota, and the receiving A2A agent is an ASGI app
+      # in the same process. So CI rebuilds the artifact rather than trusting
+      # the committed one, and the day's own tests then compare every stored
+      # crossing against a fresh measurement. Every other week-3 day can only
+      # re-score what a paid run already produced.
+      - name: Day 20's A2A crossing, re-derived from scratch
+        run: uv run python -m convo.projects.day20_a2a_handoff.build
+
       # The deploy workflow generates the site from the artifacts. Building it
       # here too means a broken generator fails on the pull request rather
       # than on the push that was supposed to publish it.
