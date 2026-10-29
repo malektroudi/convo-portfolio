@@ -844,6 +844,13 @@ def _day19() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
             "exactly as day 16's calls were, and counted again on its own so the "
             "price of the guarantee is visible."
             + (
+                f" This run used {found.model} and day 16's used "
+                f"{found.baseline_model}, so the difference is topology and model "
+                "rather than topology."
+                if found.model_drift
+                else ""
+            )
+            + (
                 f" The free tier stopped the run at {found.scenarios} of "
                 f"{found.of_suite}, so this is an indication and not a verified pass "
                 "over the suite — and the scenarios that did not run skew hard, since "

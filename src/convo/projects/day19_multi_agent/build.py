@@ -53,7 +53,7 @@ from convo.projects.day16_adk_agent.build import (
     _is_rate_limit,
     _is_retryable,
 )
-from convo.projects.day16_adk_agent.model import redact, resolve
+from convo.projects.day16_adk_agent.model import ModelUnavailable, redact, require, resolve
 from convo.projects.day18_eval_gate.trajectory import expected_for
 from convo.projects.day19_multi_agent import scope
 from convo.projects.day19_multi_agent.oracle import (
@@ -143,6 +143,52 @@ correction rather than wait for the re-run.
 It disappears when day 16 is re-run against the fixed scorer; `day16_stale`
 is what says whether that has happened.
 """
+
+
+def baseline_model() -> str:
+    """The model day 16's artifact ran on, which day 19 must match.
+
+    Day 19's whole claim is that the only thing changed is the topology. The
+    model is therefore a controlled variable, and reading it from the baseline
+    artifact rather than naming it here means the two cannot drift apart.
+    """
+    artifact = Path(__file__).parents[1] / "day16_adk_agent" / "artifacts" / "adk.json"
+    if not artifact.exists():
+        return ""
+    return json.loads(artifact.read_text(encoding="utf-8")).get("model", "")
+
+
+def pinned(allow_drift: bool):
+    """Day 16's model, or an explicit, recorded decision to use another.
+
+    `resolve()` picks the best model that answers, and falls back when one does
+    not — including when its daily quota is gone. That is the right behaviour
+    for "run this bot" and the wrong behaviour here: on the day this was
+    written `flash-lite` was exhausted, `resolve()` had moved to `flash`, and a
+    run would have produced a 32-scenario artifact that compared cleanly
+    against day 16 and measured the model instead of the topology.
+    """
+    want = baseline_model()
+    if not want:
+        log.warning("no day 16 artifact to pin to; falling back to resolve()")
+        return resolve(), False
+    if allow_drift:
+        got = resolve()
+        if got.model != want:
+            log.warning(
+                "running on a different model from the baseline, as asked",
+                extra={"baseline": want, "using": got.model},
+            )
+        return got, got.model != want
+    try:
+        return require(want), False
+    except ModelUnavailable as exc:
+        raise SystemExit(
+            f"day 16's run used {want} and this one must match it, but {exc}. "
+            "Wait for the reset, or pass --allow-model-drift to run on whatever "
+            "is available and have the artifact record that the comparison is "
+            "cross-model."
+        ) from exc
 
 
 def day16_stale() -> bool:
@@ -258,9 +304,16 @@ def _payload(
     transfers: dict[str, int],
     quota_note: str,
     unavailable: list[str],
+    drift: bool = False,
 ) -> dict:
     return {
         "model": model,
+        # `baseline_model` and `model_drift` are stored rather than left to be
+        # inferred by comparing this artifact's model against day 16's: a
+        # reader of one file should not have to open another to find out
+        # whether the comparison printed beside it is cross-model.
+        "baseline_model": baseline_model(),
+        "model_drift": drift,
         "scenarios": len(attempted),
         "of_suite": len(SUITE),
         "partial": len(attempted) < len(SUITE),
@@ -329,6 +382,11 @@ def main(argv: list[str] | None = None) -> int:
         help="rebuild every verdict from the stored outcomes, calling no model",
     )
     parser.add_argument(
+        "--allow-model-drift",
+        action="store_true",
+        help="run on whatever model is available instead of day 16's, and record it",
+    )
+    parser.add_argument(
         "--write-topology",
         action="store_true",
         help="re-derive and commit the agent graph; needs google-adk, no key",
@@ -366,7 +424,7 @@ def main(argv: list[str] | None = None) -> int:
             log.error("preflight", extra={"detail": line})
         raise SystemExit("preflight failed; not spending the quota")
 
-    resolved = resolve()
+    resolved, drift = pinned(args.allow_model_drift)
     scenarios = SUITE[: args.limit] if args.limit else SUITE
     live, records, transfers = multi_agent_runner(resolved.model)
 
@@ -428,6 +486,7 @@ def main(argv: list[str] | None = None) -> int:
                 transfers,
                 quota_note,
                 unavailable,
+                drift,
             ),
             indent=1,
         ),

@@ -60,6 +60,16 @@ class RouteRow:
 @dataclass(frozen=True)
 class Results:
     model: str
+    baseline_model: str
+    model_drift: bool
+    """Whether this run used a different model from day 16's.
+
+    Stored by builds that know about the pin, and derived by comparing the two
+    artifacts for one that predates it — so a tab or a page can state whether
+    the comparison beside it is cross-model without caring which kind of
+    artifact it is reading.
+    """
+
     scenarios: int
     of_suite: int
     partial: bool
@@ -171,8 +181,17 @@ def load() -> Results | None:
         for raw in routing.get("verdicts", [])
     )
 
+    from convo.projects.day19_multi_agent.build import baseline_model
+
+    stored_baseline = payload.get("baseline_model") or baseline_model()
     return Results(
         model=payload["model"],
+        baseline_model=stored_baseline,
+        model_drift=bool(
+            payload["model_drift"]
+            if "model_drift" in payload
+            else (stored_baseline and payload["model"] != stored_baseline)
+        ),
         scenarios=payload["scenarios"],
         of_suite=payload["of_suite"],
         partial=bool(payload.get("partial")),

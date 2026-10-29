@@ -245,6 +245,14 @@ def _results(results: Results) -> None:
         f"{results.total_transfers} transfers across the suite."
     )
 
+    if results.model_drift:
+        gr.Markdown(
+            f"<p style='color:{CRITICAL}'><b>Cross-model comparison.</b> This run used "
+            f"`{results.model}` and day 16's used `{results.baseline_model}`, so the "
+            "difference below is topology <i>and</i> model, not topology. The build "
+            "refuses this by default; it was asked for.</p>"
+        )
+
     if results.scope_breaches:
         gr.Markdown(
             f"<p style='color:{CRITICAL}'><b>Scope breach.</b> "

@@ -395,6 +395,8 @@ def _results(verdicts: dict[str, bool], day16: dict[str, str]):
     run = EvalRun(suite="t", run_id="t", started_at="t", cases=cases)
     return Results(
         model="none",
+        baseline_model="none",
+        model_drift=False,
         scenarios=len(cases),
         of_suite=32,
         partial=False,
@@ -499,6 +501,118 @@ class TestTheRetryTaxonomyIsShared:
         assert d19.QuotaExhausted is d16.QuotaExhausted
         assert d19.ScenarioUnavailable is d16.ScenarioUnavailable
         assert d19.BACKOFF_S is d16.BACKOFF_S
+
+
+def _artifact_without_drift_fields():
+    """A copy of day 19's artifact as a pre-pin build would have written it.
+
+    Written to a temp file rather than mutating the committed one: the point of
+    the test is that an old artifact still answers, not that artifacts may be
+    edited by hand.
+    """
+    import tempfile
+    from pathlib import Path
+
+    from convo.projects.day19_multi_agent.results import ARTIFACT_FILE
+
+    payload = json.loads(ARTIFACT_FILE.read_text(encoding="utf-8"))
+    payload.pop("baseline_model", None)
+    payload.pop("model_drift", None)
+    payload["model"] = "gemini-something-else"
+    out = Path(tempfile.mkdtemp()) / "multi_agent.json"
+    out.write_text(json.dumps(payload), encoding="utf-8")
+    return out
+
+
+class TestTheModelIsAControlledVariable:
+    """`resolve()` falls back; a comparison must not.
+
+    Caught before it did any damage, by probing the quota before running:
+    `flash-lite`'s daily allowance was spent, `resolve()` had already moved on
+    to `flash`, and a full 32-scenario run would have written an artifact that
+    compared cleanly against day 16 and measured the model instead of the
+    topology.
+    """
+
+    def test_the_baseline_model_comes_from_day_16s_artifact(self):
+        """Read, not named here, so the two cannot drift apart."""
+        from convo.projects.day19_multi_agent.build import baseline_model
+
+        found = baseline_model()
+        if not found:
+            pytest.skip("day 16 has no artifact")
+        assert found.startswith("gemini")
+
+    def test_it_refuses_rather_than_substituting(self, monkeypatch):
+        from convo.projects.day16_adk_agent.model import ModelUnavailable
+        from convo.projects.day19_multi_agent import build
+
+        monkeypatch.setattr(build, "baseline_model", lambda: "gemini-pinned")
+
+        def gone(name):
+            raise ModelUnavailable(f"{name} would not serve (daily quota exhausted)")
+
+        monkeypatch.setattr(build, "require", gone)
+        monkeypatch.setattr(build, "resolve", lambda: pytest.fail("resolve() must not be reached"))
+        with pytest.raises(SystemExit) as caught:
+            build.pinned(allow_drift=False)
+        assert "gemini-pinned" in str(caught.value)
+        assert "--allow-model-drift" in str(caught.value)
+
+    def test_drift_is_opt_in_and_reported(self, monkeypatch):
+        from convo.projects.day16_adk_agent.model import Resolved
+        from convo.projects.day19_multi_agent import build
+
+        monkeypatch.setattr(build, "baseline_model", lambda: "gemini-pinned")
+        monkeypatch.setattr(build, "resolve", lambda: Resolved("gemini-other", 1, ()))
+        resolved, drift = build.pinned(allow_drift=True)
+        assert resolved.model == "gemini-other"
+        assert drift is True
+
+    def test_no_drift_when_the_available_model_is_the_baseline(self, monkeypatch):
+        from convo.projects.day16_adk_agent.model import Resolved
+        from convo.projects.day19_multi_agent import build
+
+        monkeypatch.setattr(build, "baseline_model", lambda: "gemini-pinned")
+        monkeypatch.setattr(build, "resolve", lambda: Resolved("gemini-pinned", 1, ()))
+        _, drift = build.pinned(allow_drift=True)
+        assert drift is False
+
+    def test_a_first_run_has_nothing_to_pin_to(self, monkeypatch):
+        from convo.projects.day16_adk_agent.model import Resolved
+        from convo.projects.day19_multi_agent import build
+
+        monkeypatch.setattr(build, "baseline_model", lambda: "")
+        monkeypatch.setattr(build, "resolve", lambda: Resolved("gemini-whatever", 1, ()))
+        resolved, drift = build.pinned(allow_drift=False)
+        assert resolved.model == "gemini-whatever"
+        assert drift is False
+
+    def test_the_loaded_run_knows_whether_it_is_cross_model(self):
+        """So a tab can state it without opening day 16's artifact.
+
+        Derived for the run on disk, which predates the pin, and read straight
+        off the payload for anything built after it. Both paths have to answer.
+        """
+        from convo.projects.day19_multi_agent.results import load
+
+        load.cache_clear()
+        found = load()
+        if found is None:
+            pytest.skip("day 19 has not been run")
+        assert found.baseline_model
+        assert found.model == found.baseline_model
+        assert found.model_drift is False
+
+    def test_drift_is_derived_when_the_artifact_predates_the_field(self, monkeypatch):
+        from convo.projects.day19_multi_agent import results
+
+        monkeypatch.setattr(results, "ARTIFACT_FILE", _artifact_without_drift_fields())
+        results.load.cache_clear()
+        found = results.load()
+        assert found is not None
+        assert found.model_drift is True
+        results.load.cache_clear()
 
 
 class TestTheProofIsReadableWithoutTheFramework:

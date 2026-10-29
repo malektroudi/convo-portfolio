@@ -29,7 +29,7 @@ from convo.projects.day06_eval_harness.harness import engine_runner, run_suite
 from convo.projects.day06_eval_harness.outcome import Outcome
 from convo.projects.day06_eval_harness.suite import REF, SUITE, Scenario
 from convo.projects.day16_adk_agent.agent import run_conversation
-from convo.projects.day16_adk_agent.model import redact, resolve
+from convo.projects.day16_adk_agent.model import ModelUnavailable, redact, require, resolve
 
 ARTIFACT_DIR = Path(__file__).parent / "artifacts"
 
@@ -267,10 +267,47 @@ def _rescore_stored() -> int:
     return 0
 
 
+def _pinned_to_previous(allow_drift: bool):
+    """The model the stored run used, or an explicit decision to change it.
+
+    This day's published claim is now three runs of the same agent on the same
+    model, and the spread between them — so the model is a controlled variable
+    and `resolve()` must not be allowed to pick for us. It falls back whenever
+    a candidate fails, an exhausted daily quota included, which is correct for
+    "run this bot" and wrong here: day 19 caught it mid-fallback, with
+    `flash-lite` spent and `flash` silently next in line.
+
+    A first run has nothing to pin to and resolves normally.
+    """
+    out = ARTIFACT_DIR / "adk.json"
+    previous = json.loads(out.read_text(encoding="utf-8")).get("model", "") if out.exists() else ""
+    if not previous or allow_drift:
+        resolved = resolve()
+        if previous and resolved.model != previous:
+            log.warning(
+                "running on a different model from the stored run, as asked",
+                extra={"stored": previous, "using": resolved.model},
+            )
+        return resolved
+    try:
+        return require(previous)
+    except ModelUnavailable as exc:
+        raise SystemExit(
+            f"the stored run used {previous} and the run-to-run comparison needs the "
+            f"same model, but {exc}. Wait for the reset, or pass --allow-model-drift "
+            "to replace the stored run with one on a different model."
+        ) from exc
+
+
 def main(argv: list[str] | None = None) -> int:
     setup()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int, default=None, help="run only the first N scenarios")
+    parser.add_argument(
+        "--allow-model-drift",
+        action="store_true",
+        help="run on whatever model resolves instead of the stored run's",
+    )
     parser.add_argument(
         "--rescore",
         action="store_true",
@@ -281,7 +318,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.rescore:
         return _rescore_stored()
 
-    resolved = resolve()
+    resolved = _pinned_to_previous(args.allow_model_drift)
     scenarios = SUITE[: args.limit] if args.limit else SUITE
     log.info(
         "running the suite",

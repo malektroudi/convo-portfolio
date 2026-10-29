@@ -109,9 +109,61 @@ def available() -> bool:
     return bool(load_key())
 
 
+class ModelUnavailable(RuntimeError):
+    """A specific model was asked for by name and would not serve.
+
+    Separate from `resolve()`'s fallback on purpose. Falling back is right when
+    the question is "run this bot somewhere"; it is wrong whenever a figure is
+    being compared against an earlier run, because the model is the controlled
+    variable and a silent substitution turns a topology comparison into a model
+    comparison that still looks like the first one.
+
+    Day 19 found this the cheap way, by probing before running: `flash-lite`'s
+    daily quota was gone, `resolve()` had quietly moved to `flash`, and a full
+    32-scenario run would have produced an artifact that compared cleanly
+    against day 16 and meant nothing.
+    """
+
+
+def require(name: str) -> Resolved:
+    """Resolve exactly `name`, or raise rather than substituting.
+
+    One call, so a wrong answer costs a token or two instead of a run.
+    """
+    from google import genai
+    from google.genai import types
+
+    key = ensure_env()
+    if not key:
+        raise RuntimeError("GOOGLE_API_KEY is not set; put it in .env")
+
+    client = genai.Client(api_key=key, http_options=types.HttpOptions(timeout=60_000))
+    try:
+        client.models.generate_content(
+            model=name,
+            contents="ok",
+            config=types.GenerateContentConfig(max_output_tokens=4),
+        )
+    except Exception as exc:  # noqa: BLE001 - the message may carry the key
+        detail = redact(exc, key)
+        daily = "perday" in detail.lower().replace(" ", "").replace("_", "")
+        raise ModelUnavailable(
+            f"{name} would not serve"
+            + (" (daily quota exhausted; it resets after 24h)" if daily else "")
+            + f": {detail[:200]}"
+        ) from exc
+
+    log.info("model pinned", extra={"model": name})
+    return Resolved(name, 0, ())
+
+
 @lru_cache(maxsize=1)
 def resolve() -> Resolved:
     """The first preferred model that answers a one-token request.
+
+    **Falls back on failure, including on an exhausted daily quota.** That is
+    what makes it unsuitable for a run whose figures will be compared against
+    an earlier one — use `require()` there.
 
     Listing is not enough — the listing includes models the key may not call —
     so each candidate is actually invoked. That costs a handful of tokens and

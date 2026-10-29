@@ -2788,6 +2788,51 @@ and the efficiency bar is 0.9. It would be a bad trade for a bot whose
 per-conversation cost mattered more than whether it books tables nobody asked
 for.
 
+### The resolver would have swapped the model out from under it
+
+Finishing the remaining 8 scenarios should have been one command. Probing the
+quota first is what stopped it being a quiet disaster.
+
+`flash-lite`'s daily allowance was gone, spent on day 16's re-run and day 19's
+24. `resolve()` picks the first preferred model that answers a one-token
+request and **falls back when one does not, an exhausted quota included** — so
+it had already moved to `gemini-3.5-flash`, which has its own separate 500.
+
+A full run would have worked. It would have written a clean 32-scenario
+artifact, compared itself against day 16, and measured **the model instead of
+the topology** — and every figure in this section would have been a cross-model
+comparison wearing the clothes of a controlled one. The artifact records the
+model, so it was discoverable; nothing would have announced it.
+
+Falling back is correct for "run this bot somewhere" and wrong for any run
+whose numbers get compared to an earlier one. So there are now two functions:
+
+```
+resolve()              the best model that answers; falls back
+require(name)          that model or nothing, with ModelUnavailable
+```
+
+Day 19 pins to the model read out of **day 16's artifact**, rather than a name
+written here, so the two cannot drift apart. Day 16 pins to its own stored run
+for the same reason — its published claim is three runs of the same agent on
+the same model, which a silent substitution would have made meaningless.
+Either can be overridden with `--allow-model-drift`, and then the artifact
+carries `model_drift: true` and the tab says the comparison is cross-model in
+red.
+
+Both refuse right now, which is why day 19 still stands at 24 of 32:
+
+```
+day 16's run used gemini-3.5-flash-lite and this one must match it, but
+gemini-3.5-flash-lite would not serve (daily quota exhausted; it resets
+after 24h). Wait for the reset, or pass --allow-model-drift ...
+```
+
+A cross-model run is still worth doing — it is the obvious way to ask whether
+day 19's result is architectural or particular to one small model. It is a
+different experiment from finishing this one, and labelling it as such is the
+whole point of the flag.
+
 ### The retries are invisible in the artifact, and they are most of the bill
 
 The run stopped at 24 of 32 on the daily quota, having recorded 150 model
