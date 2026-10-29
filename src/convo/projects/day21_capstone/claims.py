@@ -275,8 +275,11 @@ CLAIMS: tuple[Claim, ...] = (
             "The only machine that can measure the image is the one building "
             "it, and nothing commits what it finds. So the figure published "
             "here is a ceiling: a number that is in a file, that CI checks on "
-            "every push, and that fails loudly when the image grows into it. A "
-            "weaker claim that is checked beats a precise one that is not."
+            "every push, and that fails loudly when the image grows into it. "
+            "The gate answered on its first run — the image is 630 MB, "
+            "where three pages had said 588. An unstored figure is not a "
+            "softer case than a stale one; it is a stale one with the evidence "
+            "removed."
         ),
         kind=UNSTORED,
         figure=f"under {_IMAGE_CEILING_MB} MB",

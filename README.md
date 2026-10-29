@@ -1873,7 +1873,7 @@ was only ever **one way of rendering them**.
 
 | | container | static site |
 |---|---|---|
-| size | 588 MB | **109 KB** |
+| size | 630 MB | **170 KB** |
 | needs a billing account | yes | no |
 | cold start | seconds | none |
 | external requests at load | — | **zero** |
@@ -3348,13 +3348,19 @@ that produced it.**
 
 The serving image's size — **588 MB** — appeared in six places. Nothing in the
 repository records it, because the only machine that can measure it is the one
-building it. No rebuild could ever have corrected it, and it was not even
-wrong in a way anything could detect.
+building it. No rebuild could ever have corrected it, and it was not wrong in
+a way anything could detect.
 
 Day 21 does not publish it. It publishes a **ceiling** instead: a number in a
 committed file, which CI checks on every push and which fails the build when
-the image grows into it. That is a weaker claim, and a weaker claim that is
-checked beats a precise one that quietly rots.
+the image grows into it. A weaker claim that is checked beats a precise one
+that quietly rots.
+
+The gate answered that on its first run. **The image is 630 MB.** The figure
+it replaced was not merely uncheckable — it was wrong by 42 MB, and had been
+for long enough that nobody could say when it stopped being true. `unstored`
+is not a softer category than `stale`; it is `stale` with the evidence
+removed.
 
 ### One cost table
 

@@ -126,6 +126,6 @@ def build() -> None:
         "#### Where it stands\n"
         "The container is verified in CI on every push — it boots, serves, runs "
         "as a non-root user, and a dedicated job fails the build if `torch` ever "
-        "leaks into the 588 MB image. What is missing is a billing account, not "
-        "code. Run it locally with `uv run python -m convo.hub`."
+        "leaks into the image. What is missing is a billing account, not code. "
+        "Run it locally with `uv run python -m convo.hub`."
     )

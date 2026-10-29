@@ -5,8 +5,9 @@
 
 Writes one artifact the hub reads with numpy alone. The question embeddings
 ship with it so dense retrieval works in a container that has no encoder —
-the same bargain as days 2, 3 and 5, and the reason the image is 588 MB
-rather than over a gigabyte.
+the same bargain as days 2, 3 and 5, and the reason the image is well under a
+gigabyte. Day 21 put a checked ceiling on it, because the figure that used to
+sit in this sentence had been wrong by 42 MB for months.
 """
 
 from __future__ import annotations

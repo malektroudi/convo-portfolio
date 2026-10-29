@@ -25,7 +25,7 @@
    "key": "image-size",
    "day": 1,
    "headline": "The serving image, as a ceiling rather than a size",
-   "body": "The only machine that can measure the image is the one building it, and nothing commits what it finds. So the figure published here is a ceiling: a number that is in a file, that CI checks on every push, and that fails loudly when the image grows into it. A weaker claim that is checked beats a precise one that is not.",
+   "body": "The only machine that can measure the image is the one building it, and nothing commits what it finds. So the figure published here is a ceiling: a number that is in a file, that CI checks on every push, and that fails loudly when the image grows into it. The gate answered on its first run \u2014 the image is 630 MB, where three pages had said 588. An unstored figure is not a softer case than a stale one; it is a stale one with the evidence removed.",
    "kind": "unstored",
    "figure": "under 700 MB",
    "lead": false
