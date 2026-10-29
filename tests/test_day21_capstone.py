@@ -242,7 +242,18 @@ class TestASummaryCannotCountItself:
         except (OSError, subprocess.CalledProcessError):  # pragma: no cover
             pytest.skip("git is not available here")
 
-        blobs = [line.split()[1] for line in listing.splitlines() if line.strip()]
+        # Day 21's own artifact is left out of both sides, for the reason the
+        # rest of this class is about. This test passed until the moment that
+        # file was first committed, which is the fixpoint arriving from the
+        # other direction.
+        blobs = []
+        for line in listing.splitlines():
+            if not line.strip():
+                continue
+            meta, _, path = line.partition("\t")
+            if f"day{ledger.SELF}_" in path:
+                continue
+            blobs.append(meta.split()[1])
         if not blobs:  # pragma: no cover - a checkout with no artifacts committed
             pytest.skip("no artifacts are committed")
         sizes = subprocess.run(
