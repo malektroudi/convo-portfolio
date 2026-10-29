@@ -52,8 +52,9 @@ from convo.projects.day16_adk_agent.build import (
     _is_daily_quota,
     _is_rate_limit,
     _is_retryable,
+    quota_detail,
 )
-from convo.projects.day16_adk_agent.model import ModelUnavailable, redact, require, resolve
+from convo.projects.day16_adk_agent.model import ModelUnavailable, require, resolve
 from convo.projects.day18_eval_gate.trajectory import expected_for
 from convo.projects.day19_multi_agent import scope
 from convo.projects.day19_multi_agent.oracle import (
@@ -68,6 +69,26 @@ from convo.projects.day19_multi_agent.score import Summary, Turn, score_route
 
 ARTIFACT_DIR = Path(__file__).parent / "artifacts"
 ARTIFACT_FILE = ARTIFACT_DIR / "multi_agent.json"
+"""The controlled run: day 16's model, so the only variable is the topology."""
+
+
+def artifact_for(model: str) -> Path:
+    """Where a run's artifact goes, keyed by whether it is the controlled one.
+
+    A run on another model is a different experiment and gets a different file.
+    Writing it to `multi_agent.json` would overwrite the result day 19's
+    published figures rest on, and the overwrite would look like an update —
+    the comparison against day 16 would still render, still be labelled
+    "router vs one agent", and silently be measuring the model.
+
+    This is the same hazard the model pin was added for, one step further
+    along: the pin stops a drifted run being mistaken for the controlled one,
+    and this stops it replacing it.
+    """
+    if model == baseline_model():
+        return ARTIFACT_FILE
+    return ARTIFACT_DIR / f"multi_agent.{model}.json"
+
 
 log = get_logger("day19.build")
 
@@ -244,13 +265,13 @@ def multi_agent_runner(model: str):
             except Exception as exc:  # noqa: BLE001 - message may carry the key
                 last = exc
                 if _is_rate_limit(exc) and _is_daily_quota(exc):
-                    raise QuotaExhausted(redact(exc)[:300]) from exc
+                    raise QuotaExhausted(quota_detail(exc)) from exc
                 if not _is_retryable(exc):
                     raise
                 if attempt == RETRIES - 1:
                     if _is_rate_limit(exc):
-                        raise QuotaExhausted(redact(exc)[:300]) from exc
-                    raise ScenarioUnavailable(redact(exc)[:300]) from exc
+                        raise QuotaExhausted(quota_detail(exc)) from exc
+                    raise ScenarioUnavailable(quota_detail(exc)) from exc
                 wait = BACKOFF_S[min(attempt, len(BACKOFF_S) - 1)]
                 log.info(
                     "retrying after a transient error",
@@ -331,20 +352,22 @@ def _payload(
     }
 
 
-def _rescore_stored() -> int:
-    """Rebuild the free half of the artifact from the stored run.
+def stored_artifacts() -> list[Path]:
+    """Every run this day has on disk: the controlled one, then any others.
 
-    Day 18's lesson, applied before it is needed rather than after: a scorer
-    change must be re-appliable without paying for the model again, so the raw
-    outcomes are stored and this path re-derives every verdict from them.
+    Cross-model runs are included so that a scorer change reaches them too. A
+    figure published from a file nothing re-derives is the thing day 18 spent
+    three sections on.
     """
-    if not ARTIFACT_FILE.exists():
-        raise SystemExit(f"nothing to rescore: {ARTIFACT_FILE} does not exist")
-    payload = json.loads(ARTIFACT_FILE.read_text(encoding="utf-8"))
+    found = [ARTIFACT_FILE] if ARTIFACT_FILE.exists() else []
+    return found + sorted(ARTIFACT_DIR.glob("multi_agent.*.json"))
 
+
+def _rescore_one(path: Path) -> float:
+    payload = json.loads(path.read_text(encoding="utf-8"))
     stored = [Outcome.from_dict(raw) for raw in payload.get("outcomes", [])]
     if not stored:
-        raise SystemExit("the artifact has no raw outcomes; a real run is needed")
+        raise SystemExit(f"{path.name} has no raw outcomes; a real run is needed")
 
     by_id = {o.scenario_id: o for o in stored}
     attempted = tuple(s for s in SUITE if s.id in by_id)
@@ -362,8 +385,30 @@ def _rescore_stored() -> int:
     payload["day16_stale"] = day16_stale()
     payload["rescored"] = True
 
-    ARTIFACT_FILE.write_text(json.dumps(payload, indent=1), encoding="utf-8")
-    log.info("rescored from stored outcomes", extra={"pass_rate": run.pass_rate})
+    path.write_text(json.dumps(payload, indent=1), encoding="utf-8")
+    return run.pass_rate
+
+
+def _rescore_stored() -> int:
+    """Rebuild every run's verdicts from its stored outcomes.
+
+    Day 18's lesson, applied before it was needed rather than after: a scorer
+    change must be re-appliable without paying for the model again, so the raw
+    outcomes are stored and this re-derives the verdicts from them.
+
+    Every artifact, not just the controlled one — the alternative is a
+    cross-model run whose figures were produced by a scorer the repository no
+    longer contains.
+    """
+    paths = stored_artifacts()
+    if not paths:
+        raise SystemExit(f"nothing to rescore: no artifact in {ARTIFACT_DIR}")
+    for path in paths:
+        rate = _rescore_one(path)
+        log.info(
+            "rescored from stored outcomes",
+            extra={"artifact": path.name, "pass_rate": rate},
+        )
     return 0
 
 
@@ -475,7 +520,8 @@ def main(argv: list[str] | None = None) -> int:
     summary = _summary(records, tuple(attempted))
 
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
-    ARTIFACT_FILE.write_text(
+    out = artifact_for(resolved.model)
+    out.write_text(
         json.dumps(
             _payload(
                 resolved.model,
@@ -495,6 +541,9 @@ def main(argv: list[str] | None = None) -> int:
     log.info(
         "artifact written",
         extra={
+            "path": out.name,
+            "model": resolved.model,
+            "cross_model": drift,
             "pass_rate": run.pass_rate,
             "routing_accuracy": summary.routing_accuracy,
             "late_bookings": len(summary.late_bookings),

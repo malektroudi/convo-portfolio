@@ -503,6 +503,161 @@ class TestTheRetryTaxonomyIsShared:
         assert d19.BACKOFF_S is d16.BACKOFF_S
 
 
+class TestAThinRunIsNotAResult:
+    """The cross-model run reached one scenario. A rate over it would be the
+    most misleading honest number in the repository.
+
+    `gemini-3.5-flash` allows 20 requests a day against `flash-lite`'s 500, so
+    the comparison was not imprecise, it was unreachable: the five handoff
+    conversations sit at suite positions 12 to 20.
+    """
+
+    def test_the_real_cross_model_run_is_refused(self):
+        from convo.projects.day19_multi_agent.results import load, load_others
+
+        load.cache_clear()
+        load_others.cache_clear()
+        controlled = load()
+        others = load_others()
+        if controlled is None or not others:
+            pytest.skip("no cross-model run on disk")
+        for other in others:
+            if other.scenarios < 8:
+                assert controlled.too_thin_to_compare(other)
+
+    def test_too_few_shared_scenarios_is_refused(self):
+        from convo.projects.day19_multi_agent.results import MIN_SHARED_SCENARIOS
+
+        controlled = _results({f"s{i}": True for i in range(20)}, {})
+        thin = _results({"s0": True}, {})
+        reason = controlled.too_thin_to_compare(thin)
+        assert str(MIN_SHARED_SCENARIOS) in reason
+
+    def test_missing_handoff_coverage_is_refused(self):
+        """Enough scenarios, none of them the ones the day is about."""
+        shared = {f"s{i}": True for i in range(12)}
+        controlled = _results(shared, {})
+        other = _results(shared, {})
+        assert "structural claim" in controlled.too_thin_to_compare(other)
+
+    def test_a_comparable_pair_is_allowed(self):
+        from convo.projects.day19_multi_agent.results import handoff_scenarios
+
+        ids = {name: True for name in list(handoff_scenarios())[:2]}
+        ids.update({f"s{i}": True for i in range(10)})
+        controlled = _results(ids, {})
+        other = _results(ids, {})
+        assert controlled.too_thin_to_compare(other) == ""
+
+    def test_rates_are_computed_on_the_shared_set_only(self):
+        """Comparing a 32-scenario rate against a 24-scenario one is day 5's
+        denominator mistake."""
+        controlled = _results({"a": True, "b": True, "c": False}, {})
+        rates = controlled.rates_on(frozenset({"a", "b"}))
+        assert rates["pass_rate"] == 1.0
+
+    def test_an_unclaimed_dimension_is_none_not_zero(self):
+        controlled = _results({"a": True}, {})
+        assert controlled.rates_on(frozenset({"a"}))["task"] is None
+
+    def test_an_empty_overlap_reports_nothing_rather_than_zero(self):
+        controlled = _results({"a": True}, {})
+        assert controlled.rates_on(frozenset())["pass_rate"] is None
+
+
+class TestTheQuotaNoteKeepsTheQuota:
+    """Day 19's cross-model artifact recorded a quota note with no quota in it.
+
+    Google puts a mitigation link and boilerplate first, so taking the leading
+    300 characters reliably cut the one line that says which allowance was hit
+    and how big it is. The limit it hid was 20 per day.
+    """
+
+    def test_it_keeps_the_limit_line(self):
+        from convo.projects.day16_adk_agent.build import quota_detail
+
+        note = quota_detail(
+            RuntimeError(
+                "On how to mitigate this issue, see https://example/docs\n\n"
+                "429 RESOURCE_EXHAUSTED. Quota exceeded for metric: "
+                "generate_content_free_tier_requests, limit: 20, model: "
+                "gemini-3.5-flash, description: per day limit exceeded."
+            )
+        )
+        assert "limit: 20" in note
+        assert "mitigate" not in note
+
+    def test_it_falls_back_to_the_message_when_there_is_no_quota_line(self):
+        from convo.projects.day16_adk_agent.build import quota_detail
+
+        assert "something else broke" in quota_detail(RuntimeError("something else broke"))
+
+    def test_it_stays_within_the_stored_length(self):
+        from convo.projects.day16_adk_agent.build import quota_detail
+
+        assert len(quota_detail(RuntimeError("x" * 5000))) <= 300
+
+
+class TestACrossModelRunGetsItsOwnFile:
+    """The pin stops a drifted run being mistaken for the controlled one.
+    This stops it replacing it.
+
+    Writing a cross-model run to `multi_agent.json` would overwrite the result
+    day 19's published figures rest on, and the overwrite would look like an
+    update: the comparison against day 16 would still render, still be labelled
+    "router against one agent", and silently be measuring the model.
+    """
+
+    def test_the_baseline_model_keeps_the_canonical_path(self):
+        from convo.projects.day19_multi_agent.build import (
+            ARTIFACT_FILE,
+            artifact_for,
+            baseline_model,
+        )
+
+        want = baseline_model()
+        if not want:
+            pytest.skip("day 16 has no artifact")
+        assert artifact_for(want) == ARTIFACT_FILE
+
+    def test_another_model_gets_its_own_path(self):
+        from convo.projects.day19_multi_agent.build import ARTIFACT_FILE, artifact_for
+
+        other = artifact_for("gemini-9.9-imaginary")
+        assert other != ARTIFACT_FILE
+        assert "gemini-9.9-imaginary" in other.name
+
+    def test_load_returns_only_the_controlled_run(self):
+        from convo.projects.day19_multi_agent.results import load
+
+        load.cache_clear()
+        found = load()
+        if found is None:
+            pytest.skip("day 19 has not been run")
+        assert found.model_drift is False
+        assert found.model == found.baseline_model
+
+    def test_other_runs_are_read_separately_and_know_they_drifted(self):
+        from convo.projects.day19_multi_agent.results import load_others
+
+        load_others.cache_clear()
+        for other in load_others():
+            assert other.model_drift is True
+            assert other.model != other.baseline_model
+
+    def test_rescoring_covers_every_run_not_just_the_controlled_one(self):
+        """Otherwise a cross-model figure outlives the scorer that made it."""
+        from convo.projects.day19_multi_agent.build import ARTIFACT_FILE, stored_artifacts
+
+        paths = stored_artifacts()
+        if not paths:
+            pytest.skip("day 19 has not been run")
+        assert ARTIFACT_FILE in paths
+        from convo.projects.day19_multi_agent.results import ARTIFACT_DIR
+
+        assert len(paths) == len(list(ARTIFACT_DIR.glob("multi_agent*.json")))
+
+
 def _artifact_without_drift_fields():
     """A copy of day 19's artifact as a pre-pin build would have written it.
 

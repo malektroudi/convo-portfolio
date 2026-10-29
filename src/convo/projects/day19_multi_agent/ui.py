@@ -36,6 +36,7 @@ from convo.projects.day19_multi_agent.results import (
     Results,
     handoff_scenarios,
     load,
+    load_others,
 )
 
 GAP = "\n\n"
@@ -322,6 +323,81 @@ def _results(results: Results) -> None:
         )
 
 
+def _cross_model(controlled: Results) -> None:
+    """Runs on another model, on the scenarios both of them reached.
+
+    A separate section with its own heading, because it answers a different
+    question: whether day 19's result is a property of the topology or of one
+    small model. Merging it into the table above would make a larger model's
+    score look like evidence for the architecture.
+    """
+    others = load_others()
+    if not others:
+        return
+
+    gr.Markdown("### The same topology on a different model")
+    for other in others:
+        shared = controlled.scenario_ids & other.scenario_ids
+        if reason := controlled.too_thin_to_compare(other):
+            gr.Markdown(
+                f"**`{other.model}` — not answerable.** It reached "
+                f"{other.scenario_ids and len(other.scenario_ids)} of {other.of_suite} "
+                f"scenarios before its daily allowance ran out, and {reason}."
+                + GAP
+                + "The reason is the finding. The free tier's per-day allowance is **not "
+                "the same for every model**: `gemini-3.5-flash-lite` allows 500 requests "
+                "a day and `gemini-3.5-flash` allows **20**. Twenty requests buys two or "
+                "three conversations of this suite, and the five handoff scenarios sit at "
+                "positions 12 to 20, so they cannot be reached at all."
+                + GAP
+                + "So the cross-model question — is day 19's result architectural or "
+                "particular to one small model — **cannot be answered on a free tier.** "
+                "No rate is shown here, because a percentage over one conversation would "
+                "be the most misleading honest number in this repository."
+            )
+            continue
+        mine, theirs = controlled.rates_on(shared), other.rates_on(shared)
+        rows = [
+            {
+                "": label,
+                f"{controlled.model} (day 16's)": _rate(mine[key]),
+                other.model: _rate(theirs[key]),
+            }
+            for key, label in (
+                ("pass_rate", "pass rate"),
+                ("task", "task"),
+                ("safety", "safety"),
+                ("efficiency", "efficiency"),
+            )
+        ]
+        gr.Markdown(
+            f"`{other.model}`, {other.scenarios} of {other.of_suite} scenarios, "
+            f"compared on the **{len(shared)}** both runs reached." + GAP + "Handoffs held "
+            f"{other.handoff_held}/{len(other.handoff_rows)}, routing accuracy "
+            + (
+                f"{other.routing_accuracy:.1%}"
+                if other.routing_accuracy is not None
+                else "not measured"
+            )
+            + f", {other.total_transfers} transfers."
+        )
+        gr.Dataframe(pd.DataFrame(rows), interactive=False, wrap=True)
+
+    gr.Markdown(
+        "**What this can and cannot settle.** A different model is a different "
+        "model: a better score here is not evidence that the topology did it, and a "
+        "worse one is not evidence against. What it can show is whether the "
+        "*structural* results carry over — whether the handoff desk still holds, "
+        "whether anything reaches `book_table` that should not, and whether the "
+        "routing errors land in the same places. Those are claims about the "
+        "topology, and they are the ones worth reading across models."
+    )
+
+
+def _rate(value: float | None) -> str:
+    return "—" if value is None else f"{value:.1%}"
+
+
 def build() -> None:
     gr.Markdown("## Multi-agent against one state machine")
     gr.Markdown(
@@ -342,6 +418,7 @@ def build() -> None:
         _pending()
     else:
         _results(results)
+        _cross_model(results)
 
     with gr.Accordion("The desks, and the one variable this cannot control", open=False):
         gr.Markdown(

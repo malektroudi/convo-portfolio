@@ -38,9 +38,21 @@ PREFERENCE = (
 
 Lite first, for a reason discovered the expensive way. The binding limit on a
 free key is not tokens and not requests per minute, it is
-`GenerateRequestsPerDayPerProjectPerModel` — and for `gemini-3-flash-preview`
-that value is **20 per day**, against a suite that needs upwards of 240
-calls. Lite models carry a larger daily allowance.
+`GenerateRequestsPerDayPerProjectPerModel`, and it is **not the same number
+for every model**. Measured off the 429 bodies, not read from documentation:
+
+    gemini-3.5-flash-lite     500 requests per day
+    gemini-3.5-flash           20 requests per day
+
+Twenty-five times apart, for models one word apart in name. Day 19 found out
+what that means in practice: a cross-model run on `flash` reached **one**
+scenario of 32 before the wall, so the comparison it was supposed to make was
+not merely imprecise, it was unreachable — the five conversations the day is
+about sit at suite positions 12 to 20.
+
+So lite is not "the cheap option" on this tier. It is the only model with
+enough daily headroom to run a 32-scenario suite at all, and any experiment
+that varies the model is off the free tier by construction.
 
 It is also the right model for the job independently: a booking bot does
 shallow reasoning under a latency budget, which is what lite is for. The

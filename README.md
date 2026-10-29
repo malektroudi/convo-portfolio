@@ -2833,6 +2833,61 @@ day 19's result is architectural or particular to one small model. It is a
 different experiment from finishing this one, and labelling it as such is the
 whole point of the flag.
 
+### The cross-model run: unanswerable, for a reason worth knowing
+
+Day 19's result raises an obvious question. Is it architectural, or is it
+particular to one small model? The way to find out is to run the same topology
+on a different model, so I did, with `--allow-model-drift`.
+
+It reached **one scenario of 32.**
+
+| | requests per day, free tier |
+| --- | --- |
+| `gemini-3.5-flash-lite` | **500** |
+| `gemini-3.5-flash` | **20** |
+
+Both numbers are read off the 429 bodies, not out of documentation. Twenty-five
+times apart, for two models one word apart in name.
+
+Twenty requests buys two or three conversations of this suite. The five
+handoff scenarios sit at **positions 12 to 20**, so the structural claim — the
+only part of day 19 worth reading across models — cannot be reached at all.
+This is not a run that came out imprecise. It is a question that **cannot be
+asked on a free tier**, and no amount of care with the remaining calls changes
+that.
+
+So nothing is published from it. `too_thin_to_compare` refuses to render a
+rate unless two runs share at least 8 scenarios *and* at least one handoff
+conversation, and the tab and the site page print the arithmetic above in
+place of a number. A percentage over `happy_one_shot` alone would have been
+the most misleading honest figure in this repository: technically
+re-derivable, technically correct, and read by anyone as "flash scores 100%".
+
+Three smaller things fell out of it.
+
+**A cross-model run must not overwrite the controlled one.** The model pin
+stops a drifted run being mistaken for the baseline; it does nothing to stop
+it *replacing* the baseline's artifact, and that overwrite would have looked
+like an update — the comparison against day 16 would still render, still be
+labelled "router against one agent", and silently be measuring the model.
+Runs on another model now get `multi_agent.<model>.json`, `load()` returns
+only the controlled run, and `load_others()` reads the rest. `--rescore` walks
+all of them, because a figure published from a file nothing re-derives is what
+day 18 spent three sections on.
+
+**The quota note had no quota in it.** Artifacts stored
+`redact(exc)[:300]`, and Google puts a mitigation link and boilerplate first,
+so truncating from the front reliably cut the one line that says which
+allowance was hit and how big it is. The limit it was hiding is the 20 above. It
+now stores the quota line in preference to the leading characters. The
+cross-model artifact on disk predates that fix and still carries the useless
+note; it cannot be regenerated without the quota it is a note about.
+
+**And `flash-lite` is not "the cheap option" here.** It is the only model on
+this tier with enough daily headroom to run a 32-scenario suite at all. Every
+experiment in week 3 that varies the model is off the free tier by
+construction — which is worth knowing before planning one, and I planned one.
+
 ### The retries are invisible in the artifact, and they are most of the bill
 
 The run stopped at 24 of 32 on the daily quota, having recorded 150 model

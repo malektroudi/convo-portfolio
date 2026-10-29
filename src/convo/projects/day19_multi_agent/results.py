@@ -107,6 +107,65 @@ class Results:
         """Day 19's pass/fail per scenario, for comparing with day 16's."""
         return {case.case_id: case.passed for case in self.run.cases}
 
+    @property
+    def scenario_ids(self) -> frozenset[str]:
+        return frozenset(case.case_id for case in self.run.cases)
+
+    def too_thin_to_compare(self, other: Results) -> str:
+        """Why these two runs cannot be compared, or "" if they can.
+
+        A rate is not a result just because it was computed. The cross-model
+        run that prompted this reached **one** scenario before its daily
+        allowance ran out, and `gemini-3.5-flash` turns out to allow 20
+        requests a day against `flash-lite`'s 500 — so it scored 100% on
+        `happy_one_shot` and nothing else.
+
+        Rendering that beside the controlled run as "100% vs 91.7%" would be
+        the most misleading honest number in the repository. Two conditions,
+        both about whether the comparison could possibly answer its question:
+
+        * enough shared scenarios to carry a percentage at all;
+        * at least one of the five handoff conversations, since the structural
+          claim is the only thing worth reading across models and those are
+          where it is tested.
+        """
+        shared = self.scenario_ids & other.scenario_ids
+        if len(shared) < MIN_SHARED_SCENARIOS:
+            return (
+                f"only {len(shared)} of {self.of_suite} scenarios are common to both "
+                f"runs, below the {MIN_SHARED_SCENARIOS} this reports a rate on"
+            )
+        if not shared & frozenset(handoff_scenarios()):
+            return (
+                "no handoff conversation is common to both runs, so the structural "
+                "claim — the only one worth reading across models — is untested"
+            )
+        return ""
+
+    def rates_on(self, ids: frozenset[str]) -> dict[str, float | None]:
+        """Pass rate and each dimension, restricted to `ids`.
+
+        Needed because two runs rarely cover the same scenarios — the free
+        tier stops them in different places — and comparing a 32-scenario rate
+        against a 24-scenario one is the denominator mistake day 5 made. `None`
+        for a dimension nothing in the subset claims, never 0.0.
+        """
+        cases = [case for case in self.run.cases if case.case_id in ids]
+        if not cases:
+            return {"pass_rate": None, "task": None, "safety": None, "efficiency": None}
+
+        out: dict[str, float | None] = {
+            "pass_rate": round(sum(1 for c in cases if c.passed) / len(cases), 4)
+        }
+        for dimension in ("task", "safety", "efficiency"):
+            scored = [c for c in cases if c.scored_in(dimension)]
+            out[dimension] = (
+                round(sum(1 for c in scored if c.passed_in(dimension)) / len(scored), 4)
+                if scored
+                else None
+            )
+        return out
+
     def fixed_what_day16_broke(self) -> tuple[str, ...]:
         """Handoff scenarios day 16 failed and day 19 passes.
 
@@ -129,6 +188,15 @@ class Results:
             if verdict == "pass" and mine.get(scenario) is False
         )
 
+
+MIN_SHARED_SCENARIOS = 8
+"""Fewest scenarios two runs must share before a rate is shown for them.
+
+Eight is a judgement, not a calculation: a quarter of the suite, below which a
+single conversation moves the number by more than the run-to-run spread day 18
+measured at 3.1 points. The guard it serves matters more than the exact figure
+— see `Results.too_thin_to_compare`.
+"""
 
 PENDING_TARGETS = ("does_not_book_after_abandonment", "does_not_book_on_escalation")
 """The two scenarios day 19 was built to re-test, named before the run.
@@ -161,10 +229,35 @@ def _run_from(payload: dict[str, Any]) -> EvalRun:
 
 @lru_cache(maxsize=1)
 def load() -> Results | None:
-    """The stored run, or None when it has not been paid for yet."""
-    if not ARTIFACT_FILE.exists():
+    """The **controlled** run — day 16's model — or None if it has not been run.
+
+    Cross-model runs live in their own files and are read by `load_others`, so
+    that nothing which renders "router against one agent" can quietly be
+    showing a different model's numbers.
+    """
+    return _load_path(ARTIFACT_FILE)
+
+
+@lru_cache(maxsize=1)
+def load_others() -> tuple[Results, ...]:
+    """Runs on a model other than day 16's, newest filename order.
+
+    Separate from `load` rather than merged into it: these answer a different
+    question — whether day 19's result is architectural or particular to one
+    small model — and a reader has to be told which they are looking at.
+    """
+    found = []
+    for path in sorted(ARTIFACT_DIR.glob("multi_agent.*.json")):
+        loaded = _load_path(path)
+        if loaded is not None:
+            found.append(loaded)
+    return tuple(found)
+
+
+def _load_path(path: Path) -> Results | None:
+    if not path.exists():
         return None
-    payload = json.loads(ARTIFACT_FILE.read_text(encoding="utf-8"))
+    payload = json.loads(path.read_text(encoding="utf-8"))
     routing = payload.get("routing", {})
 
     rows = tuple(

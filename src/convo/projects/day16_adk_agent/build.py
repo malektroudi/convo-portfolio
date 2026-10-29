@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import re
 import time
 from pathlib import Path
 
@@ -101,6 +102,24 @@ one scenario at a time."""
 log = get_logger("day16.build")
 
 
+QUOTA_LINE = re.compile(r"(?:Quota exceeded[^\n]*|limit: \d+, model: [\w.\-]+)")
+"""The part of a 429 body that says which allowance was hit, and how big it is.
+
+Stored in preference to the first 300 characters of the message, which is what
+the artifacts used to carry. Google puts a mitigation link and a stack of
+boilerplate first, so truncating from the front reliably cut the one line a
+reader needs — day 19's cross-model artifact recorded a quota note that did
+not contain the quota. The limit it was hiding was 20 per day.
+"""
+
+
+def quota_detail(exc: Exception, key: str = "") -> str:
+    """A note that says what ran out, falling back to the message if it cannot."""
+    text = redact(exc, key)
+    found = QUOTA_LINE.findall(text)
+    return " | ".join(dict.fromkeys(found))[:300] if found else text[:300]
+
+
 def _is_rate_limit(exc: Exception) -> bool:
     text = str(exc).lower()
     return "429" in text or "resource_exhausted" in text or "rate" in text and "limit" in text
@@ -134,7 +153,7 @@ def adk_runner(model: str) -> callable:
             except Exception as exc:  # noqa: BLE001 - message may carry the key
                 last = exc
                 if _is_rate_limit(exc) and _is_daily_quota(exc):
-                    raise QuotaExhausted(redact(exc)[:300]) from exc
+                    raise QuotaExhausted(quota_detail(exc)) from exc
                 if not _is_retryable(exc):
                     # Not the server being busy: a bad request, a blocked
                     # prompt, or a bug in this repository. Excluding it would
@@ -143,8 +162,8 @@ def adk_runner(model: str) -> callable:
                     raise
                 if attempt == RETRIES - 1:
                     if _is_rate_limit(exc):
-                        raise QuotaExhausted(redact(exc)[:300]) from exc
-                    raise ScenarioUnavailable(redact(exc)[:300]) from exc
+                        raise QuotaExhausted(quota_detail(exc)) from exc
+                    raise ScenarioUnavailable(quota_detail(exc)) from exc
                 wait = BACKOFF_S[min(attempt, len(BACKOFF_S) - 1)]
                 log.info(
                     "retrying after a transient error",

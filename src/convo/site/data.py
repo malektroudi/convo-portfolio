@@ -719,7 +719,12 @@ def _day19() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
     """
     from convo.projects.day19_multi_agent import scope
     from convo.projects.day19_multi_agent.build import day16_corrected
-    from convo.projects.day19_multi_agent.results import PENDING_TARGETS, handoff_scenarios, load
+    from convo.projects.day19_multi_agent.results import (
+        PENDING_TARGETS,
+        handoff_scenarios,
+        load,
+        load_others,
+    )
 
     graph = scope.load()
     found = load()
@@ -753,6 +758,66 @@ def _day19() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
         for scenario in handoff_scenarios()
     )
 
+    cross = ()
+    if found is not None:
+        for other in load_others():
+            shared = found.scenario_ids & other.scenario_ids
+            if reason := found.too_thin_to_compare(other):
+                cross += (
+                    Table(
+                        f"The same topology on {other.model} — not answerable",
+                        ("what was asked", "what the free tier allows"),
+                        (
+                            (
+                                "is day 19's result architectural, or particular "
+                                "to one small model?",
+                                "unanswered",
+                            ),
+                            ("gemini-3.5-flash-lite, requests per day", "500"),
+                            ("gemini-3.5-flash, requests per day", "20"),
+                            (
+                                "scenarios it reached before the wall",
+                                f"{other.scenarios} of {other.of_suite}",
+                            ),
+                        ),
+                        f"The run stopped because {reason}. The per-day allowance is not "
+                        "the same for every model, which is the finding: twenty requests "
+                        "buys two or three conversations, and the five handoff scenarios "
+                        "sit at positions 12 to 20, so the structural claim cannot be "
+                        "reached at all. No rate is shown, because a percentage over one "
+                        "conversation would be the most misleading honest number here.",
+                    ),
+                )
+                continue
+            mine, theirs = found.rates_on(shared), other.rates_on(shared)
+            cross += (
+                Table(
+                    f"The same topology on {other.model}",
+                    ("", f"{found.model} (day 16's)", other.model),
+                    tuple(
+                        (
+                            label,
+                            _pct(mine[key]) if mine[key] is not None else "not measured",
+                            _pct(theirs[key]) if theirs[key] is not None else "not measured",
+                        )
+                        for key, label in (
+                            ("pass_rate", "pass rate"),
+                            ("task", "task"),
+                            ("safety", "safety"),
+                            ("efficiency", "efficiency"),
+                        )
+                    ),
+                    f"Compared on the {len(shared)} scenarios both runs reached, because "
+                    "comparing a 32-scenario rate against a 24-scenario one is the "
+                    "denominator mistake day 5 made. A different model is a different "
+                    "model: a better score here is not evidence the topology did it. What "
+                    "carries across models is the structural result — whether the handoff "
+                    f"desk still holds ({other.handoff_held} of "
+                    f"{len(other.handoff_rows)} here), whether anything reached the "
+                    "booking tool that should not, and where the routing errors land.",
+                ),
+            )
+
     tables = (
         Table(
             "What each desk can still reach",
@@ -784,7 +849,7 @@ def _day19() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
             "validator rejects a party of 50 — so this day's guarantee does nothing "
             "for it.",
         ),
-    )
+    ) + cross
 
     if found is None:
         return (
