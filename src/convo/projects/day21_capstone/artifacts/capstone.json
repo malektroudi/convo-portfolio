@@ -1,0 +1,517 @@
+{
+ "shipped": 20,
+ "of_days": 21,
+ "committed_bytes": 10965963,
+ "image_ceiling_mb": 700,
+ "blocked_in_image": [
+  "torch",
+  "transformers",
+  "onnxruntime",
+  "piper",
+  "duckdb",
+  "google.adk"
+ ],
+ "claims": [
+  {
+   "key": "artifacts-total",
+   "day": 1,
+   "headline": "Everything the serving layer reads, in one number",
+   "body": "Heavy work on a laptop, small files in git, a serving layer with no ML framework in it. This figure is the bargain, and it was written into three pages by hand when two days had artifacts.",
+   "kind": "derived",
+   "figure": "10.5 MB",
+   "lead": false
+  },
+  {
+   "key": "image-size",
+   "day": 1,
+   "headline": "The serving image, as a ceiling rather than a size",
+   "body": "The only machine that can measure the image is the one building it, and nothing commits what it finds. So the figure published here is a ceiling: a number that is in a file, that CI checks on every push, and that fails loudly when the image grows into it. A weaker claim that is checked beats a precise one that is not.",
+   "kind": "unstored",
+   "figure": "under 700 MB",
+   "lead": false
+  },
+  {
+   "key": "day02-max-confidence",
+   "day": 2,
+   "headline": "Accuracy hid a model that could never be thresholded",
+   "body": "A first training run reached 74% in-scope accuracy \u2014 mediocre but plausible \u2014 with a maximum softmax confidence of 0.092 across all 5,500 test rows. Every rejection threshold above 0.1 therefore refused everything, and accuracy alone cannot show that. It is the best finding in this portfolio and the artifact behind it no longer exists: the run that fixed the problem overwrote it.",
+   "kind": "testimony",
+   "figure": "0.092",
+   "lead": true
+  },
+  {
+   "key": "day02-committed-run",
+   "day": 2,
+   "headline": "What the committed run actually says",
+   "body": "Maximum confidence and in-scope accuracy, from the artifact that is in the repository. Both are healthy, which is exactly why the finding above cannot be checked against it.",
+   "kind": "derived",
+   "figure": "0.995 / 96%",
+   "lead": false
+  },
+  {
+   "key": "day03-spread",
+   "day": 3,
+   "headline": "Five-shot routing, from perfect to nothing on the same five examples",
+   "body": "Across ten intents the fine-tuned classifier never saw, an embedding router's recall spans the whole range and is roughly bimodal \u2014 so the average lands between the two groups, where no intent actually sits. Whether a handful of examples will do is predictable before anyone collects them.",
+   "kind": "derived",
+   "figure": "100% to 0%",
+   "lead": true
+  },
+  {
+   "key": "day03-average",
+   "day": 3,
+   "headline": "The average of those ten, which is the number not to quote",
+   "body": "Reported here because the front page quoted it for weeks as though it meant something.",
+   "kind": "derived",
+   "figure": "56%",
+   "lead": false
+  },
+  {
+   "key": "day05-false-confirmations",
+   "day": 5,
+   "headline": "Invented bookings, every one of which passed schema validation",
+   "body": "A 0.5B model emitted one malformed tool call and ten well-formed, entirely fictional reservations. The validator accepted all ten, because inventing plausible data is not a shape violation. A provenance guard \u2014 confirm only what a tool actually returned \u2014 removed them.",
+   "kind": "derived",
+   "figure": "10 to 0",
+   "lead": true
+  },
+  {
+   "key": "day05-pass-rates",
+   "day": 5,
+   "headline": "And the pass rate did not move",
+   "body": "The guard traded ten invented bookings for ten missed ones, so the headline score is identical before and after the most important fix in week 1. A suite reporting one number would have called it a no-op.",
+   "kind": "derived",
+   "figure": "8% to 8%",
+   "lead": false
+  },
+  {
+   "key": "day12-token-to-sentence",
+   "day": 12,
+   "headline": "Time-to-first-token is the wrong metric for voice",
+   "body": "A token cannot be spoken. What gates the audio is the first complete sentence, and on the generated path the two are a second and a half apart \u2014 so a dashboard tracking time-to-first-token reports a healthy number while the caller sits in silence.",
+   "kind": "derived",
+   "figure": "688 ms to 2205 ms",
+   "lead": true
+  },
+  {
+   "key": "day15-containment",
+   "day": 15,
+   "headline": "Containment, as reported and as it happened",
+   "body": "The usual definition counts a conversation with no human in it as a success, which silently scores every customer who gave up as a win. Adding one clause \u2014 the last thing the system did was answer \u2014 is the entire difference, and the SQL runs unchanged on DuckDB and BigQuery.",
+   "kind": "derived",
+   "figure": "92% to 55%",
+   "lead": true
+  },
+  {
+   "key": "day18-agreement",
+   "day": 18,
+   "headline": "Two evaluators, one suite, almost no agreement",
+   "body": "ADK's trajectory metric and day 6's harness score the same stored conversations and reach the same verdict on roughly a fifth of them. Neither is broken: they measure different things, and a team that swapped one for the other would read the difference as a regression.",
+   "kind": "pinned",
+   "figure": "22%",
+   "lead": true
+  },
+  {
+   "key": "day19-reachable",
+   "day": 19,
+   "headline": "Tools reachable from the handoff desk",
+   "body": "Day 16's single agent booked a table after the guest asked for a human. Day 19 moves booking onto its own desk and gives the handoff desk no transfer back, so the defect is unreachable rather than discouraged \u2014 and that is a property of a committed graph, checkable with no model, no key and no quota.",
+   "kind": "derived",
+   "figure": "0",
+   "lead": false
+  },
+  {
+   "key": "day19-coverage",
+   "day": 19,
+   "headline": "And the run behind it is incomplete",
+   "body": "The free tier allows 500 requests per model per day and one pass of day 6's suite costs 162. The scenarios that did not run are the digression-heavy ones, which is where a router is most likely to fail, so the missing eight are not a random sample.",
+   "kind": "pinned",
+   "figure": "24 of 32",
+   "lead": false
+  },
+  {
+   "key": "day20-clean",
+   "day": 20,
+   "headline": "Crossings that pass every check a receiver could run",
+   "body": "Day 13's handoff packets over real A2A, as text and as structure. Text arrives intact and cannot be parsed back; structure rebuilds exactly and fails the standard hash-the-payload check, because protobuf has one numeric kind and it is a double. Neither carrier can re-run the provenance guard at all.",
+   "kind": "derived",
+   "figure": "0 of 14",
+   "lead": true
+  }
+ ],
+ "audit": [
+  {
+   "key": "day02-max-confidence",
+   "where": [
+    "hub",
+    "site",
+    "readme"
+   ],
+   "published": "0.092",
+   "derived": null,
+   "kind": "testimony",
+   "note": "The lead card on both pages and the third finding in the README. No committed artifact contains it.",
+   "verdict": "no artifact"
+  },
+  {
+   "key": "day02-committed-run",
+   "where": [
+    "hub",
+    "site",
+    "readme"
+   ],
+   "published": "0.092 / 74%",
+   "derived": "0.995 / 96%",
+   "kind": "derived",
+   "note": "All three described the discarded run as though it were the one in the repository.",
+   "verdict": "stale"
+  },
+  {
+   "key": "day03-spread",
+   "where": [
+    "hub",
+    "readme"
+   ],
+   "published": "97% to 0%",
+   "derived": "100% to 0%",
+   "kind": "derived",
+   "note": "The hub's lead card and the README's first finding, both reading 96.7%. Correct when written; day 3's artifact was rebuilt afterwards and nothing rechecked it.",
+   "verdict": "stale"
+  },
+  {
+   "key": "day03-average",
+   "where": [
+    "hub",
+    "readme"
+   ],
+   "published": "52%",
+   "derived": "56%",
+   "kind": "derived",
+   "note": "Quoted beside it to argue that the average is meaningless, which it is, at a different value.",
+   "verdict": "stale"
+  },
+  {
+   "key": "day05-false-confirmations",
+   "where": [
+    "hub",
+    "site",
+    "readme"
+   ],
+   "published": "10 to 0",
+   "derived": "10 to 0",
+   "kind": "derived",
+   "note": "",
+   "verdict": "holds"
+  },
+  {
+   "key": "day05-pass-rates",
+   "where": [
+    "site",
+    "readme"
+   ],
+   "published": "8% to 8%",
+   "derived": "8% to 8%",
+   "kind": "derived",
+   "note": "Both asserted that the score never moved without showing it. It did not move.",
+   "verdict": "holds"
+  },
+  {
+   "key": "day12-token-to-sentence",
+   "where": [
+    "site"
+   ],
+   "published": "688 ms to 2205 ms",
+   "derived": "688 ms to 2205 ms",
+   "kind": "derived",
+   "note": "",
+   "verdict": "holds"
+  },
+  {
+   "key": "artifacts-total",
+   "where": [
+    "hub",
+    "readme"
+   ],
+   "published": "9.0 MB",
+   "derived": "10.5 MB",
+   "kind": "derived",
+   "note": "The middle box of the architecture diagram, in the hub's overview and in the README's mermaid. True when days 2 and 3 were the only days with an artifact.",
+   "verdict": "stale"
+  },
+  {
+   "key": "image-size",
+   "where": [
+    "hub",
+    "site",
+    "readme"
+   ],
+   "published": "588 MB",
+   "derived": null,
+   "kind": "unstored",
+   "note": "Quoted in six places. Nothing in the repository records the size of the image, so no rebuild could ever have corrected it.",
+   "verdict": "not stored"
+  }
+ ],
+ "tally": {
+  "holds": 3,
+  "stale": 4,
+  "no artifact": 1,
+  "not stored": 1,
+  "unavailable": 0
+ },
+ "inventory": [
+  {
+   "day": 1,
+   "title": "Repo skeleton and a hub in a container",
+   "shipped": true,
+   "files": 0,
+   "bytes": 0,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 2,
+   "title": "Intent classifier with an out-of-scope door",
+   "shipped": true,
+   "files": 2,
+   "bytes": 3062391,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 3,
+   "title": "Embedding router against the fine-tuned model",
+   "shipped": true,
+   "files": 2,
+   "bytes": 5857624,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 4,
+   "title": "Deterministic dialogue engine",
+   "shipped": true,
+   "files": 0,
+   "bytes": 0,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 5,
+   "title": "The same bot, tool-calling",
+   "shipped": true,
+   "files": 1,
+   "bytes": 92955,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 6,
+   "title": "Conversational eval harness",
+   "shipped": true,
+   "files": 0,
+   "bytes": 0,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 7,
+   "title": "Write it up",
+   "shipped": true,
+   "files": 0,
+   "bytes": 0,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 8,
+   "title": "RAG that actually cites",
+   "shipped": true,
+   "files": 2,
+   "bytes": 224163,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 9,
+   "title": "Make retrieval measurably better",
+   "shipped": true,
+   "files": 1,
+   "bytes": 265082,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 10,
+   "title": "Groundedness and guardrails",
+   "shipped": true,
+   "files": 1,
+   "bytes": 58724,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 11,
+   "title": "Multi-turn RAG",
+   "shipped": true,
+   "files": 1,
+   "bytes": 425254,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 12,
+   "title": "Voice, with a latency budget",
+   "shipped": true,
+   "files": 2,
+   "bytes": 237657,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 13,
+   "title": "Escalation and agent assist",
+   "shipped": true,
+   "files": 1,
+   "bytes": 63109,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 14,
+   "title": "Deploy and demo",
+   "shipped": true,
+   "files": 0,
+   "bytes": 0,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 15,
+   "title": "Conversation analytics in BigQuery",
+   "shipped": true,
+   "files": 2,
+   "bytes": 56530,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 16,
+   "title": "The booking bot in ADK",
+   "shipped": true,
+   "files": 1,
+   "bytes": 257461,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 17,
+   "title": "ADK sessions and memory vs day 11",
+   "shipped": false,
+   "files": 0,
+   "bytes": 0,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 18,
+   "title": "ADK's evaluator against day 6's harness",
+   "shipped": true,
+   "files": 1,
+   "bytes": 163942,
+   "rebuilt_in_ci": ""
+  },
+  {
+   "day": 19,
+   "title": "Multi-agent against one state machine",
+   "shipped": true,
+   "files": 3,
+   "bytes": 189800,
+   "rebuilt_in_ci": "topology re-derived from the real agent tree"
+  },
+  {
+   "day": 20,
+   "title": "A2A carrying day 13's handoff packet",
+   "shipped": true,
+   "files": 1,
+   "bytes": 11271,
+   "rebuilt_in_ci": "the whole day, in ~1s"
+  }
+ ],
+ "pipeline": [
+  {
+   "name": "laptop",
+   "size": "~90 MB of weights",
+   "note": "A fine-tuned MiniLM, a reranker, whisper-tiny.en and a piper voice, none of them in git. Asserted, not measured: this is the one stage the repository cannot see, because `models/` is ignored.",
+   "measured": false
+  },
+  {
+   "name": "committed artifacts",
+   "size": "10.5 MB across 14 days",
+   "note": "Logits, score matrices, timings, traces and run outcomes. The largest single day is day 3 at 5.6 MB.",
+   "measured": true
+  },
+  {
+   "name": "serving image",
+   "size": "under 700 MB",
+   "note": "A ceiling rather than a size. CI builds the image, asserts it is below this, and separately refuses to find torch, transformers, onnxruntime, piper, duckdb, google.adk inside it.",
+   "measured": false
+  }
+ ],
+ "costs": [
+  {
+   "wanted": "Cloud Run for the hub",
+   "needs": "a billing account, even inside the free tier",
+   "instead": "a static site on GitHub Pages, plus a container CI builds and boots",
+   "dollars": "$0",
+   "lost": "No request-time Python, so the site is a reading rather than a demo, and nothing here measures cold starts or behaviour under load."
+  },
+  {
+   "wanted": "Vertex AI for the agent",
+   "needs": "a billing account",
+   "instead": "an AI Studio key against the Gemini free tier",
+   "dollars": "$0",
+   "lost": "500 requests per model per day, and one pass of day 6's suite costs 162. Day 19 ran 24 of 32 scenarios."
+  },
+  {
+   "wanted": "Dialogflow CX",
+   "needs": "a billing account",
+   "instead": "a hand-written state machine on day 4, then ADK on days 16 and 19",
+   "dollars": "$0",
+   "lost": "No comparison against the managed product the role is actually about. The framework comparison is ADK against my own code."
+  },
+  {
+   "wanted": "BigQuery for analytics",
+   "needs": "a billing account",
+   "instead": "DuckDB running the same SQL unchanged",
+   "dollars": "$0",
+   "lost": "The SQL is portable and was never run on BigQuery, so nothing here proves it scales or costs what it would cost."
+  },
+  {
+   "wanted": "Managed speech-to-text and text-to-speech",
+   "needs": "per-minute billing",
+   "instead": "whisper-tiny.en and a piper voice, both on CPU",
+   "dollars": "$0",
+   "lost": "The input audio is synthetic, which flatters the recogniser: a TTS voice has no accent, no background and no hesitation."
+  },
+  {
+   "wanted": "A hosted model for the tool-calling agent",
+   "needs": "per-token billing",
+   "instead": "Qwen 0.5B on a laptop CPU in week 1",
+   "dollars": "$0",
+   "lost": "A 0.5B model cannot settle an architectural question. The shape of day 5's finding generalises; its pass rates do not."
+  },
+  {
+   "wanted": "A GPU for fine-tuning",
+   "needs": "a paid instance or a Colab subscription",
+   "instead": "a free Kaggle session and a laptop",
+   "dollars": "$0",
+   "lost": "One seed, one configuration, no hyperparameter search, so none of the training results carry an error bar."
+  }
+ ],
+ "gaps": [
+  {
+   "what": "Day 17 was never built",
+   "why": "ADK sessions and memory against day 11's rewriter and buffer. It needed no billing account and no quota \u2014 it was skipped for time, and until today nothing in the repository said so. The registry showed it unshipped, which is why this is a gap rather than a lie."
+  },
+  {
+   "what": "Day 19 covers 24 of 32 scenarios",
+   "why": "The eight that did not run are the digression-heavy ones, where a router is most likely to fail. Its pass rate is an indication, not a verified result, and the page says so."
+  },
+  {
+   "what": "The cross-model comparison is unanswerable here",
+   "why": "The free tier allows 500 requests a day on flash-lite and 20 on flash. A controlled comparison needs 162 on each, so one of the two arms cannot be run at all."
+  },
+  {
+   "what": "Model call counts exclude retries",
+   "why": "The `model_calls` column on five days counts scored calls, not spend. Day 19's run cost roughly 190 calls against a reported 162. Fixing it would redefine a published column on five artifacts, so it is recorded instead."
+  },
+  {
+   "what": "Nothing here has met a real user",
+   "why": "Every conversation in every suite was written by me, which means every failure mode measured is one I thought of. That is the limitation a portfolio cannot engineer around."
+  }
+ ]
+}

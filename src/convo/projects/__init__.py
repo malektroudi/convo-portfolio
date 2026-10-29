@@ -27,6 +27,7 @@ from convo.projects import (
     day18_eval_gate,  # noqa: F401
     day19_multi_agent,  # noqa: F401
     day20_a2a_handoff,  # noqa: F401
+    day21_capstone,  # noqa: F401
 )
 
 __all__ = [
@@ -42,6 +43,7 @@ __all__ = [
     "day18_eval_gate",
     "day19_multi_agent",
     "day20_a2a_handoff",
+    "day21_capstone",
     "day01_hub",
     "day02_intent_nlu",
     "day03_embed_router",

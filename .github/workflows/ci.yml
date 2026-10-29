@@ -81,6 +81,19 @@ jobs:
       - name: Day 20's A2A crossing, re-derived from scratch
         run: uv run python -m convo.projects.day20_a2a_handoff.build
 
+      # Day 21 audits what the two landing pages publish against the artifacts
+      # they describe, and it costs nothing to re-derive: everything it reads
+      # is already committed. `--check` rebuilds the payload in memory and
+      # fails if the committed artifact disagrees.
+      #
+      # The front pages do not read that artifact -- they resolve each figure
+      # live, which is why they cannot go stale. This step guards the half a
+      # resolver cannot: the paragraph beside each number, which does not
+      # recompute. A figure that moves fails here, and a person re-reads the
+      # sentence next to it.
+      - name: Day 21's front page must still match the artifacts
+        run: uv run python -m convo.projects.day21_capstone.build --check
+
       # The deploy workflow generates the site from the artifacts. Building it
       # here too means a broken generator fails on the pull request rather
       # than on the push that was supposed to publish it.
@@ -209,6 +222,21 @@ jobs:
           else
             echo "hub never answered; logs follow" >&2
             docker logs hub >&2
+            exit 1
+          fi
+
+      # The serving image's size is the one headline figure in this repository
+      # that nothing commits, and day 21 would not publish a number it cannot
+      # check. So it publishes a ceiling instead, and this is what checks it: a
+      # weaker claim that fails loudly beats a precise one that quietly rots.
+      - name: The image must stay under the published ceiling
+        run: |
+          ceiling=$(python3 -c "import json; print(json.load(open('src/convo/projects/day21_capstone/artifacts/capstone.json'))['image_ceiling_mb'])")
+          actual=$(docker image inspect convo-portfolio:ci --format '{{.Size}}')
+          actual_mb=$((actual / 1000 / 1000))
+          echo "image is ${actual_mb} MB; day 21 publishes a ceiling of ${ceiling} MB"
+          if [ "$actual_mb" -gt "$ceiling" ]; then
+            echo "the image has grown past the figure on the front page" >&2
             exit 1
           fi
 

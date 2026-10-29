@@ -1,14 +1,15 @@
 # Conversational AI portfolio
 
-**[malektroudi.github.io/convo-portfolio](https://malektroudi.github.io/convo-portfolio/)** &mdash; 15 projects, every figure read from the artifact that produced it.
+**[malektroudi.github.io/convo-portfolio](https://malektroudi.github.io/convo-portfolio/)** &mdash; 20 projects, every figure on the site recomputed from the artifact that produced it.
 
 A booking assistant built four different ways — a fine-tuned classifier, an
 embedding router, a deterministic state machine and a tool-calling agent — then
 measured against each other on one eval suite, with a CI gate that blocks on a
 safety regression.
 
-Days 1–10 of 21 are shipped — week 1 complete, week 2 under way. The hub lists every remaining day with its brief,
-so progress is visible rather than implied.
+20 of 21 days are shipped. Day 17 is the one gap and [day 21](#day-21-the-numbers-on-the-front-page-were-the-wrong-ones)
+says why; the hub and the site both show it unshipped rather than quietly
+renumbering around it.
 
 ![Day 4's dialogue engine mid-repair: the guest says "no, make it 8pm", the bot
 changes the time and re-confirms rather than opening a menu, and the inspector
@@ -20,12 +21,16 @@ and the transition that fired, in 0.54 ms with no model involved.</sub>
 
 ## Three things it found
 
-Every number below came out of a run in this repo, not from a blog post.
+Every number below came out of a run in this repo, not from a blog post. Unlike
+the [site](https://malektroudi.github.io/convo-portfolio/), this file is prose
+and its figures are maintained by hand — which is exactly how three of them
+went stale. Day 21 audits all three front pages and the site is the one to
+trust, because it recomputes.
 
 **Five examples are plenty, or useless, and you can tell which in advance.**
 Ten intents were withheld from a classifier entirely and given to an embedding
-router as five examples each. Recall ranged from **96.7% to 0.0%** — roughly
-bimodal, not centred on the 52% average. `order_checks` has distinctive
+router as five examples each. Recall ranged from **100% to 0%** — roughly
+bimodal, not centred on the 56% average. `order_checks` has distinctive
 vocabulary and routes nearly perfectly; `definition` is phrased like half the
 dataset and never routes at all. The practical rule: before promising a client
 that a new intent needs a handful of examples, check its nearest neighbours in
@@ -51,8 +56,9 @@ silently suppressed every digression phrased as a question.
 ## How it fits together
 
 Heavy work runs on a laptop and produces small files. The serving image reads
-those files and carries no ML framework at all, which is what keeps it at
-588 MB and able to run free.
+those files and carries no ML framework at all, which is what keeps it small
+enough to run free. Its size is the one figure here that nothing in the
+repository records, so day 21 publishes a ceiling CI checks instead.
 
 ```mermaid
 flowchart LR
@@ -61,12 +67,12 @@ flowchart LR
     T3["day 3 · embed + train<br/>44 min"]
     T5["day 5 · run a 0.5B agent<br/>38 min"]
   end
-  subgraph art["committed artifacts — 9 MB"]
+  subgraph art["committed artifacts — 10.5 MB"]
     A2[("test logits<br/>3 MB")]
     A3[("router vs classifier<br/>6 MB")]
     A5[("agent comparison<br/>96 KB")]
   end
-  subgraph img["serving image — 588 MB, no torch"]
+  subgraph img["serving image — under 700 MB, no torch"]
     HUB["Gradio hub<br/>21 tabs"]
   end
   T2 --> A2 --> HUB
@@ -3251,6 +3257,185 @@ job installing it with `--no-deps`.
 So day 20 needed no special arrangement, and the measurement runs in the main
 test job beside everything else. Two agent libraries from the same vendor, one
 of which is installable.
+
+## Day 21: the numbers on the front page were the wrong ones
+
+```bash
+uv run python -m convo.projects.day21_capstone.build          # no key, no quota, ~2s
+uv run python -m convo.projects.day21_capstone.build --check  # and CI runs this
+```
+
+The brief said: close it as one product. One narrative, one architecture
+diagram, one cost table — which this time reads $0. All three are here. What
+was not in the brief is the thing that turned out to be worth building.
+
+This repository has one rule: **every published number must be re-derivable
+from a committed artifact.** Day 14 built a test that enforces it on the site's
+renderer — no float literals, no percentage strings — and every per-day page
+has computed its own figures ever since.
+
+Three surfaces were exempt and nobody noticed. The hub's overview, the site's
+index and this file's head each carried a hand-written list of findings,
+written weeks apart, never checked again. They are the first thing anybody
+reads.
+
+| | |
+| --- | --- |
+| figures those three pages carried | 9 |
+| still correct | **3** |
+| gone stale against the artifact | **4** |
+| no artifact behind it at all | 1 |
+| never recorded anywhere | 1 |
+
+Every per-day page was right. The front pages were the only ones that did not
+compute, and they were the only ones that were wrong.
+
+### What had drifted
+
+Day 3's headline said recall ranged from **96.7% to 0.0%** across ten withheld
+intents, and that the 52% average meant nothing. The shape of the finding is
+intact and both numbers are wrong: it is **100% to 0%** around a **56%**
+average. Day 3's artifact was rebuilt at some point after the card was written
+and nothing rechecked the card.
+
+The architecture diagram said the committed artifacts came to **9 MB**. True
+when days 2 and 3 were the only days that had any. It is **10.5 MB** across
+fourteen days, and it is computed now.
+
+And the hub and the site **disagreed with each other**. The hub led on days 3,
+5 and 2; the site led on days 2, 5 and 12. Each had its own tuple of strings,
+so the portfolio had two different answers to the question of what it had
+found. Both now render the same claims from one module, and which finding leads
+is a property of the claim rather than of either front end — which makes the
+disagreement impossible rather than unlikely.
+
+### The one that cannot be fixed
+
+The single most prominent number in this portfolio is day 2's **0.092**: a
+first training run at 74% in-scope accuracy whose maximum softmax confidence
+across 5,500 test rows never cleared 0.092, so every rejection threshold above
+0.1 refused every turn. It is the best finding here. It led both front pages
+and it is the third item in this file.
+
+**No committed artifact contains it.** The run that fixed the problem
+overwrote the one that proved it. What is in the repository is a healthy model
+— maximum confidence 0.995, in-scope accuracy 96% — and those are the numbers
+any rebuild produces.
+
+The story is true. It is in `train.py`'s comment explaining why the defaults
+are what they are, and in three write-ups. But it is **testimony, not
+measurement**, and the difference is not pedantry: a reader cannot check it,
+and neither can I.
+
+So day 21 sorts every claim into four kinds and prints the kind next to the
+figure:
+
+| kind | what it means | claims |
+| --- | --- | --- |
+| `derived` | recomputed from a committed artifact on every build | 10 |
+| `pinned` | committed, but a rerun costs quota and could differ | 2 |
+| `testimony` | true, written down, nothing can check it | 1 |
+| `unstored` | a build measures it; nothing commits it | 1 |
+
+The 0.092 stays on the front page, labelled. Deleting it would hide the most
+useful thing week 1 produced. Presenting it as a measurement beside figures
+that recompute is the quiet dishonesty this repository was built to avoid.
+Naming the difference is the only honest third option, and the lesson is cheap
+to state: **a finding is only as durable as the artifact you keep from the run
+that produced it.**
+
+### A weaker number that is checked
+
+The serving image's size — **588 MB** — appeared in six places. Nothing in the
+repository records it, because the only machine that can measure it is the one
+building it. No rebuild could ever have corrected it, and it was not even
+wrong in a way anything could detect.
+
+Day 21 does not publish it. It publishes a **ceiling** instead: a number in a
+committed file, which CI checks on every push and which fails the build when
+the image grows into it. That is a weaker claim, and a weaker claim that is
+checked beats a precise one that quietly rots.
+
+### One cost table
+
+| the plan assumed | used instead | cost | what that cost |
+| --- | --- | --- | --- |
+| Cloud Run | GitHub Pages + a container CI boots | $0 | no cold starts, no load |
+| Vertex AI | an AI Studio key on the free tier | $0 | 500 requests/model/day; day 19 ran 24 of 32 |
+| Dialogflow CX | a state machine, then ADK | $0 | no comparison against the managed product |
+| BigQuery | DuckDB, same SQL unchanged | $0 | portable, never run at scale |
+| Managed STT/TTS | whisper-tiny.en and piper on CPU | $0 | synthetic input flatters the recogniser |
+| A hosted model | Qwen 0.5B on a laptop | $0 | cannot settle an architectural question |
+| A GPU | a free Kaggle session | $0 | one seed, no error bars |
+
+Every row reads $0, which was the brief. The last column is the one worth
+reading, and a portfolio that prints the first and hides the second is an
+advertisement.
+
+Of the fourteen days with an artifact, **two** have one that CI regenerates
+from scratch — days 19 and 20. The other twelve are trusted. That ratio is the
+honest version of the word *reproducible*, and it is low because a model call
+is not free.
+
+### What the artifact is for, given the front page does not read it
+
+The hub and the site resolve each figure live, as the page is built. That is
+what makes them unable to go stale, and it means neither needs day 21's
+artifact at all.
+
+So the artifact is a tripwire for the half a resolver cannot check: the
+paragraph beside each number. "A second and a half apart." "Ten well-formed,
+entirely fictional reservations." Prose does not recompute. `--check` rebuilds
+the payload and fails CI if a stored figure has moved, so a person re-reads the
+sentence next to it. A tripwire is weaker than a check, and saying so is part
+of the day.
+
+### A fixpoint, found by building it
+
+Day 21 leaves itself out of its own inventory, and not for tidiness. The
+artifact records the total size of every committed artifact. Count its own file
+in that total and the figure never settles: writing it changes the number it
+reports, so the next rebuild writes a different file, and `--check` can never
+agree with what is on disk. It would have looked like flaky CI. A summary
+cannot count itself as evidence.
+
+### And a figure that was not a property of the thing it measured
+
+The first version totalled the artifacts with `st_size`, which is the obvious
+call and is wrong for a number that gets committed. `.gitattributes` sets
+`* text=auto`; this repository is written on Windows and built on Linux; so
+every JSON artifact is one byte per line longer in my working tree than in the
+index. Day 20's file is 11,779 bytes here and 11,271 in CI.
+
+That is enough for the total to differ between the machine that writes the
+artifact and the machine that checks it, so `--check` would have failed on
+every push, reporting drift with nothing drifting — and it would have looked
+like a flaky job rather than a wrong measurement. Collapsing CRLF in the files
+git treats as text makes the figure mean the same thing everywhere, and a test
+now compares the total against `git cat-file` rather than against a constant.
+They agree to the byte.
+
+**The size of a committed file is a property of your checkout until you make
+it one of the repository.**
+
+### What is missing, written down on purpose
+
+**Day 17 was never built.** ADK sessions and memory against day 11's rewriter
+and buffer. It needed no billing account and no quota — it was skipped for
+time, and until today nothing in the repository said so. The registry has
+always marked it unshipped, which is the difference between a page that is not
+lying and a page that is telling you something.
+
+Day 19 covers 24 of 32 scenarios, and the eight that did not run are the
+digression-heavy ones. The cross-model comparison is unanswerable on a free
+tier: 500 requests a day on flash-lite, 20 on flash, and a controlled run needs
+162 on each. The `model_calls` column on five days counts scored calls rather
+than spend, which understates day 19's run by about 28.
+
+And nothing here has met a real user. Every conversation in every suite was
+written by me, which means every failure mode measured is one I thought of.
+That is the limitation a portfolio cannot engineer around, and it is the reason
+the honest claim for this repository is about method rather than results.
 
 ## What I would do differently
 

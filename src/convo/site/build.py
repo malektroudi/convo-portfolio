@@ -31,40 +31,48 @@ from convo.site import data, render
 
 log = get_logger("site.build")
 
-FINDINGS = (
-    render.Finding(
-        "0.092",
-        "The maximum confidence that accuracy hid",
-        "A run at 74% accuracy looked mediocre but plausible. Its top softmax "
-        "never cleared 0.092 across 5,500 rows, so every rejection threshold "
-        "above 0.1 refused everything.",
-        2,
-    ),
-    render.Finding(
-        "10 → 0",
-        "Invented bookings, with the pass rate unchanged",
-        "A small model emitted one malformed tool call and ten well-formed, "
-        "entirely fictional reservations. Schema validation passed every one. "
-        "A provenance guard fixed it and the headline score never moved.",
-        5,
-    ),
-    render.Finding(
-        "688 ms → 2205 ms",
-        "Time-to-first-token is the wrong metric for voice",
-        "A token cannot be spoken. What gates the audio is the first complete "
-        "sentence, and the two are a second and a half apart — so a "
-        "dashboard tracking TTFT reports a healthy number while the caller "
-        "sits in silence.",
-        12,
-    ),
-)
+
+def findings() -> list[render.Finding]:
+    """The index cards, resolved from the artifacts as the page is generated.
+
+    This was a tuple of hand-typed strings, and the hub had a different tuple
+    of hand-typed strings. Day 21 audited both: they disagreed about what the
+    portfolio's best finding was, and three of the seven figures between them
+    had drifted from the artifacts they described. The per-day pages were all
+    correct, because they compute.
+
+    So both front ends now read one list of claims and resolve each figure at
+    build time. Which claims lead is a property of the claim, not of this
+    module, so the two pages cannot disagree again.
+    """
+    from convo.projects.day21_capstone.claims import MEANS, leads
+
+    cards = []
+    for claim in leads():
+        value = claim.value()
+        cards.append(
+            render.Finding(
+                value if value is not None else "no artifact",
+                claim.headline,
+                claim.body,
+                claim.day,
+                claim.kind,
+                MEANS[claim.kind],
+            )
+        )
+    return cards
+
 
 STATUS = (
     "<strong>How to read this.</strong> Each page carries a "
     "<em>what this does not show</em> note, because a portfolio that only "
-    "reports its wins is a sales page. The repository has the code, the tests "
-    "and the full write-up, including the days where the result was that the "
-    "idea did not work."
+    "reports its wins is a sales page. Every figure above is recomputed from a "
+    "committed artifact when this page is generated, except the one card marked "
+    "<em>testimony</em>: it describes a training run whose artifact was "
+    "overwritten by the run that fixed it, so it is true and unfalsifiable at "
+    "once, and day 21 argues about what to do with a number like that. The "
+    "repository has the code, the tests and the full write-up, including the "
+    "days where the result was that the idea did not work."
 )
 
 
@@ -146,7 +154,7 @@ def generate(out: Path) -> dict:
         written.append(target)
 
     index = out / "index.html"
-    index.write_text(render.index_page(site, list(FINDINGS), STATUS), encoding="utf-8")
+    index.write_text(render.index_page(site, findings(), STATUS), encoding="utf-8")
     written.append(index)
 
     # Tells GitHub Pages not to run the output through Jekyll, which would

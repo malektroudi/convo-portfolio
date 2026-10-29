@@ -1,4 +1,13 @@
-"""The hub: one tabbed app, 21 slots, honest about which are empty."""
+"""The hub: one tabbed app, 21 slots, honest about which are empty.
+
+The overview's findings used to be a tuple of hand-typed strings here, and the
+static site had a different hand-typed tuple of its own. Day 21 audited both:
+the two disagreed about what the portfolio's best result was, and three of the
+seven figures between them had gone stale against the artifacts they described.
+
+They now come from `day21_capstone.claims`, resolved on every launch. Nothing
+in this module may contain a metric, and a test enforces that.
+"""
 
 from __future__ import annotations
 
@@ -6,6 +15,7 @@ import gradio as gr
 
 import convo.projects  # noqa: F401  (importing registers every shipped day)
 from convo.core import WEEKS, Project, by_week, projects, shipped
+from convo.projects.day21_capstone import claims, ledger
 
 
 def _progress_line() -> str:
@@ -15,50 +25,36 @@ def _progress_line() -> str:
     return f"**{done} of {total} days shipped**  \n`{filled}`"
 
 
-FINDINGS = (
-    (
-        "96.7% → 0.0%",
-        "Five-shot routing, same five examples",
-        "Across ten withheld intents the spread is nearly the whole range and "
-        "roughly bimodal — so the 52% average means almost nothing. Whether a "
-        "handful of examples will do is predictable before you collect them.",
-        "#2a78d6",
-        "Day 03",
-    ),
-    (
-        "10 → 0",
-        "False confirmations, pass rate unchanged",
-        "A small model emitted one malformed tool call in twenty — and ten "
-        "well-formed, entirely invented bookings. Schema validation passed every "
-        "one. A provenance guard fixed it, and the headline score never moved.",
-        "#1baf7a",
-        "Day 05",
-    ),
-    (
-        "0.092",
-        "Max confidence that accuracy hid",
-        "A run at 74% accuracy looked mediocre but plausible. Its top softmax "
-        "never cleared 0.092 across 5,500 rows, so every threshold above 0.1 "
-        "refused everything. Accuracy alone cannot show that.",
-        "#eb6834",
-        "Day 02",
-    ),
-)
+# A colour per kind of number rather than per card. The reader can see at a
+# glance that one of these figures is a different sort of thing from the rest,
+# which is the point day 21 landed on.
+TONE = {
+    claims.DERIVED: "#2a78d6",
+    claims.PINNED: "#1baf7a",
+    claims.TESTIMONY: "#eb6834",
+    claims.UNSTORED: "#c98a16",
+}
 
 
 def _findings() -> str:
-    cards = "".join(
-        f'<div style="flex:1 1 230px;min-width:0;padding:14px 16px;'
-        f'border:1px solid rgba(128,128,128,0.25);border-radius:6px">'
-        f'<div style="font-size:0.68rem;letter-spacing:0.05em;text-transform:uppercase;'
-        f'opacity:0.55">{where}</div>'
-        f'<div style="font-size:1.75rem;font-weight:600;line-height:1.15;color:{colour};'
-        f'margin:2px 0 4px">{figure}</div>'
-        f'<div style="font-size:0.85rem;font-weight:600;margin-bottom:6px">{headline}</div>'
-        f'<div style="font-size:0.8rem;opacity:0.72;line-height:1.5">{body}</div></div>'
-        for figure, headline, body, colour, where in FINDINGS
-    )
-    return f'<div style="display:flex;gap:12px;flex-wrap:wrap">{cards}</div>'
+    cards = []
+    for claim in claims.leads():
+        figure = claim.value()
+        cards.append(
+            f'<div style="flex:1 1 230px;min-width:0;padding:14px 16px;'
+            f'border:1px solid rgba(128,128,128,0.25);border-radius:6px">'
+            f'<div style="font-size:0.68rem;letter-spacing:0.05em;'
+            f'text-transform:uppercase;opacity:0.55">Day {claim.day:02d} '
+            f"&middot; {claim.kind}</div>"
+            f'<div style="font-size:1.75rem;font-weight:600;line-height:1.15;'
+            f'color:{TONE[claim.kind]};margin:2px 0 4px">'
+            f"{figure if figure is not None else 'no artifact'}</div>"
+            f'<div style="font-size:0.85rem;font-weight:600;margin-bottom:6px">'
+            f"{claim.headline}</div>"
+            f'<div style="font-size:0.8rem;opacity:0.72;line-height:1.5">'
+            f"{claim.body}</div></div>"
+        )
+    return f'<div style="display:flex;gap:12px;flex-wrap:wrap">{"".join(cards)}</div>'
 
 
 def _landing() -> None:
@@ -70,19 +66,33 @@ def _landing() -> None:
         "gate that blocks on a safety regression."
     )
 
-    gr.Markdown("### Three things it found")
-    gr.Markdown("_Every number below came out of a run in this repo, not from a blog post._")
+    kinds = sorted({c.kind for c in claims.leads()})
+    gr.Markdown(f"### What it found ({len(claims.leads())} findings)")
+    gr.Markdown(
+        "_Every figure below is resolved from a committed artifact as this page "
+        "loads, except where the card says otherwise. Day 21 audited the "
+        "hand-typed list that used to be here and found three stale numbers and "
+        "one with no artifact at all, so the list stopped being hand-typed._  \n"
+        + " · ".join(f"**{kind}** — {claims.MEANS[kind]}" for kind in kinds)
+    )
     gr.HTML(_findings())
 
     gr.Markdown(
         "### What runs where\n"
         "Training happens on a laptop and produces small files. This app reads "
-        "those files and carries **no ML framework at all** — which is why the "
-        "image is 588 MB and can run free, and why every slider here is instant "
-        "rather than re-running a model.\n\n"
+        "those files and carries **no ML framework at all** — which is why it "
+        "can run free, and why every slider here is instant rather than "
+        "re-running a model.\n\n"
         "```\n"
-        "laptop (torch)  ──►  committed artifacts (9 MB)  ──►  this hub (no torch)\n"
-        "```"
+        "laptop (torch)  ──►  committed artifacts  ──►  this hub (no torch)\n"
+        "```\n"
+        + "\n".join(f"- **{stage.name}** — {stage.size}" for stage in ledger.pipeline())
+        + "\n\nThe middle figure is the bargain, and it is measured here rather "
+        "than remembered — the version this page used to carry was typed in when "
+        "two days had artifacts and was never updated. Day 21 has the audit.\n\n"
+        + f"CI refuses to find {', '.join(f'`{m}`' for m in ledger.BLOCKED_IN_IMAGE)} "
+        "inside the built image. That list is the architecture stated as a "
+        "prohibition."
     )
 
     gr.Markdown("### Progress")

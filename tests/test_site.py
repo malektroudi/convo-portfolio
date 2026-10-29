@@ -25,8 +25,10 @@ from pathlib import Path
 
 import pytest
 
+from convo.hub import app as hub_app
+from convo.site import build as build_module
 from convo.site import render
-from convo.site.build import FINDINGS, generate
+from convo.site.build import findings, generate
 from convo.site.data import collect
 
 
@@ -78,6 +80,24 @@ class TestNoFigureIsTypedByHand:
         found = re.findall("\\d+\\s?%|\\d+\\.\\d+|\\d+\\s?ms\\b", text)
         assert not found, f"render.py quotes figures directly: {found}"
 
+    @pytest.mark.parametrize("module", [build_module, hub_app])
+    def test_neither_landing_page_quotes_a_figure(self, module):
+        """The exemption that cost three stale numbers.
+
+        This rule was only ever enforced on the renderer. The two modules that
+        decide what the index and the hub's overview say were free to type
+        their own, and both did: the hub's lead card had been wrong since day
+        3's artifact was last rebuilt, and both described a training run whose
+        artifact no longer exists. Day 21 made the findings data; this stops
+        them becoming literals again.
+
+        Megabytes are included because the hub's architecture diagram carried
+        a stale one of those too.
+        """
+        strings = [v for v in self._literals(module.__file__) if isinstance(v, str)]
+        found = re.findall("\\d+\\s?%|\\d+\\s?ms\\b|\\d+\\s?MB\\b", " ".join(strings))
+        assert not found, f"{module.__name__} quotes figures directly: {found}"
+
     def test_the_renderer_imports_nothing_from_the_projects(self):
         """Its inputs arrive as arguments; it cannot reach an artifact."""
         tree = ast.parse(Path(render.__file__).read_text(encoding="utf-8"))
@@ -93,7 +113,7 @@ class TestNoFigureIsTypedByHand:
 
     def test_the_findings_point_at_days_that_exist(self):
         days = {page.day for page in collect().shipped}
-        for finding in FINDINGS:
+        for finding in findings():
             assert finding.day in days, finding.headline
 
 
@@ -115,7 +135,9 @@ class TestItBuilds:
         assert (out / ".nojekyll").exists()
 
     def test_the_whole_site_is_small(self, built):
-        """The container is 588 MB. This is the point of the day."""
+        """The serving image is three orders of magnitude bigger. That gap
+        is the point of the day, and day 21 puts a checked ceiling on the
+        other end of it."""
         _, summary = built
         assert summary["kilobytes"] < 400, summary
 

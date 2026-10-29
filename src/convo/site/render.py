@@ -75,11 +75,19 @@ tr.hl td { font-weight: 650; }
 .days .d { color: var(--muted); font-size: 0.88rem; }
 .days li.planned a { cursor: default; }
 .days li.planned .t { color: var(--muted); font-weight: 450; }
+/* A grid rather than a stack. Day 21 took the index from three findings to
+   seven, and seven full-width cards pushed the list of days off the first
+   two screens. auto-fit collapses to one column on a phone. */
+.findings { display: grid; gap: 12px; margin: 0 0 12px;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
 .finding { background: var(--card); border: 1px solid var(--line); border-radius: 9px;
-           padding: 15px 17px; margin: 0 0 12px; }
+           padding: 15px 17px; margin: 0; }
 .finding .v { font-size: 1.22rem; font-weight: 650; letter-spacing: -0.02em; }
 .finding .h { font-weight: 560; margin: 3px 0 6px; }
 .finding .b { font-size: 0.9rem; color: var(--muted); }
+.finding .k { font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase;
+              color: var(--muted); display: block; margin-bottom: 2px; }
+.finding.testimony { border-color: #c98a16; }
 .crumb { font-size: 0.88rem; margin: 0 0 20px; }
 .status { background: var(--card); border: 1px solid var(--line); border-radius: 9px;
           padding: 14px 17px; font-size: 0.9rem; color: var(--muted); margin: 26px 0 0; }
@@ -113,6 +121,11 @@ class Finding:
     headline: str
     body: str
     day: int
+    kind: str = ""
+    """What sort of number this is -- `derived`, `pinned`, `testimony`. Shown
+    on the card, because day 21 established that a figure nothing can
+    recompute belongs on a front page only if it says so."""
+    means: str = ""
 
 
 FAVICON = (
@@ -200,7 +213,9 @@ def day_page(page: DayPage, extra: str = "") -> str:
 
 def index_page(site: Site, findings: list[Finding], status: str) -> str:
     cards = "".join(
-        f'<div class="finding"><div class="v">{esc(f.value)}</div>'
+        f'<div class="finding {esc(f.kind)}">'
+        f'<span class="k" title="{esc(f.means)}">Day {f.day:02d} &middot; {esc(f.kind)}</span>'
+        f'<div class="v">{esc(f.value)}</div>'
         f'<div class="h">{esc(f.headline)}</div>'
         f'<div class="b">{esc(f.body)} '
         f'<a href="days/day{f.day:02d}.html">Day {f.day}</a></div></div>'
@@ -230,12 +245,12 @@ def index_page(site: Site, findings: list[Finding], status: str) -> str:
 <h1>Conversational AI engineering, measured</h1>
 <p class="lede">{shipped} of {total} projects, each one built to produce a
 number rather than a demo &mdash; and to report that number when it is
-unflattering. Every figure on this site is read from the artifact that
-produced it.</p>
+unflattering. Every figure on this site is recomputed from the artifact that
+produced it, and the one that cannot be says so on its own card.</p>
 </div></header>
 <div class="wrap">
-<h2>Three findings worth the time</h2>
-{cards}
+<h2>{len(findings)} findings worth the time</h2>
+<div class="findings">{cards}</div>
 <h2>Every day</h2>
 <ul class="days">{rows}</ul>
 <div class="status">{status}</div>

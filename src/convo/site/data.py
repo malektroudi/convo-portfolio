@@ -986,6 +986,88 @@ def _day20() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
     )
 
 
+def _day21() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
+    from convo.projects.day21_capstone.results import load
+
+    found = load()
+    if found is None:
+        return "", (), (), ""
+    tally = found.tally
+    audit = tuple(
+        (
+            row.key,
+            ", ".join(row.where),
+            row.published,
+            row.derived if row.derived is not None else "nothing derives it",
+            row.verdict,
+        )
+        for row in found.audit
+    )
+    costs = tuple(
+        (row["wanted"], row["instead"], row["dollars"], row["lost"]) for row in found.costs
+    )
+    pipeline = tuple(
+        (
+            stage["name"],
+            stage["size"],
+            "measured here" if stage["measured"] else "asserted",
+        )
+        for stage in found.pipeline
+    )
+    return (
+        f"{found.shipped} of {found.of_days} days, {found.days_with_artifacts} of "
+        f"them leaving a committed artifact totalling {found.megabytes} MB. The "
+        "brief asked for one narrative, one architecture diagram and one cost "
+        "table reading $0; the useful part was auditing whether the front "
+        "pages' numbers were still the artifacts' numbers.",
+        (
+            Stat(str(tally["stale"]), "front-page figures that had gone stale", "bad"),
+            Stat(str(tally["holds"]), "that still held", "good"),
+            Stat(
+                str(tally["no artifact"] + tally["not stored"]),
+                "that nothing can check",
+                "bad",
+            ),
+        ),
+        (
+            Table(
+                "Every figure the three front pages published, re-derived",
+                ("figure", "shown on", "as published", "re-derived now", "verdict"),
+                audit,
+                "The per-day pages were all correct, because each one computes "
+                "its figures from the artifact it describes. These were typed "
+                "in by hand, weeks apart, and nothing checked them again. The "
+                "hub and this site also disagreed with each other about which "
+                "finding was the portfolio's best.",
+            ),
+            Table(
+                "One cost table",
+                ("what the plan assumed", "used instead", "cost", "what that cost instead"),
+                costs,
+                "Every row reads $0, which was the brief. The last column is "
+                "the one worth reading.",
+            ),
+            Table(
+                "One architecture, with the middle number measured",
+                ("stage", "size", "evidence"),
+                pipeline,
+                "Heavy work on a laptop, small artifacts in git, a serving "
+                "layer with no ML framework in it. The middle figure was "
+                "written down as 9 MB, which was true when two days had "
+                "artifacts; it is computed now. The image's size is the last "
+                "figure nothing commits, so a ceiling is published in its "
+                "place and CI checks it.",
+                highlight=1,
+            ),
+        ),
+        "This day audits what the repository published, not whether the "
+        "underlying work was good. A figure that recomputes can still be the "
+        "wrong figure to have measured, and the prose around a number does not "
+        "recompute at all — day 21's artifact exists as a tripwire for exactly "
+        "that, and a tripwire is weaker than a check.",
+    )
+
+
 BUILDERS = {
     2: _day02,
     3: _day03,
@@ -1001,6 +1083,7 @@ BUILDERS = {
     18: _day18,
     19: _day19,
     20: _day20,
+    21: _day21,
 }
 
 NO_ARTIFACT = {
