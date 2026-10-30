@@ -2653,10 +2653,23 @@ mind" or asked for a human.
 ## Day 19: a guarantee instead of an instruction
 
 ```bash
+uv sync
+uv pip install --no-deps google-adk && uv pip install --upgrade pydantic
+uv pip install authlib        # see below; the run cannot start without it
 uv run python -m convo.projects.day19_multi_agent.build --preflight   # free
 uv run python -m convo.projects.day19_multi_agent.build               # a day's 500
 uv run python -m convo.projects.day19_multi_agent.build --rescore     # free
 ```
+
+`authlib` is not a line anyone would guess. ADK's agent router imports its
+workflow module lazily on the first `run_async`, which reaches
+`google.adk.auth` and then authlib, so a run installed the documented way dies
+on `No module named 'authlib'` before the first conversation. CI did not catch
+it, because CI runs `--preflight` and this day's tests and neither reaches the
+router — the job was green while the thing day 19 measures could not start.
+Note also that plain `uv run` re-syncs to the lockfile and removes anything
+added with `uv pip install`, so the commands above want `uv run --no-sync`
+once ADK is in place.
 
 **The topology held, both target failures were fixed, safety went to 100% —
 and the headline pass rate did not move at all.** On 31 of 32 scenarios the
