@@ -2654,34 +2654,47 @@ mind" or asked for a human.
 
 ```bash
 uv run python -m convo.projects.day19_multi_agent.build --preflight   # free
-uv run python -m convo.projects.day19_multi_agent.build               # ~150 calls
+uv run python -m convo.projects.day19_multi_agent.build               # a day's 500
 uv run python -m convo.projects.day19_multi_agent.build --rescore     # free
 ```
 
-**The topology held, both target failures were fixed, and it cost an
-efficiency verdict.** On 24 of 32 scenarios — the free tier stopped the run,
-see below — the router clears all three of day 6's deploy bars, which makes it
-the **first model-driven bot in this repository to do so.** Day 4's engine
-clears them with no model in it; day 16's single agent breached safety on all
-three of its runs.
+**The topology held, both target failures were fixed, safety went to 100% —
+and the headline pass rate did not move at all.** On 31 of 32 scenarios the
+router clears all three of day 6's deploy bars, which makes it the **first
+model-driven bot in this repository to do so.** Day 4's engine clears them
+with no model in it; day 16's single agent breached safety on all three of its
+runs.
 
-| on the same 24 scenarios | day 16, one agent | day 19, router | bar |
+| on the same 31 scenarios | day 16, one agent | day 19, router | bar |
 | --- | --- | --- | --- |
-| pass rate | 87.5% | **91.7%** | |
-| task | 87.5% | 95.8% | 90% |
-| safety | 91.7% **breach** | **100%** | 100% |
-| efficiency | 100% | 95.8% | 90% |
-| model calls | 114 | 150 (**+32%**) | |
+| pass rate | 90.3% | **90.3%** | |
+| task | 90.3% | **96.8%** | 90% |
+| safety | 93.5% **breach** | **100%** | 100% |
+| efficiency | 100% | 93.5% | 90% |
 | bookings after a handoff | 2 | **0** | |
+| model calls reported | 162 over 32 | 213 over 31 (**+36%** per scenario) | |
 
-Day 4's engine scores 100% on all three over the same 24.
+Day 4's engine scores 100% on all three over the same 31.
 
-**This is not a verified pass over the suite.** 24 of 32, and the 8 that did
-not run are not a random 8: five of them are digression or
-multiple-correction conversations, including `three_corrections_in_a_row`,
-which day 18 showed writing the booking **four times**. The unrun set skews
-hard, not easy. A full run is owed before the "clears the gate" sentence above
-is worth more than a strong indication.
+**Read the first row and the third together.** Splitting the bot into a router
+and four desks removed two safety breaches, added two efficiency failures, and
+landed on *exactly* the same overall score as the agent that booked a table
+after the guest asked for a human. A single number could not have told you
+anything had happened.
+
+Day 5 found this shape in week 1: a provenance guard took invented bookings
+from 10 to 0 and the pass rate did not move either. Two different weeks, two
+different defects, the same lesson — which is why day 6 gates on three
+dimensions and a baseline diff rather than on a pass rate, and why this
+repository keeps arriving at the same argument.
+
+**It is still 31 of 32.** A full pass spends the day's entire free-tier
+allowance, and the requests ran out on the suite's last scenario,
+`digression_before_anything_else`. It is absent from the artifact rather than
+scored as a failure — the same `None`-not-`0.0` discipline day 5 established.
+One missing conversation, and it is a digression: the category the split
+handles least cheaply, so the efficiency figure above is if anything
+flattered.
 
 ### What the two target scenarios actually did
 
@@ -2826,7 +2839,7 @@ Either can be overridden with `--allow-model-drift`, and then the artifact
 carries `model_drift: true` and the tab says the comparison is cross-model in
 red.
 
-Both refuse right now, which is why day 19 still stands at 24 of 32:
+When the allowance is gone, both refuse rather than substituting:
 
 ```
 day 16's run used gemini-3.5-flash-lite and this one must match it, but
@@ -2896,13 +2909,21 @@ construction — which is worth knowing before planning one, and I planned one.
 
 ### The retries are invisible in the artifact, and they are most of the bill
 
-The run stopped at 24 of 32 on the daily quota, having recorded 150 model
-calls. Day 16 had already spent 163 that morning. 150 + 163 is 313, not 500.
+The full run measured this precisely. Starting from a freshly reset
+allowance of 500, it reached 31 of 32 and stopped, having recorded **213 model
+calls**. The other ~280 requests are invisible in the artifact.
 
-The missing ~190 went on **17 retries**, and a retry re-runs the whole
-conversation from the first turn — so its calls are spent, counted by Google,
-and absent from `model_calls`, which only ever sees the attempt that
-succeeded. The efficiency dimension therefore measures *the cost of a
+They went on **65 retries** — the harness logged every one — and a retry
+re-runs the whole conversation from the first turn, so its calls are spent,
+counted by Google, and absent from `model_calls`, which only ever sees the
+attempt that succeeded. `model_calls` also counts *function-call parts in the
+event stream* rather than requests to the model, so a turn where the router
+transfers and the desk then answers in prose is two requests and one counted
+call.
+
+**So the column understates what a run costs by well over double**, and two of
+day 19's three failures are failures against a budget denominated in it. The
+efficiency dimension therefore measures *the cost of a
 successful conversation*, not the cost of getting one.
 
 Both readings are defensible and they are not interchangeable. Capacity
@@ -3367,7 +3388,7 @@ removed.
 | the plan assumed | used instead | cost | what that cost |
 | --- | --- | --- | --- |
 | Cloud Run | GitHub Pages + a container CI boots | $0 | no cold starts, no load |
-| Vertex AI | an AI Studio key on the free tier | $0 | 500 requests/model/day; day 19 ran 24 of 32 |
+| Vertex AI | an AI Studio key on the free tier | $0 | 500 requests/model/day; one day 19 pass spends all of it |
 | Dialogflow CX | a state machine, then ADK | $0 | no comparison against the managed product |
 | BigQuery | DuckDB, same SQL unchanged | $0 | portable, never run at scale |
 | Managed STT/TTS | whisper-tiny.en and piper on CPU | $0 | synthetic input flatters the recogniser |
@@ -3432,11 +3453,14 @@ time, and until today nothing in the repository said so. The registry has
 always marked it unshipped, which is the difference between a page that is not
 lying and a page that is telling you something.
 
-Day 19 covers 24 of 32 scenarios, and the eight that did not run are the
-digression-heavy ones. The cross-model comparison is unanswerable on a free
-tier: 500 requests a day on flash-lite, 20 on flash, and a controlled run needs
-162 on each. The `model_calls` column on five days counts scored calls rather
-than spend, which understates day 19's run by about 28.
+Day 19 covers 31 of 32 scenarios, the missing one being where the day's
+allowance ran out. The cross-model comparison is unanswerable on a free tier:
+one pass now measurably spends all 500 of flash-lite's daily requests, and
+flash allows 20, so the second arm cannot be run at all. And the `model_calls`
+column on five days counts function-call parts rather than requests, and no
+retry at all — day 19 reports 213 against roughly 500 actually spent, so two
+of its three failures are scored against a budget denominated in a unit that
+is not the bill.
 
 And nothing here has met a real user. Every conversation in every suite was
 written by me, which means every failure mode measured is one I thought of.

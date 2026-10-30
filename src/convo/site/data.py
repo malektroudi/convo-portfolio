@@ -900,7 +900,9 @@ def _day19() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
                 else "Fixed nothing day 16 broke. "
             )
             + (
-                "Broke what day 16 held: " + ", ".join(broke) + ". "
+                "Broke what day 16 held: " + ", ".join(broke) + " — on the "
+                "model-call budget alone, with every task and safety assertion "
+                "passing. "
                 if broke
                 else "Broke nothing day 16 held. "
             )
@@ -917,9 +919,9 @@ def _day19() -> tuple[str, tuple[Stat, ...], tuple[Table, ...], str]:
             )
             + (
                 f" The free tier stopped the run at {found.scenarios} of "
-                f"{found.of_suite}, so this is an indication and not a verified pass "
-                "over the suite — and the scenarios that did not run skew hard, since "
-                "most of them are digression or repeated-correction conversations."
+                f"{found.of_suite}: the day's 500 requests ran out on the suite's "
+                "last scenario, digression_before_anything_else, which is therefore "
+                "absent rather than scored as a failure."
                 if found.partial
                 else ""
             )

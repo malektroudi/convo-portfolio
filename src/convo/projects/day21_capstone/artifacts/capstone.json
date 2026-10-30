@@ -1,7 +1,7 @@
 {
  "shipped": 20,
  "of_days": 21,
- "committed_bytes": 10965963,
+ "committed_bytes": 11026919,
  "image_ceiling_mb": 700,
  "blocked_in_image": [
   "torch",
@@ -123,10 +123,10 @@
   {
    "key": "day19-coverage",
    "day": 19,
-   "headline": "And the run behind it is incomplete",
-   "body": "The free tier allows 500 requests per model per day and one pass of day 6's suite costs 162. The scenarios that did not run are the digression-heavy ones, which is where a router is most likely to fail, so the missing eight are not a random sample.",
+   "headline": "And the run behind it is one scenario short",
+   "body": "The free tier allows 500 requests per model per day. A full pass reports 213 model calls and spends the whole allowance, so the day's requests ran out on the suite's last scenario \u2014 which is absent rather than scored as a failure. Safety is 31 of 31, task 30 of 31, and both efficiency failures are call-budget failures with every task and safety assertion passing.",
    "kind": "pinned",
-   "figure": "24 of 32",
+   "figure": "31 of 32",
    "lead": false
   },
   {
@@ -409,7 +409,7 @@
    "title": "Multi-agent against one state machine",
    "shipped": true,
    "files": 3,
-   "bytes": 189800,
+   "bytes": 250756,
    "rebuilt_in_ci": "topology re-derived from the real agent tree"
   },
   {
@@ -454,7 +454,7 @@
    "needs": "a billing account",
    "instead": "an AI Studio key against the Gemini free tier",
    "dollars": "$0",
-   "lost": "500 requests per model per day, and one pass of day 6's suite costs 162. Day 19 ran 24 of 32 scenarios."
+   "lost": "500 requests per model per day. One pass of day 6's suite reports 213 model calls and consumes the entire allowance, so day 19 reaches 31 of 32 and stops."
   },
   {
    "wanted": "Dialogflow CX",
@@ -498,16 +498,16 @@
    "why": "ADK sessions and memory against day 11's rewriter and buffer. It needed no billing account and no quota \u2014 it was skipped for time, and until today nothing in the repository said so. The registry showed it unshipped, which is why this is a gap rather than a lie."
   },
   {
-   "what": "Day 19 covers 24 of 32 scenarios",
-   "why": "The eight that did not run are the digression-heavy ones, where a router is most likely to fail. Its pass rate is an indication, not a verified result, and the page says so."
+   "what": "Day 19 covers 31 of 32 scenarios",
+   "why": "A full pass spends the day's entire free-tier allowance, and the requests ran out on the suite's last scenario. It is absent rather than scored as a failure, and the one missing conversation is a digression \u2014 the category the split handles least cheaply."
   },
   {
    "what": "The cross-model comparison is unanswerable here",
    "why": "The free tier allows 500 requests a day on flash-lite and 20 on flash. A controlled comparison needs 162 on each, so one of the two arms cannot be run at all."
   },
   {
-   "what": "Model call counts exclude retries",
-   "why": "The `model_calls` column on five days counts scored calls, not spend. Day 19's run cost roughly 190 calls against a reported 162. Fixing it would redefine a published column on five artifacts, so it is recorded instead."
+   "what": "The model-call column is not spend",
+   "why": "`model_calls` counts function-call parts in the event stream, not requests to the model, and counts no retry. Day 19's full pass reports 213 and exhausted a fresh allowance of 500 \u2014 so the column understates what a run costs by well over double. Two of day 19's three failures are failures against a budget measured in this unit. Redefining it would move a published column on five artifacts, so it is recorded rather than changed."
   },
   {
    "what": "Nothing here has met a real user",

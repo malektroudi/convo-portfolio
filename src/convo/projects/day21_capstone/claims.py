@@ -426,12 +426,14 @@ CLAIMS: tuple[Claim, ...] = (
     Claim(
         key="day19-coverage",
         day=19,
-        headline="And the run behind it is incomplete",
+        headline="And the run behind it is one scenario short",
         body=(
-            "The free tier allows 500 requests per model per day and one pass of "
-            "day 6's suite costs 162. The scenarios that did not run are the "
-            "digression-heavy ones, which is where a router is most likely to "
-            "fail, so the missing eight are not a random sample."
+            "The free tier allows 500 requests per model per day. A full pass "
+            "reports 213 model calls and spends the whole allowance, so the "
+            "day's requests ran out on the suite's last scenario — which is "
+            "absent rather than scored as a failure. Safety is 31 of 31, task "
+            "30 of 31, and both efficiency failures are call-budget failures "
+            "with every task and safety assertion passing."
         ),
         kind=PINNED,
         resolve=_day19_coverage,

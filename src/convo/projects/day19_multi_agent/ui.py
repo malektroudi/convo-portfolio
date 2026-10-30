@@ -278,7 +278,11 @@ def _results(results: Results) -> None:
         )
         + " "
         + (
-            f"<span style='color:{CRITICAL}'>Broke what day 16 held: {', '.join(broke)}.</span>"
+            f"<span style='color:{WARN}'>Broke what day 16 held: "
+            f"{', '.join(broke)}</span> — on the model-call budget alone. Every "
+            "task and safety assertion in it passes: the bot refuses the "
+            "impossible party politely and books nothing. What the split costs "
+            "is calls, not correctness."
             if broke
             else "Broke nothing day 16 held."
         )

@@ -140,11 +140,19 @@ jobs:
       # diffing sys.modules against a plain `uv sync --extra dev`, then
       # verified in a throwaway virtualenv built the same way as this job —
       # after two red builds from guessing.
+      #
+      # `authlib` is on the list for a path no step in this job reaches.
+      # ADK's agent router lazily imports its workflow module on the first
+      # `run_async`, which pulls in `google.adk.auth` and then authlib, so
+      # day 19's actual run dies on `No module named 'authlib'` without it.
+      # CI runs day 19's `--preflight` and its tests, neither of which
+      # reaches the router -- so this job stayed green while the thing day
+      # 19 measures could not start at all.
       - name: Install, then add ADK on top
         run: |
           uv sync --extra dev
           uv pip install --no-deps google-adk==2.13.0
-          uv pip install google-genai opentelemetry-sdk aiohttp pyarrow protobuf
+          uv pip install google-genai opentelemetry-sdk aiohttp pyarrow protobuf authlib
           uv pip install --upgrade "pydantic>=2.12"
 
       # This step started life asserting that gradio was not importable here,

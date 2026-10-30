@@ -215,8 +215,9 @@ COSTS: tuple[Cost, ...] = (
         "a billing account",
         "an AI Studio key against the Gemini free tier",
         "$0",
-        "500 requests per model per day, and one pass of day 6's suite costs "
-        "162. Day 19 ran 24 of 32 scenarios.",
+        "500 requests per model per day. One pass of day 6's suite reports 213 "
+        "model calls and consumes the entire allowance, so day 19 reaches 31 "
+        "of 32 and stops.",
     ),
     Cost(
         "Dialogflow CX",
@@ -278,10 +279,11 @@ GAPS: tuple[Gap, ...] = (
         "showed it unshipped, which is why this is a gap rather than a lie.",
     ),
     Gap(
-        "Day 19 covers 24 of 32 scenarios",
-        "The eight that did not run are the digression-heavy ones, where a "
-        "router is most likely to fail. Its pass rate is an indication, not a "
-        "verified result, and the page says so.",
+        "Day 19 covers 31 of 32 scenarios",
+        "A full pass spends the day's entire free-tier allowance, and the "
+        "requests ran out on the suite's last scenario. It is absent rather "
+        "than scored as a failure, and the one missing conversation is a "
+        "digression — the category the split handles least cheaply.",
     ),
     Gap(
         "The cross-model comparison is unanswerable here",
@@ -290,11 +292,14 @@ GAPS: tuple[Gap, ...] = (
         "arms cannot be run at all.",
     ),
     Gap(
-        "Model call counts exclude retries",
-        "The `model_calls` column on five days counts scored calls, not "
-        "spend. Day 19's run cost roughly 190 calls against a reported 162. "
-        "Fixing it would redefine a published column on five artifacts, so it "
-        "is recorded instead.",
+        "The model-call column is not spend",
+        "`model_calls` counts function-call parts in the event stream, not "
+        "requests to the model, and counts no retry. Day 19's full pass "
+        "reports 213 and exhausted a fresh allowance of 500 — so the column "
+        "understates what a run costs by well over double. Two of day 19's "
+        "three failures are failures against a budget measured in this unit. "
+        "Redefining it would move a published column on five artifacts, so it "
+        "is recorded rather than changed.",
     ),
     Gap(
         "Nothing here has met a real user",
